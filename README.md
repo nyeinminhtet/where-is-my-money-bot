@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Where Is My Money Bot
 
-## Getting Started
+A Myanmar-language Telegram bot for tracking income and expenses with a simple guided chat flow.
 
-First, run the development server:
+## What It Does
+
+`Where Is My Money Bot` helps users record daily transactions directly in Telegram. The bot supports multi-user use through Telegram chat IDs, accepts Myanmar digits as input, and guides the user through a short sequence:
+
+1. Amount
+2. Category selection
+3. Description
+4. Success confirmation with Undo
+
+It is designed for fast, low-friction money tracking in Myanmar language.
+
+## Stack
+
+- Next.js App Router
+- Serverless API routes only
+- Prisma ORM
+- Supabase PostgreSQL
+- Telegram Bot API
+
+## Features
+
+- Multi-user support by Telegram `chat_id`
+- Myanmar-to-English digit parsing
+- Conversation-based transaction capture
+- `/start` onboarding
+- `/balance` balance lookup
+- `/report` summary reporting
+- `/monthly` monthly financial breakdowns
+- `/yearly` yearly financial breakdowns
+- Undo for the most recent saved transaction
+
+## Quick Start
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure Environment Variables
+
+Create a `.env` file at the project root and define:
+
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_WEBHOOK_SECRET`
+
+### 3. Prepare Prisma
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
+
+### 4. Run Locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Telegram Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Open `@BotFather` in Telegram.
+2. Create a bot and copy the token.
+3. Put the token into `TELEGRAM_BOT_TOKEN`.
+4. Deploy the app.
+5. Set the webhook to the live HTTPS endpoint for the deployed app.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The webhook path is `/api/telegram/webhook` on the live Vercel domain for your deployment.
 
-## Learn More
+## User Guide
 
-To learn more about Next.js, take a look at the following resources:
+### စတင်အသုံးပြုရန်
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Send `/start` to begin. The bot will explain how to enter your money records.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### ငွေသွင်း / ငွေထုတ် မှတ်ရန်
 
-## Deploy on Vercel
+Send an amount in either English digits or Myanmar digits.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Examples:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `12000`
+- `၁၂၀၀၀`
+
+Then choose a category from the keyboard, add a short description, and confirm the saved entry.
+
+### လက်ကျန်ကြည့်ရန်
+
+Send `/balance` to see your current balance summary for that Telegram chat.
+
+### အစီရင်ခံစာကြည့်ရန်
+
+Send `/report` to view a transaction summary for the selected time window.
+
+### လစဉ် အကျဉ်းချုပ်ကြည့်ရန်
+
+Send `/monthly` to view the current month's breakdown. The bot returns a table-style summary with:
+
+- Total Income
+- Total Expense
+- Net Balance
+- Category Breakdown
+
+### နှစ်စဉ် အကျဉ်းချုပ်ကြည့်ရန်
+
+Send `/yearly` to view the current year's breakdown. The bot returns the same table-style summary fields:
+
+- Total Income
+- Total Expense
+- Net Balance
+- Category Breakdown
+
+### Undo
+
+After a transaction is saved, the bot shows an Undo button. Use it immediately if you need to reverse the latest entry.
+
+## Project Notes
+
+- The application is intended to run as a serverless Next.js deployment.
+- Webhook handlers should stay fast and reliable.
+- Myanmar text must remain UTF-8 encoded end to end.
