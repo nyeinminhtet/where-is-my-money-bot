@@ -1,38 +1,62 @@
 generator client {
   provider = "prisma-client"
+  output   = "../generated/prisma"
+
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+enum SessionState {
+  IDLE
+  WAITING_AMOUNT
+  WAITING_TYPE
+  WAITING_CATEGORY
+  WAITING_DESCRIPTION
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
 model User {
-  id           String         @id @default(uuid())
-  telegramId   String         @unique
+  id           String        @id @default(uuid())
+  telegramId   String        @unique
   username     String?
-  createdAt    DateTime       @default(now())
-  transactions Transaction[]
-  session      BotSession?
+  firstName    String?
+  lastName     String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[] @relation("UserTransactions")
+  session      BotSession?   @relation("UserSession")
 }
 
 model BotSession {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentState      String   @default("IDLE")
-  tempAmount        Float?
-  tempType          String?
+  id                String        @id @default(uuid())
+  userId            String        @unique
+  user              User          @relation("UserSession", fields: [userId], references: [id], onDelete: Cascade)
+  currentState      SessionState  @default(IDLE)
+  tempAmount        Int?
+  tempType          TransactionType?
+  tempCategory      String?
   lastTransactionId String?
-  updatedAt         DateTime @updatedAt
+  updatedAt         DateTime      @updatedAt
 }
 
 model Transaction {
-  id          String   @id @default(uuid())
+  id          String           @id @default(uuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount      Float
-  type        String
+  user        User             @relation("UserTransactions", fields: [userId], references: [id], onDelete: Cascade)
+  amount      Int
+  type        TransactionType
   category    String
   description String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  reversedAt  DateTime?
+
+  @@index([userId, createdAt])
+  @@index([userId, reversedAt])
 }
