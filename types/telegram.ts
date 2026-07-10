@@ -70,3 +70,13 @@ export type TelegramGateway = {
   editMessageText: (options: EditMessageOptions) => Promise<void>;
   answerCallbackQuery: (options: AnswerCallbackOptions) => Promise<void>;
 };
+
+export interface TelegramInlineKeyboardButton {
+  text: string;
+  callback_data?: string;
+  url?: string;
+}
+
+export interface TelegramInlineKeyboardMarkup {
+  inline_keyboard: TelegramInlineKeyboardButton[][];
+}

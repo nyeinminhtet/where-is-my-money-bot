@@ -2,7 +2,7 @@ import { SessionState } from "@/generated/prisma/client";
 
 import type { TelegramUpdate } from "@/types/telegram";
 
-import { getCommand, getMessageText } from "@/lib/parser";
+import { getCommand } from "@/lib/parser";
 
 import { getOrCreateSession } from "@/lib/session";
 
