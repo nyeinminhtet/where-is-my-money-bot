@@ -1,16 +1,49 @@
-import axios from "axios";
+import type { TelegramInlineKeyboardMarkup } from "@/types/telegram";
 
-const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+const TELEGRAM_API_URL = "https://api.telegram.org";
+
+function getBotToken(): string {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+
+  if (!token) {
+    throw new Error("TELEGRAM_BOT_TOKEN is missing");
+  }
+
+  return token;
+}
+
+async function telegramRequest<T>(
+  method: string,
+  body: Record<string, unknown>,
+): Promise<T> {
+  const token = getBotToken();
+
+  const response = await fetch(`${TELEGRAM_API_URL}/bot${token}/${method}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json();
+
+  if (!data.ok) {
+    throw new Error(data.description || "Telegram API request failed");
+  }
+
+  return data.result;
+}
 
 export async function sendMessage(
   chatId: number | string,
   text: string,
   options?: {
-    parse_mode?: "Markdown" | "HTML";
-    reply_markup?: object;
+    reply_markup?: TelegramInlineKeyboardMarkup;
+    parse_mode?: "HTML" | "Markdown";
   },
 ) {
-  return axios.post(`${TELEGRAM_API}/sendMessage`, {
+  return telegramRequest("sendMessage", {
     chat_id: chatId,
     text,
     ...options,
@@ -18,15 +51,15 @@ export async function sendMessage(
 }
 
 export async function editMessage(
-  chatId: number | string,
+  chatId: number,
   messageId: number,
   text: string,
   options?: {
-    parse_mode?: "Markdown" | "HTML";
-    reply_markup?: object;
+    reply_markup?: TelegramInlineKeyboardMarkup;
+    parse_mode?: "HTML" | "Markdown";
   },
 ) {
-  return axios.post(`${TELEGRAM_API}/editMessageText`, {
+  return telegramRequest("editMessageText", {
     chat_id: chatId,
     message_id: messageId,
     text,
@@ -34,28 +67,25 @@ export async function editMessage(
   });
 }
 
-export async function deleteMessage(
-  chatId: number | string,
-  messageId: number,
-) {
-  return axios.post(`${TELEGRAM_API}/deleteMessage`, {
-    chat_id: chatId,
-    message_id: messageId,
-  });
-}
-
 export async function answerCallbackQuery(
   callbackQueryId: string,
   text?: string,
 ) {
-  return axios.post(`${TELEGRAM_API}/answerCallbackQuery`, {
+  return telegramRequest("answerCallbackQuery", {
     callback_query_id: callbackQueryId,
     text,
   });
 }
 
+export async function deleteMessage(chatId: number, messageId: number) {
+  return telegramRequest("deleteMessage", {
+    chat_id: chatId,
+    message_id: messageId,
+  });
+}
+
 export async function setWebhook(url: string) {
-  return axios.post(`${TELEGRAM_API}/setWebhook`, {
+  return telegramRequest("setWebhook", {
     url,
   });
 }

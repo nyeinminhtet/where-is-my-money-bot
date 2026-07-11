@@ -5,7 +5,7 @@ import { getChatId } from "@/lib/parser";
 
 import { sendMessage } from "@/lib/telegram";
 
-import { getSummary } from "@/services/reporot.service";
+import { getSummary } from "@/services/report.service";
 
 import { formatCurrency } from "@/utils/formatCurrency";
 

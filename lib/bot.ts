@@ -66,6 +66,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   // -----------------------------
 
   switch (session.currentState) {
+    case SessionState.WAITING_AMOUNT:
     case SessionState.IDLE:
       return handleAmount(update, user);
 

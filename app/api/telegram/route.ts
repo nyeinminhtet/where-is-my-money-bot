@@ -6,6 +6,12 @@ export async function POST(request: NextRequest) {
   try {
     const update = await request.json();
 
+    console.log(
+      "Telegram Update:",
+
+      update,
+    );
+
     await handleTelegramUpdate(update);
 
     return NextResponse.json({
