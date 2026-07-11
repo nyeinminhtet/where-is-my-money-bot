@@ -80,3 +80,14 @@ export interface TelegramInlineKeyboardButton {
 export interface TelegramInlineKeyboardMarkup {
   inline_keyboard: TelegramInlineKeyboardButton[][];
 }
+
+export interface TelegramKeyboardButton {
+  text: string;
+}
+
+export interface TelegramReplyKeyboardMarkup {
+  keyboard: TelegramKeyboardButton[][];
+  resize_keyboard?: boolean;
+  one_time_keyboard?: boolean;
+  persistent_keyboard?: boolean;
+}

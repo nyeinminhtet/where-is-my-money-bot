@@ -1,4 +1,7 @@
-import type { TelegramInlineKeyboardMarkup } from "@/types/telegram";
+import type {
+  TelegramInlineKeyboardMarkup,
+  TelegramReplyKeyboardMarkup,
+} from "@/types/telegram";
 
 const TELEGRAM_API_URL = "https://api.telegram.org";
 
@@ -39,7 +42,7 @@ export async function sendMessage(
   chatId: number | string,
   text: string,
   options?: {
-    reply_markup?: TelegramInlineKeyboardMarkup;
+    reply_markup?: TelegramInlineKeyboardMarkup | TelegramReplyKeyboardMarkup;
     parse_mode?: "HTML" | "Markdown";
   },
 ) {

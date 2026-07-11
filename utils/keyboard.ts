@@ -1,3 +1,4 @@
+import { MENU } from "@/constants/menu";
 import type { TelegramInlineKeyboardMarkup } from "@/types/telegram";
 
 export function typeKeyboard(): TelegramInlineKeyboardMarkup {
@@ -53,5 +54,30 @@ export function backKeyboard(): TelegramInlineKeyboardMarkup {
         },
       ],
     ],
+  };
+}
+
+export function mainMenuKeyboard() {
+  return {
+    keyboard: [
+      [
+        {
+          text: MENU.BALANCE,
+        },
+        {
+          text: MENU.REPORT,
+        },
+      ],
+      [
+        {
+          text: MENU.MONTHLY,
+        },
+        {
+          text: MENU.YEARLY,
+        },
+      ],
+    ],
+    resize_keyboard: true,
+    persistent_keyboard: true,
   };
 }

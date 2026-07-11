@@ -18,6 +18,7 @@ import { handleReport } from "@/handlers/report.handler";
 import { handleMonthly } from "@/handlers/monthly.handler";
 import { handleYearly } from "@/handlers/yearly.handler";
 import { handleUndo } from "@/handlers/undo.handler";
+import { MENU } from "@/constants/menu";
 
 export async function handleTelegramUpdate(update: TelegramUpdate) {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
@@ -31,6 +32,8 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   const session = await getOrCreateSession(user.id);
 
   const command = getCommand(update);
+
+  const text = update.message?.text;
 
   // -----------------------------
   // Commands
@@ -51,6 +54,22 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
 
     case "/yearly":
       return handleYearly(update, user);
+  }
+
+  if (text === MENU.BALANCE) {
+    return handleBalance(update, user);
+  }
+
+  if (text === MENU.REPORT) {
+    return handleReport(update, user);
+  }
+
+  if (text === MENU.MONTHLY) {
+    return handleMonthly(update, user);
+  }
+
+  if (text === MENU.YEARLY) {
+    return handleYearly(update, user);
   }
 
   // -----------------------------
