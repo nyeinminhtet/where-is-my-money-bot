@@ -22,10 +22,10 @@ export function categoryKeyboard(
   categories: string[],
 ): TelegramInlineKeyboardMarkup {
   return {
-    inline_keyboard: categories.map((category) => [
+    inline_keyboard: categories.map((category, index) => [
       {
         text: category,
-        callback_data: `CATEGORY_${category}`,
+        callback_data: `CATEGORY_${index}`,
       },
     ]),
   };

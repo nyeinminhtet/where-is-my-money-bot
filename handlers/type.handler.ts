@@ -21,7 +21,7 @@ export async function handleType(update: TelegramUpdate, user: User) {
   const callbackData = getCallbackData(update);
 
   if (!callbackData) {
-    return sendMessage(chatId, "Transaction Type ရွေးပါ။");
+    return sendMessage(chatId, "ဝင်ငွေ / ထွက်ငွေ ရွေးပါ။");
   }
 
   let type: TransactionType | null = null;
@@ -37,14 +37,14 @@ export async function handleType(update: TelegramUpdate, user: User) {
   }
 
   if (!type) {
-    return sendMessage(chatId, "Transaction Type မမှန်ပါ။");
+    return sendMessage(chatId, "ဝင်ငွေ / ထွက်ငွေ မမှန်ပါ။");
   }
 
   await updateTempType(user.id, type);
 
   await updateState(user.id, SessionState.WAITING_CATEGORY);
 
-  return sendMessage(chatId, "Category ရွေးပါ။", {
+  return sendMessage(chatId, "📂 အမျိုးအစားခွဲ ရွေးပါ။", {
     reply_markup: categoryKeyboard(DEFAULT_CATEGORIES[type]),
   });
 }

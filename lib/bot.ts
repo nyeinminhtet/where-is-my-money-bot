@@ -76,29 +76,36 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   // Callback Queries
   // -----------------------------
 
-  if (update.callback_query?.data === "undo") {
+  const callbackData = update.callback_query?.data;
+
+  if (callbackData === "undo") {
     return handleUndo(update, user);
+  }
+
+  if (callbackData?.startsWith("TYPE_")) {
+    return handleType(update, user);
+  }
+
+  if (callbackData?.startsWith("CATEGORY_")) {
+    return handleCategory(update, user);
   }
 
   // -----------------------------
   // Conversation State Machine
   // -----------------------------
 
-  switch (session.currentState) {
-    case SessionState.WAITING_AMOUNT:
-    case SessionState.IDLE:
-      return handleAmount(update, user);
+  if (!update.callback_query) {
+    switch (session.currentState) {
+      case SessionState.WAITING_AMOUNT:
 
-    case SessionState.WAITING_TYPE:
-      return handleType(update, user);
+      case SessionState.IDLE:
+        return handleAmount(update, user);
 
-    case SessionState.WAITING_CATEGORY:
-      return handleCategory(update, user);
+      case SessionState.WAITING_DESCRIPTION:
+        return handleDescription(update, user);
 
-    case SessionState.WAITING_DESCRIPTION:
-      return handleDescription(update, user);
-
-    default:
-      return handleAmount(update, user);
+      default:
+        return;
+    }
   }
 }

@@ -34,7 +34,7 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
   ) {
     return sendMessage(
       chatId,
-      "Transaction data မပြည့်စုံပါ။ ထပ်မံကြိုးစားပါ။",
+      "ငွေစာရင်းအချက်အလက် မပြည့်စုံပါ။ ထပ်မံကြိုးစားပါ။",
     );
   }
 
@@ -53,12 +53,12 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
   return sendMessage(
     chatId,
     [
-      "✅ Transaction သိမ်းပြီးပါပြီ။",
+      "✅ စာရင်းသွင်းပြီးပါပြီ။",
       "",
-      `Type: ${typeText}`,
-      `Category: ${transaction.category}`,
-      `Amount: ${formatCurrency(transaction.amount)}`,
-      `Description: ${transaction.description}`,
+      `📌 အမျိုးအစား - ${typeText}`,
+      `📂 ကဏ္ဍ - ${transaction.category}`,
+      `💰 ပမာဏ - ${formatCurrency(transaction.amount)}`,
+      `📝 မှတ်ချက် - ${transaction.description}`,
     ].join("\n"),
     {
       reply_markup: undoKeyboard(),

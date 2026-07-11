@@ -19,7 +19,7 @@ export async function handleBalance(update: TelegramUpdate, user: User) {
   const message = [
     "💰 လက်ကျန်ငွေ",
     "",
-    `Total: ${formatCurrency(balance)}`,
+    `စုစုပေါင်း - ${formatCurrency(balance)}`,
   ].join("\n");
 
   return sendMessage(chatId, message);

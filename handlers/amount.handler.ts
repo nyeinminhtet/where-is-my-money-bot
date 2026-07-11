@@ -26,7 +26,7 @@ export async function handleAmount(update: TelegramUpdate, user: User) {
 
   await updateState(user.id, SessionState.WAITING_TYPE);
 
-  return sendMessage(chatId, "Transaction Type ရွေးပါ။", {
+  return sendMessage(chatId, "ဝင်ငွေ / ထွက်ငွေ ရွေးပါ။", {
     reply_markup: typeKeyboard(),
   });
 }
