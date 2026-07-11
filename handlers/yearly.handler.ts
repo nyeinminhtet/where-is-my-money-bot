@@ -25,10 +25,10 @@ export async function handleYearly(update: TelegramUpdate, user: User) {
   const message = [
     `📆 ${year} နှစ်စာရင်း`,
     "",
-    `💰 Income: ${formatCurrency(report.income)}`,
-    `💸 Expense: ${formatCurrency(report.expense)}`,
+    `💰 ဝင်ငွေ: ${formatCurrency(report.income)}`,
+    `💸 ထွက်ငွေ: ${formatCurrency(report.expense)}`,
     "",
-    `💵 Balance: ${formatCurrency(report.balance)}`,
+    `💵 လက်ကျန်: ${formatCurrency(report.balance)}`,
   ].join("\n");
 
   return sendMessage(chatId, message);

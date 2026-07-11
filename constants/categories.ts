@@ -1,18 +1,40 @@
 import { TransactionType } from "@/generated/prisma/client";
 
 export const DEFAULT_CATEGORIES: Record<TransactionType, string[]> = {
-  INCOME: ["Salary", "Business", "Freelance", "Gift", "Investment", "Other"],
+  INCOME: [
+    "လစာ",
+
+    "စီးပွားရေး",
+
+    "Freelance",
+
+    "လက်ဆောင်",
+
+    "ရင်းနှီးမြှုပ်နှံမှု",
+
+    "အခြား",
+  ],
+
   EXPENSE: [
-    "Food",
-    "Transport",
-    "Rent",
-    "Utilities",
-    "Health",
-    "Shopping",
-    "Education",
-    "Entertainment",
-    "Family",
-    "Other",
+    "အစားအသောက်",
+
+    "သွားလာရေး",
+
+    "အိမ်ငှားခ",
+
+    "မီး/ရေ/အင်တာနက်",
+
+    "ကျန်းမာရေး",
+
+    "ဈေးဝယ်ခြင်း",
+
+    "ပညာရေး",
+
+    "ဖျော်ဖြေရေး",
+
+    "မိသားစု",
+
+    "အခြား",
   ],
 };
 

@@ -19,10 +19,10 @@ export async function handleReport(update: TelegramUpdate, user: User) {
   const message = [
     "📊 စာရင်းအကျဉ်းချုပ်",
     "",
-    `💰 Income: ${formatCurrency(summary.income)}`,
-    `💸 Expense: ${formatCurrency(summary.expense)}`,
+    `💰 ဝင်ငွေ: ${formatCurrency(summary.income)}`,
+    `💸 ထွက်ငွေ: ${formatCurrency(summary.expense)}`,
     "",
-    `💵 Balance: ${formatCurrency(summary.balance)}`,
+    `💵 လက်ကျန်: ${formatCurrency(summary.balance)}`,
   ].join("\n");
 
   return sendMessage(chatId, message);
