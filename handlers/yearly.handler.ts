@@ -22,14 +22,27 @@ export async function handleYearly(update: TelegramUpdate, user: User) {
 
   const year = getCurrentYear();
 
+  const breakdownLines =
+    report.monthlyBreakdown && report.monthlyBreakdown.length > 0
+      ? [
+          "",
+          "--- 📈 လအလိုက် အနှစ်ချုပ် ---",
+          ...report.monthlyBreakdown
+            .filter((m) => m.hasData)
+            .map((m) => {
+              return `📅 ${m.month} လပိုင်း: 💰 +${formatCurrency(m.income)} | 💸 -${formatCurrency(m.expense)}`;
+            }),
+        ]
+      : [];
+
   const message = [
-    `📆 ${year} နှစ်စာရင်း`,
+    `📅 ${year} ခုနှစ် နှစ်ချုပ်စာရင်း`,
     "",
     `💰 ဝင်ငွေ: ${formatCurrency(report.income)}`,
     `💸 ထွက်ငွေ: ${formatCurrency(report.expense)}`,
     "",
     `💵 လက်ကျန်: ${formatCurrency(report.balance)}`,
+    ...breakdownLines, // ✨ လအလိုက်စာရင်းကို အောက်က ဆက်ပြတာ
   ].join("\n");
-
   return sendMessage(chatId, message);
 }

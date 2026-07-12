@@ -28,6 +28,40 @@ export async function handleMonthly(update: TelegramUpdate, user: User) {
 
   const year = getCurrentYear();
 
+  const incomeLines =
+    report.categoryIncomes && report.categoryIncomes.length > 0
+      ? [
+          "",
+          "--- 💰 ဝင်ငွေ ရရှိသော ကဏ္ဍများ ---",
+          ...report.categoryIncomes.map((item) => {
+            const amount = item._sum.amount ?? 0;
+            const percentage =
+              report.income > 0
+                ? ((amount / report.income) * 100).toFixed(1)
+                : 0;
+            return `🔸 ${item.category} - ${formatCurrency(amount)} (${percentage}%)`;
+          }),
+        ]
+      : [];
+
+  const expenseLines =
+    report.categoryExpenses && report.categoryExpenses.length > 0
+      ? [
+          "",
+          "--- 📂 အသုံးများသော ကဏ္ဍများ ---",
+          ...report.categoryExpenses.map((item) => {
+            const amount = item._sum.amount ?? 0;
+
+            const percentage =
+              report.expense > 0
+                ? ((amount / report.expense) * 100).toFixed(1)
+                : 0;
+
+            return `🔹 ${item.category} - ${formatCurrency(amount)} (${percentage}%)`;
+          }),
+        ]
+      : [];
+
   const message = [
     `📅 ${year} / ${month} လစာရင်း`,
     "",
@@ -35,6 +69,8 @@ export async function handleMonthly(update: TelegramUpdate, user: User) {
     `💸 ထွက်ငွေ: ${formatCurrency(report.expense)}`,
     "",
     `💵 လက်ကျန်: ${formatCurrency(report.balance)}`,
+    ...incomeLines,
+    ...expenseLines,
   ].join("\n");
 
   return sendMessage(chatId, message);

@@ -29,7 +29,6 @@ export async function getSummary(userId: string) {
   const transactions = await prisma.transaction.findMany({
     where: {
       userId,
-      reversedAt: null,
     },
     select: {
       amount: true,
@@ -44,26 +43,58 @@ export async function getMonthlyReport(userId: string, start: Date, end: Date) {
   const transactions = await prisma.transaction.findMany({
     where: {
       userId,
-      reversedAt: null,
-      createdAt: {
-        gte: start,
-        lte: end,
-      },
-    },
-    select: {
-      amount: true,
-      type: true,
+      createdAt: { gte: start, lte: end },
     },
   });
 
-  return calculateSummary(transactions);
+  const categoryExpenses = await prisma.transaction.groupBy({
+    by: ["category"],
+    where: {
+      userId,
+      type: "EXPENSE",
+      createdAt: { gte: start, lte: end },
+    },
+    _sum: {
+      amount: true,
+    },
+    orderBy: {
+      _sum: {
+        amount: "desc",
+      },
+    },
+  });
+
+  const categoryIncomes = await prisma.transaction.groupBy({
+    by: ["category"],
+    where: {
+      userId,
+      type: "INCOME",
+      createdAt: { gte: start, lte: end },
+    },
+    _sum: { amount: true },
+    orderBy: { _sum: { amount: "desc" } },
+  });
+
+  const income = transactions
+    .filter((t) => t.type === "INCOME")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const expense = transactions
+    .filter((t) => t.type === "EXPENSE")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  return {
+    income,
+    expense,
+    balance: income - expense,
+    categoryExpenses,
+    categoryIncomes,
+  };
 }
 
 export async function getYearlyReport(userId: string, start: Date, end: Date) {
   const transactions = await prisma.transaction.findMany({
     where: {
       userId,
-      reversedAt: null,
       createdAt: {
         gte: start,
         lte: end,
@@ -72,8 +103,45 @@ export async function getYearlyReport(userId: string, start: Date, end: Date) {
     select: {
       amount: true,
       type: true,
+      createdAt: true,
     },
   });
 
-  return calculateSummary(transactions);
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  for (const t of transactions) {
+    if (t.type === "INCOME") totalIncome += t.amount;
+    else totalExpense += t.amount;
+  }
+
+  const monthlyBreakdown = Array.from({ length: 12 }, (_, index) => {
+    const monthNum = index + 1;
+
+    const monthTransactions = transactions.filter(
+      (t) => new Date(t.createdAt).getMonth() === index,
+    );
+
+    let income = 0;
+    let expense = 0;
+
+    for (const t of monthTransactions) {
+      if (t.type === "INCOME") income += t.amount;
+      else expense += t.amount;
+    }
+
+    return {
+      month: monthNum,
+      income,
+      expense,
+      hasData: monthTransactions.length > 0,
+    };
+  });
+
+  return {
+    income: totalIncome,
+    expense: totalExpense,
+    balance: totalIncome - totalExpense,
+    monthlyBreakdown,
+  };
 }
