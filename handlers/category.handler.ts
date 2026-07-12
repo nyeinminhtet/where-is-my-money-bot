@@ -50,5 +50,16 @@ export async function handleCategory(update: TelegramUpdate, user: User) {
 
   await updateState(user.id, SessionState.WAITING_DESCRIPTION);
 
-  return sendMessage(chatId, "အသေးစိတ်ဖော်ပြချက် ထည့်ပါ။");
+  // return sendMessage(chatId, "အသေးစိတ်ဖော်ပြချက် ထည့်ပါ။");
+  return sendMessage(
+    chatId,
+    "📝 အသေးစိတ်ဖော်ပြချက် ထည့်ပါ (သို့မဟုတ် ကျော်ပါ)။",
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "⏩ ကျော်မည်", callback_data: "DESCRIPTION_SKIP" }],
+        ],
+      },
+    },
+  );
 }

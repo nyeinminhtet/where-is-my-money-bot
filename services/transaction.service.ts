@@ -27,19 +27,15 @@ export async function getLatestTransaction(userId: string) {
   });
 }
 
-export async function undoLastTransaction(userId: string) {
-  const latest = await getLatestTransaction(userId);
-
-  if (!latest) {
+export async function deleteTransaction(transactioId: string, userId: string) {
+  try {
+    return await prisma.transaction.delete({
+      where: {
+        id: transactioId,
+        userId,
+      },
+    });
+  } catch {
     return null;
   }
-
-  return prisma.transaction.update({
-    where: {
-      id: latest.id,
-    },
-    data: {
-      reversedAt: new Date(),
-    },
-  });
 }

@@ -45,15 +45,10 @@ export function categoryKeyboard(
   };
 }
 
-export function undoKeyboard(): TelegramInlineKeyboardMarkup {
+export function undoKeyboard(transactionId: string) {
   return {
     inline_keyboard: [
-      [
-        {
-          text: "↩️ Undo",
-          callback_data: "UNDO_LAST",
-        },
-      ],
+      [{ text: "🗑️ ပြန်ဖျက်မည်", callback_data: `UNDO_${transactionId}` }],
     ],
   };
 }

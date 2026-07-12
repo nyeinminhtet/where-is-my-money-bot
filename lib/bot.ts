@@ -78,7 +78,9 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
 
   const callbackData = update.callback_query?.data;
 
-  if (callbackData === "undo") {
+  console.log("Callback Data:", callbackData);
+
+  if (callbackData?.startsWith("UNDO_")) {
     return handleUndo(update, user);
   }
 
@@ -88,6 +90,10 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
 
   if (callbackData?.startsWith("CATEGORY_")) {
     return handleCategory(update, user);
+  }
+
+  if (callbackData === "DESCRIPTION_SKIP") {
+    return handleDescription(update, user);
   }
 
   // -----------------------------

@@ -20,9 +20,9 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
 
   const description = getMessageText(update).trim();
 
-  if (!description) {
-    return sendMessage(chatId, "ဖော်ပြချက် ထည့်ပေးပါ။");
-  }
+  // if (!description) {
+  //   return sendMessage(chatId, "ဖော်ပြချက် ထည့်ပေးပါ။");
+  // }
 
   const session = await getSession(user.id);
 
@@ -50,6 +50,10 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
 
   const typeText = transaction.type === "INCOME" ? "ဝင်ငွေ" : "ထွက်ငွေ";
 
+  const descriptionText = transaction.description
+    ? transaction.description
+    : "မရှိပါ";
+
   return sendMessage(
     chatId,
     [
@@ -58,10 +62,10 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
       `📌 အမျိုးအစား - ${typeText}`,
       `📂 ကဏ္ဍ - ${transaction.category}`,
       `💰 ပမာဏ - ${formatCurrency(transaction.amount)}`,
-      `📝 မှတ်ချက် - ${transaction.description}`,
+      `📝 မှတ်ချက် - ${descriptionText}`,
     ].join("\n"),
     {
-      reply_markup: undoKeyboard(),
+      reply_markup: undoKeyboard(transaction.id),
     },
   );
 }
