@@ -12,6 +12,7 @@ import { createTransaction } from "@/services/transaction.service";
 import { undoKeyboard } from "@/utils/keyboard";
 
 import { formatCurrency } from "@/utils/formatCurrency";
+import { getBalance } from "@/services/balance.service";
 
 export async function handleDescription(update: TelegramUpdate, user: User) {
   const chatId = getChatId(update);
@@ -48,6 +49,8 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
 
   await clearSession(user.id);
 
+  const currentBalance = await getBalance(user.id);
+
   const typeText = transaction.type === "INCOME" ? "ဝင်ငွေ" : "ထွက်ငွေ";
 
   const descriptionText = transaction.description
@@ -63,6 +66,8 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
       `📂 ကဏ္ဍ - ${transaction.category}`,
       `💰 ပမာဏ - ${formatCurrency(transaction.amount)}`,
       `📝 မှတ်ချက် - ${descriptionText}`,
+      "",
+      `💵 လက်ကျန်ငွေ - ${formatCurrency(currentBalance)}`, // ✨ ဒီမှာ တွဲပြလိုက်တာ ကွက်တိပဲ!
     ].join("\n"),
     {
       reply_markup: undoKeyboard(transaction.id),
