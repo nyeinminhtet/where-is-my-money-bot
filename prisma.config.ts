@@ -11,7 +11,7 @@ export default defineConfig({
   //   url: process.env.DATABASE_URL,
   // },
   datasource: {
-    // url: env("DATABASE_URL"),
-    url: env("DIRECT_URL"),
+    url: env("DATABASE_URL"),
+    // url: env("DIRECT_URL"),
   },
 });
