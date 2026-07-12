@@ -1,5 +1,8 @@
 import { MENU } from "@/constants/menu";
-import type { TelegramInlineKeyboardMarkup } from "@/types/telegram";
+import type {
+  TelegramInlineKeyboardButton,
+  TelegramInlineKeyboardMarkup,
+} from "@/types/telegram";
 
 export function typeKeyboard(): TelegramInlineKeyboardMarkup {
   return {
@@ -21,13 +24,24 @@ export function typeKeyboard(): TelegramInlineKeyboardMarkup {
 export function categoryKeyboard(
   categories: string[],
 ): TelegramInlineKeyboardMarkup {
-  return {
-    inline_keyboard: categories.map((category, index) => [
-      {
+  const inlineKeyboard: TelegramInlineKeyboardButton[][] = [];
+  const buttonsPerRow = 2;
+
+  for (let i = 0; i < categories.length; i += buttonsPerRow) {
+    const row = categories.slice(i, i + buttonsPerRow).map((category) => {
+      const originalIndex = categories.indexOf(category);
+
+      return {
         text: category,
-        callback_data: `CATEGORY_${index}`,
-      },
-    ]),
+        callback_data: `CATEGORY_${originalIndex}`,
+      };
+    });
+
+    inlineKeyboard.push(row);
+  }
+
+  return {
+    inline_keyboard: inlineKeyboard,
   };
 }
 

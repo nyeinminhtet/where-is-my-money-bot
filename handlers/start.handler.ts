@@ -14,18 +14,18 @@ export async function handleStart(update: TelegramUpdate, user: User) {
 
   await updateState(user.id, SessionState.IDLE);
 
-  await sendMessage(
-    chatId,
-    `👋 မင်္ဂလာပါ ${user.firstName ?? ""}
+  const welcomeMessage = `👋 မင်္ဂလာပါ *${user.firstName ?? ""}*!
 
-  Where Is My Money Bot မှ ကြိုဆိုပါတယ်။
+🚀 **Where Is My Money** မှ လှိုက်လှဲစွာ ကြိုဆိုပါတယ်။
 
-  ငွေပမာဏ ရိုက်ထည့်ပြီး
-  ဝင်ငွေ / ထွက်ငွေ ကို စတင်မှတ်တမ်းတင်နိုင်ပါတယ်။
+💵 **စတင်အသုံးပြုနည်း -**
+• ငွေပမာဏ (ဥပမာ- \`50000\`) ကို ရိုက်ထည့်ပါ။
+• ဝင်ငွေ (Income) သို့မဟုတ် ထွက်ငွေ (Expense) ခွဲခြားပါ။
+• သက်ဆိုင်ရာ အမျိုးအစား (Category) ကို ရွေးချယ်ပါ။
 
-  ဥပမာ - 50000`,
-    {
-      reply_markup: mainMenuKeyboard(),
-    },
-  );
+💡 *အခုပဲ ဂဏန်းတစ်ခုခု ရိုက်ထည့်ပြီး စမ်းသပ်ကြည့်လိုက်ပါ!*`;
+
+  await sendMessage(chatId, welcomeMessage, {
+    reply_markup: mainMenuKeyboard(),
+  });
 }
