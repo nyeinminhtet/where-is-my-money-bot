@@ -8,6 +8,7 @@ import { sendMessage } from "@/lib/telegram";
 import { getBalance } from "@/services/balance.service";
 
 import { formatCurrency } from "@/utils/formatCurrency";
+import { mainMenuKeyboard } from "@/utils/keyboard";
 
 export async function handleBalance(update: TelegramUpdate, user: User) {
   const chatId = getChatId(update);
@@ -22,5 +23,7 @@ export async function handleBalance(update: TelegramUpdate, user: User) {
     `စုစုပေါင်း - ${formatCurrency(balance)}`,
   ].join("\n");
 
-  return sendMessage(chatId, message);
+  return sendMessage(chatId, message, {
+    reply_markup: mainMenuKeyboard(),
+  });
 }
