@@ -74,7 +74,7 @@ export function mainMenuKeyboard() {
           text: MENU.BALANCE,
         },
         {
-          text: MENU.REPORT,
+          text: MENU.TODAY,
         },
       ],
       [

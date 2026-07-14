@@ -145,3 +145,15 @@ export async function getYearlyReport(userId: string, start: Date, end: Date) {
     monthlyBreakdown,
   };
 }
+
+export async function getTodayReport(userId: string, start: Date, end: Date) {
+  return await prisma.transaction.findMany({
+    where: {
+      userId: userId,
+      createdAt: { gte: start, lte: end },
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+}

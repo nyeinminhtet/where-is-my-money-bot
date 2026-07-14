@@ -19,6 +19,7 @@ import { handleMonthly } from "@/handlers/monthly.handler";
 import { handleYearly } from "@/handlers/yearly.handler";
 import { handleUndo } from "@/handlers/undo.handler";
 import { MENU } from "@/constants/menu";
+import { handleToday } from "@/handlers/today.handler";
 
 export async function handleTelegramUpdate(update: TelegramUpdate) {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
@@ -46,8 +47,11 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
     case "/balance":
       return handleBalance(update, user);
 
-    case "/report":
-      return handleReport(update, user);
+    // case "/report":
+    //   return handleReport(update, user);
+
+    case "/today":
+      return handleToday(update, user);
 
     case "/monthly":
       return handleMonthly(update, user);
@@ -60,9 +64,12 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
     return handleBalance(update, user);
   }
 
-  if (text === MENU.REPORT) {
-    return handleReport(update, user);
+  if (text === MENU.TODAY) {
+    return handleToday(update, user);
   }
+  // if (text === MENU.REPORT) {
+  //   return handleReport(update, user);
+  // }
 
   if (text === MENU.MONTHLY) {
     return handleMonthly(update, user);
