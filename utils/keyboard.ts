@@ -82,6 +82,11 @@ export function mainMenuKeyboard() {
           text: MENU.MONTHLY,
         },
         {
+          text: MENU.PREVIOUS_MONTH,
+        },
+      ],
+      [
+        {
           text: MENU.YEARLY,
         },
       ],

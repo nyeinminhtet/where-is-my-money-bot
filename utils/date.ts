@@ -21,6 +21,21 @@ export function getCurrentMonth(): number {
 }
 
 /**
+ * Get previous month range (start and end date).
+ * Example: If today is July 15, 2024, it will return June 1, 2024 - June 30, 2024.
+ * @returns { start: Date, end: Date }
+ */
+export function getPreviousMonthRange() {
+  const now = new Date();
+
+  const start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
+
+  const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
+  return { start, end };
+}
+
+/**
  * Get current year.
  */
 export function getCurrentYear(): number {
