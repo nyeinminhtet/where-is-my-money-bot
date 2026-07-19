@@ -7,7 +7,10 @@ import { getSession, clearSession } from "@/lib/session";
 
 import { sendMessage } from "@/lib/telegram";
 
-import { createTransaction } from "@/services/transaction.service";
+import {
+  createTransaction,
+  getTotalExpenseThisMonth,
+} from "@/services/transaction.service";
 
 import { undoKeyboard } from "@/utils/keyboard";
 
@@ -57,7 +60,7 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
     ? transaction.description
     : "မရှိပါ";
 
-  return sendMessage(
+  sendMessage(
     chatId,
     [
       "✅ စာရင်းသွင်းပြီးပါပြီ။",
@@ -73,4 +76,26 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
       reply_markup: undoKeyboard(transaction.id),
     },
   );
+
+  if (transaction.type === "EXPENSE" && user.monthlyBudget) {
+    const totalExpense = await getTotalExpenseThisMonth(user.id);
+    const budget = user.monthlyBudget;
+    const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
+
+    let budgetMessage = [
+      `📊 **လစဉ် Budget အခြေအနေ:**`,
+      `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
+    ].join("\n");
+
+    if (totalExpense >= budget) {
+      budgetMessage +=
+        "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
+    } else if (totalExpense >= budget * 0.8) {
+      budgetMessage +=
+        "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
+    }
+
+    // စက္ကန့်ပိုင်းလေး ခြားပြီး ဒုတိယ Message အဖြစ် ပို့လိုက်တာပေါ့ ဆရာသမား
+    await sendMessage(chatId, budgetMessage);
+  }
 }

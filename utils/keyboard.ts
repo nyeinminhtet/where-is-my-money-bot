@@ -87,6 +87,14 @@ export function mainMenuKeyboard() {
       ],
       [
         {
+          text: MENU.SET_BUDGET,
+        },
+        {
+          text: MENU.CHECK_BUDGET,
+        },
+      ],
+      [
+        {
           text: MENU.YEARLY,
         },
       ],
