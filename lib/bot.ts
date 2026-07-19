@@ -14,13 +14,17 @@ import { handleType } from "@/handlers/type.handler";
 import { handleCategory } from "@/handlers/category.handler";
 import { handleDescription } from "@/handlers/description.handler";
 import { handleBalance } from "@/handlers/balance.handler";
-import { handleReport } from "@/handlers/report.handler";
 import { handleMonthly } from "@/handlers/monthly.handler";
 import { handleYearly } from "@/handlers/yearly.handler";
 import { handleUndo } from "@/handlers/undo.handler";
 import { MENU } from "@/constants/menu";
 import { handleToday } from "@/handlers/today.handler";
 import { handlePreviousMonth } from "@/handlers/previous.month.handler";
+import {
+  askForBudget,
+  handleBudgetInput,
+  handleCheckBudget,
+} from "@/handlers/budget.handler";
 
 export async function handleTelegramUpdate(update: TelegramUpdate) {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
@@ -71,9 +75,6 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   if (text === MENU.TODAY) {
     return handleToday(update, user);
   }
-  // if (text === MENU.REPORT) {
-  //   return handleReport(update, user);
-  // }
 
   if (text === MENU.MONTHLY) {
     return handleMonthly(update, user);
@@ -85,6 +86,19 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
 
   if (text === MENU.YEARLY) {
     return handleYearly(update, user);
+  }
+
+  if (text === MENU.SET_BUDGET) {
+    return askForBudget(update, user.id);
+  }
+
+  if (text === MENU.CHECK_BUDGET) {
+    return handleCheckBudget(update, user);
+  }
+
+  // ၂။ အကယ်၍ User က ဂဏန်းရိုက်ထည့်ရမယ့် State ထဲ ရောက်နေလျှင်
+  if (session.currentState === SessionState.WAITING_BUDGET) {
+    return handleBudgetInput(update, user);
   }
 
   // -----------------------------
