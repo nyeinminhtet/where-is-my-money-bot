@@ -45,10 +45,31 @@ export function categoryKeyboard(
   };
 }
 
-export function undoKeyboard(transactionId: string) {
+// export function undoKeyboard(
+//   transactionId: string | string[],
+// ): TelegramInlineKeyboardMarkup {
+//   return {
+//     inline_keyboard: [
+//       [{ text: "🗑️ ပြန်ဖျက်မည်", callback_data: `UNDO_${transactionId}` }],
+//     ],
+//   };
+// }
+export function undoKeyboard(
+  transactionId: string | string[],
+): TelegramInlineKeyboardMarkup {
+  // Array ဖြစ်နေရင် comma (,) နဲ့ ဆက်မည်၊ string ဆိုရင် မူလအတိုင်း ထားမည်
+  const idData = Array.isArray(transactionId)
+    ? transactionId.join(",")
+    : transactionId;
+
   return {
     inline_keyboard: [
-      [{ text: "🗑️ ပြန်ဖျက်မည်", callback_data: `UNDO_${transactionId}` }],
+      [
+        {
+          text: "🗑️ ပြန်ဖျက်မည်",
+          callback_data: `UNDO_${idData}`,
+        },
+      ],
     ],
   };
 }
