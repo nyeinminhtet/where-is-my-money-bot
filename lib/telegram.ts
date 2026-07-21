@@ -2,11 +2,10 @@ import type {
   TelegramInlineKeyboardMarkup,
   TelegramReplyKeyboardMarkup,
 } from "@/types/telegram";
-
-const TELEGRAM_API_URL = "https://api.telegram.org";
+import { env } from "./env";
 
 function getBotToken(): string {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const token = env.telegramBotToken;
 
   if (!token) {
     throw new Error("TELEGRAM_BOT_TOKEN is missing");
@@ -21,7 +20,7 @@ async function telegramRequest<T>(
 ): Promise<T> {
   const token = getBotToken();
 
-  const response = await fetch(`${TELEGRAM_API_URL}/bot${token}/${method}`, {
+  const response = await fetch(`${env.telegramApiUrl}/bot${token}/${method}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -73,10 +72,12 @@ export async function editMessage(
 export async function answerCallbackQuery(
   callbackQueryId: string,
   text?: string,
+  showAlert: boolean = false,
 ) {
   return telegramRequest("answerCallbackQuery", {
     callback_query_id: callbackQueryId,
     text,
+    show_alert: showAlert, // If text is provided, show an alert; otherwise, just acknowledge
   });
 }
 
