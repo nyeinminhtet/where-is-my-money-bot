@@ -81,15 +81,9 @@ export interface AIParsedTransaction {
 export async function parseTextWithAI(
   userText: string,
 ): Promise<AIParsedTransaction[] | null> {
+  if (!userText || userText.trim().length < 2) return null;
+
   try {
-    //     const prompt = `Analyze this text and extract financial transaction details: "${userText}".
-
-    // CRITICAL RULES:
-    // 1. If the text only contains numbers without any context/description (e.g., "1000", "50000"), set "isTransaction" to false.
-    // 2. Only set "isTransaction" to true if there is a clear intention or item/service mentioned with the amount (e.g. "မုန့်ဖိုး ၁၀၀၀", "taxi 5000", "လစာ 500000").
-    // 3. Default to EXPENSE only if context exists but type is unclear.
-    // 4. Convert Myanmar numbers (၁၂၃) to English numbers.`;
-
     const prompt = `Extract all financial transactions from this text: "${userText}". 
   If multiple transactions are present, extract each one separately into the array.
   Convert Myanmar digits (၁၂၃) to English numbers.

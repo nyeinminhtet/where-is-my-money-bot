@@ -27,18 +27,17 @@ export async function getLatestTransaction(userId: string) {
   });
 }
 
-export async function deleteTransactions(
-  transactionIds: string[],
-  userId: string,
-) {
-  return await prisma.transaction.deleteMany({
-    where: {
-      id: {
-        in: transactionIds,
+export async function deleteTransaction(transactioId: string, userId: string) {
+  try {
+    return await prisma.transaction.delete({
+      where: {
+        id: transactioId,
+        userId,
       },
-      userId: userId, // Security Authorization
-    },
-  });
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function getTotalExpenseThisMonth(userId: string) {

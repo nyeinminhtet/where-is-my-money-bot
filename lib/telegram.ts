@@ -72,10 +72,12 @@ export async function editMessage(
 export async function answerCallbackQuery(
   callbackQueryId: string,
   text?: string,
+  showAlert: boolean = false,
 ) {
   return telegramRequest("answerCallbackQuery", {
     callback_query_id: callbackQueryId,
     text,
+    show_alert: showAlert, // If text is provided, show an alert; otherwise, just acknowledge
   });
 }
 

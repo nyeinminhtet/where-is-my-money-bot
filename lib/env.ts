@@ -20,7 +20,7 @@ export const env = {
   // Gemini AI
   gemini: {
     apiKey: getEnvVar("GEMINI_API_KEY"),
-    model: getEnvVar("GEMINI_MODEL", "gemini-3.5-flash"),
+    model: getEnvVar("GEMINI_MODEL", "gemini-3.1-flash-lite"),
     proxyUrl:
       process.env.GEMINI_PROXY_URL ||
       "https://muddy-sun-be07.nyeinmg904.workers.dev",

@@ -23,7 +23,10 @@ import {
   handleCheckBudget,
 } from "@/handlers/budget.handler";
 import { parseTextWithAI } from "./gemini";
-import { createTransaction } from "@/services/transaction.service";
+import {
+  createTransaction,
+  getTotalExpenseThisMonth,
+} from "@/services/transaction.service";
 import { sendMessage } from "./telegram";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { undoKeyboard } from "@/utils/keyboard";
@@ -42,25 +45,19 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   const chatId = update.message?.chat.id;
 
   // -----------------------------
-  // Commands
+  // Commands & Main Menu Texts
   // -----------------------------
-
   switch (command) {
     case "/start":
       return handleStart(update, user);
-
     case "/balance":
       return handleBalance(update, user);
-
     case "/today":
       return handleToday(update, user);
-
     case "/monthly":
       return handleMonthly(update, user);
-
     case "/previous_month":
       return handlePreviousMonth(update, user);
-
     case "/yearly":
       return handleYearly(update, user);
   }
@@ -78,41 +75,28 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 🔥 Number Only Check (e.g. "1000", "၁၀၀၀") -> Manual Mode
+  // 🔥 1. Number Only Check (e.g. "1000", "၁၀၀၀") -> Manual Mode
   // -----------------------------
   const isOnlyNumbers = text ? /^[0-9၁-၉\s,]+$/.test(text.trim()) : false;
 
-  if (
-    isOnlyNumbers &&
-    (session.currentState === SessionState.IDLE ||
-      session.currentState === SessionState.WAITING_AMOUNT)
-  ) {
-    // ဂဏန်းချည်းပဲ ရိုက်လာရင် Step-by-step Flow (handleAmount) သို့ တိုက်ရိုက်ပို့မည်
+  if (isOnlyNumbers) {
     return handleAmount(update, user);
   }
 
   // -----------------------------
-  // 🔥 AI Quick Transaction Parser
+  // 🔥 2. AI Quick Transaction Parser (စာစကားလုံး ပါလာရင် ဘာ State ဖြစ်နေပါစေ AI ဆီ သွားမည်)
   // -----------------------------
-  console.log("💬 User Input:", text);
-  if (
-    text &&
-    !isOnlyNumbers &&
-    (session.currentState === SessionState.IDLE ||
-      session.currentState === SessionState.WAITING_AMOUNT)
-  ) {
+  if (text && !isOnlyNumbers) {
     const aiResults = await parseTextWithAI(text);
-
-    console.log("🔍 AI Results Log:", JSON.stringify(aiResults, null, 2));
 
     if (aiResults && Array.isArray(aiResults)) {
       const validTransactions = aiResults.filter(
         (tx) => tx.isTransaction && tx.amount > 0,
       );
 
-      if (validTransactions.length > 0) {
-        const savedTxList = [];
+      let hasExpense = false;
 
+      if (validTransactions.length > 0) {
         for (const tx of validTransactions) {
           const createdTx = await createTransaction({
             userId: user.id,
@@ -121,41 +105,68 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
             category: tx.category || "အခြား",
             description: tx.description || text,
           });
-          savedTxList.push(createdTx);
+
+          if (createdTx.type === "EXPENSE") {
+            hasExpense = true;
+          }
+
+          const typeText = createdTx.type === "INCOME" ? "ဝင်ငွေ" : "ထွက်ငွေ";
+
+          const singleTxMessage = [
+            `✅ စာရင်းသွင်းပြီးပါပြီ။`,
+            ``,
+            `📌 အမျိုးအစား - ${typeText}`,
+            `📂 ကဏ္ဍ - ${createdTx.category}`,
+            `💰 ပမာဏ - ${formatCurrency(createdTx.amount)}`,
+            `📝 မှတ်ချက် - ${createdTx.description || "မရှိပါ"}`,
+          ].join("\n");
+
+          if (chatId) {
+            await sendMessage(chatId, singleTxMessage, {
+              reply_markup: undoKeyboard(createdTx.id),
+            });
+          }
+        }
+
+        if (hasExpense && user.monthlyBudget && chatId) {
+          const totalExpense = await getTotalExpenseThisMonth(user.id);
+          const budget = user.monthlyBudget;
+          const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
+
+          let budgetMessage = [
+            `📊 **လစဉ် Budget အခြေအနေ:**`,
+            `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
+          ].join("\n");
+
+          if (totalExpense >= budget) {
+            budgetMessage +=
+              "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
+          } else if (totalExpense >= budget * 0.8) {
+            budgetMessage +=
+              "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
+          }
+
+          // နောက်ဆုံးမှ Budget Alert ကို သီးသန့် Message တစ်စောင်အဖြစ် ပို့ပေးမည်
+          await sendMessage(chatId, budgetMessage);
         }
 
         await clearSession(user.id);
 
-        const responseMsg = [
-          `✅ **စာရင်း (${savedTxList.length}) ခု အောင်မြင်စွာ သွင်းပြီးပါပြီ!**`,
-          "",
-          ...validTransactions.map(
-            (tx, index) =>
-              `${index + 1}. **${tx.description}** - ${formatCurrency(tx.amount)} (${tx.type === "INCOME" ? "ဝင်ငွေ" : "ထွက်ငွေ"} / ${tx.category})`,
-          ),
-        ].join("\n");
-
-        if (chatId) {
-          return sendMessage(chatId, responseMsg, {
-            reply_markup: undoKeyboard(savedTxList.map((tx) => tx.id)),
-          });
-        }
-      } else {
-        // ⚠️ AI က ဖတ်လို့မရရင် သို့မဟုတ် Transaction အဖြစ် မသတ်မှတ်နိုင်ရင်
-        if (chatId) {
-          return sendMessage(
-            chatId,
-            "⚠️ စာရင်းအသေးစိတ်ကို မဖတ်ရှုနိုင်ပါဗျာ။ စာကြောင်းပုံစံကို ပြန်လည်စစ်ဆေးပေးပါ သို့မဟုတ် Manual သွင်းပေးပါဗျ။",
-          );
-        }
+        return;
+      }
+    } else {
+      if (chatId) {
+        return sendMessage(
+          chatId,
+          "⚠️ လက်ရှိတွင် AI စနစ် ခေတ္တ မအားလပ်သေးပါ (Rate Limit ပြည့်နေပါသည်)။ ခဏစောင့်၍ ထပ်မံစမ်းသပ်ပေးပါဗျာ။",
+        );
       }
     }
   }
 
   // -----------------------------
-  // Callback Queries
+  // 3. Callback Queries
   // -----------------------------
-
   const callbackData = update.callback_query?.data;
 
   if (callbackData?.startsWith("UNDO_")) {
@@ -175,9 +186,8 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // Conversation State Machine
+  // 4. Manual Step-by-step Conversation State Machine
   // -----------------------------
-
   if (!update.callback_query) {
     switch (session.currentState) {
       case SessionState.WAITING_AMOUNT:
