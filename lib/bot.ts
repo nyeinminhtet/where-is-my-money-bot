@@ -30,6 +30,7 @@ import {
 import { sendMessage } from "./telegram";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { undoKeyboard } from "@/utils/keyboard";
+import { handleHelp } from "@/handlers/helpe.handler";
 
 export async function handleTelegramUpdate(update: TelegramUpdate) {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
@@ -50,8 +51,15 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   switch (command) {
     case "/start":
       return handleStart(update, user);
+    case "/help": // 👈 ဒီနေရာမှာ ထည့်ပေးပါ
+      return handleHelp(update);
     case "/balance":
       return handleBalance(update, user);
+    case "/set_budget":
+      return askForBudget(update, user.id);
+
+    case "/check_budget":
+      return handleCheckBudget(update, user);
     case "/today":
       return handleToday(update, user);
     case "/monthly":
@@ -146,7 +154,6 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
               "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
           }
 
-          // နောက်ဆုံးမှ Budget Alert ကို သီးသန့် Message တစ်စောင်အဖြစ် ပို့ပေးမည်
           await sendMessage(chatId, budgetMessage);
         }
 
