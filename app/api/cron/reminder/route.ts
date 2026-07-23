@@ -1,0 +1,61 @@
+import { env } from "@/lib/env";
+import { prisma } from "@/lib/prisma";
+import { sendMessage } from "@/lib/telegram";
+import { NextResponse } from "next/server";
+
+export async function GET(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader || authHeader !== `Bearer ${env.cronSecret}`) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  try {
+    // const users = await prisma.user.findMany({
+    //   select: {
+    //     telegramId: true,
+    //   },
+    // });
+    const user = await prisma.user.findFirst({
+      where: {
+        telegramId: "5442666991",
+      },
+      select: {
+        telegramId: true,
+      },
+    });
+
+    const reminderMessage = [
+      "💸 **ဒီနေ့ ပိုက်ဆံတွေ ဘယ်ပျောက်ကုန်ပြီလဲ?**",
+      "",
+      "အိတ်ကပ်ထဲက ပိုက်ဆံ မထွက်ခင်/ထွက်ပြီးတာလေးတွေ စာရင်းမှတ်ထားလိုက်ဦးနော် 😉",
+      "",
+      "*(စာတိုရိုက်ပြီး တန်းပို့လိုက်ရုံပါပဲ)*",
+    ].join("\n");
+
+    let sentCount = 0;
+
+    // 3. User တိုင်းဆီ Reminder စာ လှမ်းပို့မည်
+    // for (const user of users) {
+    //   if (user.telegramId) {
+    //     await sendMessage(user.telegramId.toString(), reminderMessage);
+    //     sentCount++;
+    //   }
+    // }
+
+    if (user && user.telegramId) {
+      await sendMessage(user.telegramId.toString(), reminderMessage);
+      sentCount++;
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Successfully sent reminders to ${sentCount} users.`,
+    });
+  } catch (error) {
+    console.error("❌ Cron Reminder Error:", error);
+    return NextResponse.json(
+      { error: "Failed to send reminders" },
+      { status: 500 },
+    );
+  }
+}
