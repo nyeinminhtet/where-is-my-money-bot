@@ -10,15 +10,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    // const users = await prisma.user.findMany({
-    //   select: {
-    //     telegramId: true,
-    //   },
-    // });
-    const user = await prisma.user.findFirst({
-      where: {
-        telegramId: "5442666991",
-      },
+    const users = await prisma.user.findMany({
       select: {
         telegramId: true,
       },
@@ -34,17 +26,11 @@ export async function GET(request: Request) {
 
     let sentCount = 0;
 
-    // 3. User တိုင်းဆီ Reminder စာ လှမ်းပို့မည်
-    // for (const user of users) {
-    //   if (user.telegramId) {
-    //     await sendMessage(user.telegramId.toString(), reminderMessage);
-    //     sentCount++;
-    //   }
-    // }
-
-    if (user && user.telegramId) {
-      await sendMessage(user.telegramId.toString(), reminderMessage);
-      sentCount++;
+    for (const user of users) {
+      if (user.telegramId) {
+        await sendMessage(user.telegramId.toString(), reminderMessage);
+        sentCount++;
+      }
     }
 
     return NextResponse.json({
