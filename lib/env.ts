@@ -25,4 +25,7 @@ export const env = {
       process.env.GEMINI_PROXY_URL ||
       "https://muddy-sun-be07.nyeinmg904.workers.dev",
   },
+
+  // Cron
+  cronSecret: getEnvVar("CRON_SECRET"),
 } as const;
