@@ -3,8 +3,6 @@ import type { User } from "@/generated/prisma/client";
 
 import { getChatId } from "@/lib/parser";
 
-import { sendMessage } from "@/lib/telegram";
-
 import { getMonthlyReport } from "@/services/report.service";
 
 import { formatCurrency } from "@/utils/formatCurrency";
@@ -14,6 +12,7 @@ import {
   getCurrentMonth,
   getCurrentYear,
 } from "@/utils/date";
+import { sendReportWithChart } from "@/lib/report-chart";
 
 export async function handleMonthly(update: TelegramUpdate, user: User) {
   const chatId = getChatId(update);
@@ -73,5 +72,5 @@ export async function handleMonthly(update: TelegramUpdate, user: User) {
     ...expenseLines,
   ].join("\n");
 
-  return sendMessage(chatId, message);
+  return sendReportWithChart(chatId, message, report.categoryExpenses ?? []);
 }

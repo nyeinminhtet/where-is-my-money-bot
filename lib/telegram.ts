@@ -93,3 +93,12 @@ export async function setWebhook(url: string) {
     url,
   });
 }
+
+export const sendPhoto = async (chatId: number | string, photoUrl: string, caption?: string) => {
+  return telegramRequest("sendPhoto", {
+    chat_id: chatId,
+    photo: photoUrl,
+    caption,
+    parse_mode: "Markdown",
+  });
+};
