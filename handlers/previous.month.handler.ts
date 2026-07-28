@@ -1,13 +1,10 @@
-// 📂 src/handlers/previousMonth.ts
-
 import type { TelegramUpdate } from "@/types/telegram";
 import type { User } from "@/generated/prisma/client";
 import { getChatId } from "@/lib/parser";
-import { sendMessage } from "@/lib/telegram";
 import { getMonthlyReport } from "@/services/report.service";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { getPreviousMonthRange } from "@/utils/date";
-import { mainMenuKeyboard } from "@/utils/keyboard";
+import { sendReportWithChart } from "@/lib/report-chart";
 
 export async function handlePreviousMonth(update: TelegramUpdate, user: User) {
   const chatId = getChatId(update);
@@ -67,7 +64,5 @@ export async function handlePreviousMonth(update: TelegramUpdate, user: User) {
     ...expenseLines,
   ].join("\n");
 
-  return sendMessage(chatId, message, {
-    reply_markup: mainMenuKeyboard(),
-  });
+  return sendReportWithChart(chatId, message, report.categoryExpenses ?? []);
 }
