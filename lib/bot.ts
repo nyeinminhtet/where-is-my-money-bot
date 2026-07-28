@@ -32,6 +32,8 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { undoKeyboard } from "@/utils/keyboard";
 import { handleHelp } from "@/handlers/helpe.handler";
 
+import { processUserAIQuery } from "@/services/ai-query.service"; // 🟢 Import သစ် ထည့်ရန်
+
 export async function handleTelegramUpdate(update: TelegramUpdate) {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
 
@@ -51,7 +53,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   switch (command) {
     case "/start":
       return handleStart(update, user);
-    case "/help": // 👈 ဒီနေရာမှာ ထည့်ပေးပါ
+    case "/help":
       return handleHelp(update);
     case "/balance":
       return handleBalance(update, user);
@@ -92,9 +94,22 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 🔥 2. AI Quick Transaction Parser (စာစကားလုံး ပါလာရင် ဘာ State ဖြစ်နေပါစေ AI ဆီ သွားမည်)
+  // 🔥 2. AI Handling (Query vs Transaction Parser)
   // -----------------------------
   if (text && !isOnlyNumbers) {
+    // 🟢 2.1 Query Pattern စစ်ဆေးခြင်း
+    const IS_QUERY_PATTERN =
+      /(ဘယ်လောက်|ကုန်လဲ|စရိတ်|စာရင်းပြ|ရလဲ|သုံးလိုက်တာ|ကုန်သွား|သုံးထား)/i;
+
+    if (IS_QUERY_PATTERN.test(text)) {
+      if (chatId) {
+        const queryReply = await processUserAIQuery(user.id, text);
+        return sendMessage(chatId, queryReply);
+      }
+      return;
+    }
+
+    // 🟢 2.2 Transaction Parser စစ်ဆေးခြင်း
     const aiResults = await parseTextWithAI(text);
 
     if (aiResults && Array.isArray(aiResults)) {
@@ -159,6 +174,15 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
 
         await clearSession(user.id);
 
+        return; // 🟢 Transaction သွင်းပြီးရင် ရပ်မည်
+      } else {
+        // 🟢 2.3 Transaction မဟုတ်ဘဲ အလကား စာအပိုရိုက်ထားတာဆိုရင် (ဥပမာ- "ငါဘယ်သူလဲ", "ဘာလဲဟ")
+        if (chatId) {
+          return sendMessage(
+            chatId,
+            "ကျွန်တော်က အသုံးစရိတ် စာရင်းမှတ်ပေးတဲ့ Bot ပါဗျ။ 📊 စာရင်းမှတ်ချင်ရင် 'မနက်စာ ၄၅၀၀' လို့ ရိုက်ပါ သို့မဟုတ် စာရင်းမေးချင်ရင် 'ဒီလ အစားအသောက် ဘယ်လောက် ကုန်လဲ' လို့ မေးနိုင်ပါတယ်ဗျ။",
+          );
+        }
         return;
       }
     } else {
@@ -168,6 +192,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
           "⚠️ လက်ရှိတွင် AI စနစ် ခေတ္တ မအားလပ်သေးပါ (Rate Limit ပြည့်နေပါသည်)။ ခဏစောင့်၍ ထပ်မံစမ်းသပ်ပေးပါဗျာ။",
         );
       }
+      return;
     }
   }
 
