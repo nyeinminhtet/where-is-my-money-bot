@@ -14,8 +14,11 @@ export const env = {
   directUrl: getEnvVar("DIRECT_URL"),
 
   // Telegram
-  telegramBotToken: getEnvVar("TELEGRAM_BOT_TOKEN"),
-  telegramApiUrl: getEnvVar("TELEGRAM_API_URL", "https://api.telegram.org"),
+  telegram: {
+    botToken: getEnvVar("TELEGRAM_BOT_TOKEN"),
+    apiUrl: getEnvVar("TELEGRAM_API_URL", "https://api.telegram.org"),
+    adminId: getEnvVar("ADMIN_TELEGRAM_ID"),
+  },
 
   // Gemini AI
   gemini: {

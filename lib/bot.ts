@@ -33,6 +33,7 @@ import { undoKeyboard } from "@/utils/keyboard";
 import { handleHelp } from "@/handlers/helpe.handler";
 
 import { processUserAIQuery } from "@/services/ai-query.service"; // 🟢 Import သစ် ထည့်ရန်
+import { checkAndUpdateAiQuota } from "@/services/rate-limit.service";
 
 export async function handleTelegramUpdate(update: TelegramUpdate) {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
@@ -122,6 +123,22 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
 
     if (IS_QUERY_PATTERN.test(text)) {
       if (chatId) {
+        // 🚨 1. AI Rate Limit / Quota စစ်ဆေးမည်
+        const quota = await checkAndUpdateAiQuota(
+          user.id,
+          String(telegramUser.id),
+          user.role,
+        );
+
+        // 🚨 2. Limit ပြည့်နေပါက AI ဆီ မလွှတ်ဘဲ ငြင်းမည်
+        if (!quota.allowed) {
+          return sendMessage(
+            chatId,
+            "တောင်းပန်ပါတယ်ဗျာ၊ ဒီနေ့အတွက် AI မေးခွန်းမေးမြန်းနိုင်သည့် အကြိမ်အရေအတွက် (၁၀ကြိမ်) ပြည့်သွားပါပြီ။ မနက်ဖြန်တွင် ပြန်လည် မေးမြန်းနိုင်ပါတယ်ဗျာ။ ခုလောလောဆယ် manual keyboard button တွေနဲ့ပဲ အလုပ်လုပ်နိုင်ပါတယ် ခင်ဗျာ...",
+          );
+        }
+
+        // 🚨 3. Quota ရှိပါက Gemini AI Process ဆီ ပို့မည်
         const queryReply = await processUserAIQuery(user.id, text);
         return sendMessage(chatId, queryReply);
       }

@@ -5,7 +5,7 @@ import type {
 import { env } from "./env";
 
 function getBotToken(): string {
-  const token = env.telegramBotToken;
+  const token = env.telegram.botToken;
 
   if (!token) {
     throw new Error("TELEGRAM_BOT_TOKEN is missing");
@@ -20,7 +20,7 @@ async function telegramRequest<T>(
 ): Promise<T> {
   const token = getBotToken();
 
-  const response = await fetch(`${env.telegramApiUrl}/bot${token}/${method}`, {
+  const response = await fetch(`${env.telegram.apiUrl}/bot${token}/${method}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -94,7 +94,11 @@ export async function setWebhook(url: string) {
   });
 }
 
-export const sendPhoto = async (chatId: number | string, photoUrl: string, caption?: string) => {
+export const sendPhoto = async (
+  chatId: number | string,
+  photoUrl: string,
+  caption?: string,
+) => {
   return telegramRequest("sendPhoto", {
     chat_id: chatId,
     photo: photoUrl,
