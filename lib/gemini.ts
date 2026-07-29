@@ -139,59 +139,48 @@ export interface QueryIntent {
 }
 
 // Function 1: Transaction Logging Parser
-export async function parseTextWithAI(
-  userText: string,
-): Promise<AIParsedTransaction[] | null> {
-  if (!userText || userText.trim().length < 2) return null;
-
-  try {
-    const prompt = `Extract all financial transactions from this text: "${userText}". 
+export const parseTextWithAI = async (userText: string): Promise<AIParsedTransaction[] | null> => {
+    if (!userText || userText.trim().length < 2)
+        return null;
+    try {
+        const prompt = `Extract all financial transactions from this text: "${userText}". 
   If multiple transactions are present, extract each one separately into the array.
   Convert Myanmar digits (၁၂၃) to English numbers.
   If no item name is provided for a number, do NOT mark it as a valid transaction.`;
-
-    const result = await transactionModel.generateContent(prompt);
-    const responseText = result.response.text();
-
-    if (!responseText) return null;
-
-    const transactions = JSON.parse(responseText);
-    return Array.isArray(transactions) ? transactions : [transactions];
-  } catch (error) {
-    console.error("Gemini AI Parsing Error:", error);
-    return null;
-  }
-}
+        const result = await transactionModel.generateContent(prompt);
+        const responseText = result.response.text();
+        if (!responseText)
+            return null;
+        const transactions = JSON.parse(responseText);
+        return Array.isArray(transactions) ? transactions : [transactions];
+    }
+    catch (error) {
+        console.error("Gemini AI Parsing Error:", error);
+        return null;
+    }
+};
 
 // Function 2: Query Intent Parser with Dynamic Myanmar Timezone Calculation
-export async function parseUserQueryIntent(userText: string) {
-  if (!userText || userText.trim().length < 2) return null;
-
-  const now = new Date();
-  const mmTime = new Date(now.getTime() + 6.5 * 60 * 60 * 1000);
-  const todayStr = mmTime.toISOString().split("T")[0];
-
-  const yesterday = new Date(mmTime);
-  yesterday.setDate(mmTime.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-  const startOfMonth = new Date(mmTime.getFullYear(), mmTime.getMonth(), 1)
-    .toISOString()
-    .split("T")[0];
-
-  const prevMonthStart = new Date(
-    mmTime.getFullYear(),
-    mmTime.getMonth() - 1,
-    1,
-  )
-    .toISOString()
-    .split("T")[0];
-  const prevMonthEnd = new Date(mmTime.getFullYear(), mmTime.getMonth(), 0)
-    .toISOString()
-    .split("T")[0];
-
-  try {
-    const prompt = `You are a query intent parser for a Myanmar personal finance bot.
+export const parseUserQueryIntent = async (userText: string) => {
+    if (!userText || userText.trim().length < 2)
+        return null;
+    const now = new Date();
+    const mmTime = new Date(now.getTime() + 6.5 * 60 * 60 * 1000);
+    const todayStr = mmTime.toISOString().split("T")[0];
+    const yesterday = new Date(mmTime);
+    yesterday.setDate(mmTime.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+    const startOfMonth = new Date(mmTime.getFullYear(), mmTime.getMonth(), 1)
+        .toISOString()
+        .split("T")[0];
+    const prevMonthStart = new Date(mmTime.getFullYear(), mmTime.getMonth() - 1, 1)
+        .toISOString()
+        .split("T")[0];
+    const prevMonthEnd = new Date(mmTime.getFullYear(), mmTime.getMonth(), 0)
+        .toISOString()
+        .split("T")[0];
+    try {
+        const prompt = `You are a query intent parser for a Myanmar personal finance bot.
 
 [Dynamic Date Context (Myanmar Time UTC+6:30)]
 - Today: ${todayStr}
@@ -218,15 +207,14 @@ export async function parseUserQueryIntent(userText: string) {
    - Set "isFinanceRelated": true for any questions asking about money spent, income, totals, or daily transactions (in Burmese, English, or Singlish).
    
 User text: "${userText}"`;
-
-    const result = await queryIntentModel.generateContent(prompt);
-    const responseText = result.response.text();
-
-    if (!responseText) return null;
-
-    return JSON.parse(responseText);
-  } catch (error) {
-    console.error("Gemini Query Intent Error:", error);
-    return null;
-  }
-}
+        const result = await queryIntentModel.generateContent(prompt);
+        const responseText = result.response.text();
+        if (!responseText)
+            return null;
+        return JSON.parse(responseText);
+    }
+    catch (error) {
+        console.error("Gemini Query Intent Error:", error);
+        return null;
+    }
+};

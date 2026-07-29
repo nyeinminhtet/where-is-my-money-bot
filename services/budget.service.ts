@@ -9,9 +9,9 @@ export const setBudget = async (userId: string, amount: number) => {
   });
 };
 
-export async function updateBudgetSession(userId: string) {
-  return await prisma.botSession.update({
-    where: { userId: userId },
-    data: { currentState: "WAITING_BUDGET" },
-  });
-}
+export const updateBudgetSession = async (userId: string) => {
+    return await prisma.botSession.update({
+        where: { userId: userId },
+        data: { currentState: "WAITING_BUDGET" },
+    });
+};

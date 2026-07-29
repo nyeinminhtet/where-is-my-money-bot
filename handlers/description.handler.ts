@@ -17,19 +17,12 @@ import { undoKeyboard } from "@/utils/keyboard";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { getBalance } from "@/services/balance.service";
 
-export async function handleDescription(update: TelegramUpdate, user: User) {
+export const handleDescription = async (update: TelegramUpdate, user: User) => {
   const chatId = getChatId(update);
-
   if (!chatId) return;
-
   const description = getMessageText(update).trim();
 
-  // if (!description) {
-  //   return sendMessage(chatId, "ဖော်ပြချက် ထည့်ပေးပါ။");
-  // }
-
   const session = await getSession(user.id);
-
   if (
     !session ||
     !session.tempAmount ||
@@ -41,7 +34,6 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
       "ငွေစာရင်းအချက်အလက် မပြည့်စုံပါ။ ထပ်မံကြိုးစားပါ။",
     );
   }
-
   const transaction = await createTransaction({
     userId: user.id,
     amount: session.tempAmount,
@@ -49,17 +41,12 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
     category: session.tempCategory,
     description,
   });
-
   await clearSession(user.id);
-
   const currentBalance = await getBalance(user.id);
-
   const typeText = transaction.type === "INCOME" ? "ဝင်ငွေ" : "ထွက်ငွေ";
-
   const descriptionText = transaction.description
     ? transaction.description
     : "မရှိပါ";
-
   sendMessage(
     chatId,
     [
@@ -76,17 +63,14 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
       reply_markup: undoKeyboard(transaction.id),
     },
   );
-
   if (transaction.type === "EXPENSE" && user.monthlyBudget) {
     const totalExpense = await getTotalExpenseThisMonth(user.id);
     const budget = user.monthlyBudget;
     const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
-
     let budgetMessage = [
       `📊 **လစဉ် Budget အခြေအနေ:**`,
       `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
     ].join("\n");
-
     if (totalExpense >= budget) {
       budgetMessage +=
         "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
@@ -94,8 +78,7 @@ export async function handleDescription(update: TelegramUpdate, user: User) {
       budgetMessage +=
         "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
     }
-
     // စက္ကန့်ပိုင်းလေး ခြားပြီး ဒုတိယ Message အဖြစ် ပို့လိုက်တာပေါ့ ဆရာသမား
     await sendMessage(chatId, budgetMessage);
   }
-}
+};

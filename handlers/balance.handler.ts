@@ -10,20 +10,17 @@ import { getBalance } from "@/services/balance.service";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { mainMenuKeyboard } from "@/utils/keyboard";
 
-export async function handleBalance(update: TelegramUpdate, user: User) {
-  const chatId = getChatId(update);
-
-  if (!chatId) return;
-
-  const balance = await getBalance(user.id);
-
-  const message = [
-    "💰 လက်ကျန်ငွေ",
-    "",
-    `စုစုပေါင်း - ${formatCurrency(balance)}`,
-  ].join("\n");
-
-  return sendMessage(chatId, message, {
-    reply_markup: mainMenuKeyboard(),
-  });
-}
+export const handleBalance = async (update: TelegramUpdate, user: User) => {
+    const chatId = getChatId(update);
+    if (!chatId)
+        return;
+    const balance = await getBalance(user.id);
+    const message = [
+        "💰 လက်ကျန်ငွေ",
+        "",
+        `စုစုပေါင်း - ${formatCurrency(balance)}`,
+    ].join("\n");
+    return sendMessage(chatId, message, {
+        reply_markup: mainMenuKeyboard(),
+    });
+};

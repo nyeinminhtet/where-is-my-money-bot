@@ -7,14 +7,12 @@ import { getChatId } from "@/lib/parser";
 import { updateState } from "@/lib/session";
 import { mainMenuKeyboard } from "@/utils/keyboard";
 
-export async function handleStart(update: TelegramUpdate, user: User) {
-  const chatId = getChatId(update);
-
-  if (!chatId) return;
-
-  await updateState(user.id, SessionState.IDLE);
-
-  const welcomeMessage = `👋 မင်္ဂလာပါ *${user.firstName ?? ""}*!
+export const handleStart = async (update: TelegramUpdate, user: User) => {
+    const chatId = getChatId(update);
+    if (!chatId)
+        return;
+    await updateState(user.id, SessionState.IDLE);
+    const welcomeMessage = `👋 မင်္ဂလာပါ *${user.firstName ?? ""}*!
 
 🚀 **Where Is My Money** မှ လှိုက်လှဲစွာ ကြိုဆိုပါတယ်။
 
@@ -24,8 +22,7 @@ export async function handleStart(update: TelegramUpdate, user: User) {
 • သက်ဆိုင်ရာ အမျိုးအစား (Category) ကို ရွေးချယ်ပါ။
 
 💡 *အခုပဲ ဂဏန်းတစ်ခုခု ရိုက်ထည့်ပြီး စမ်းသပ်ကြည့်လိုက်ပါ!*`;
-
-  await sendMessage(chatId, welcomeMessage, {
-    reply_markup: mainMenuKeyboard(),
-  });
-}
+    await sendMessage(chatId, welcomeMessage, {
+        reply_markup: mainMenuKeyboard(),
+    });
+};
