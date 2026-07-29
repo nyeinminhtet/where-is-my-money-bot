@@ -7,11 +7,9 @@ const genAI = new GoogleGenerativeAI(env.gemini.apiKey);
 
 const answerModel = genAI.getGenerativeModel(
   { model: env.gemini.model },
-  { baseUrl: "https://muddy-sun-be07.nyeinmg904.workers.dev" },
+  { baseUrl: env.gemini.proxyUrl },
 );
 
-const FINANCE_KEYWORDS =
-  /(ဘယ်လောက်|ကုန်|ရ|ဝင်|ထွက်|စာရင်း|ဒီလ|မနေ့က|အသုံးစရိတ်|ကျပ်|စရိတ်|မှတ်|လအလိုက်|သုံး|ငွေ|ကုန်သွား|ဘာက|အဓိက|အများဆုံး|ကျော်)/i;
 export async function processUserAIQuery(userId: string, userText: string) {
   // 1. Gemini Intent Parsing
   const intent = await parseUserQueryIntent(userText);
