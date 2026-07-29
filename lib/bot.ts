@@ -32,6 +32,8 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { undoKeyboard } from "@/utils/keyboard";
 import { handleHelp } from "@/handlers/helpe.handler";
 
+import { processUserAIQuery } from "@/services/ai-query.service"; // 🟢 Import သစ် ထည့်ရန်
+
 export async function handleTelegramUpdate(update: TelegramUpdate) {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
 
@@ -51,13 +53,12 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   switch (command) {
     case "/start":
       return handleStart(update, user);
-    case "/help": // 👈 ဒီနေရာမှာ ထည့်ပေးပါ
+    case "/help":
       return handleHelp(update);
     case "/balance":
       return handleBalance(update, user);
     case "/set_budget":
       return askForBudget(update, user.id);
-
     case "/check_budget":
       return handleCheckBudget(update, user);
     case "/today":
@@ -83,7 +84,27 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 🔥 1. Number Only Check (e.g. "1000", "၁၀၀၀") -> Manual Mode
+  // 🔥 1. Help / Onboarding Pattern Check
+  // -----------------------------
+  const IS_HELP_PATTERN = /(ဘယ်လို|စရမလဲ|သုံးရမလဲ|ကူညီပါ|help|စတင်)/i;
+  if (text && IS_HELP_PATTERN.test(text.trim())) {
+    if (chatId) {
+      return sendMessage(
+        chatId,
+        `💡 **Bot ကို အလွယ်တကူ သုံးစွဲနည်း**\n\n` +
+          `၁။ **AI ဖြင့် စာရင်းမှတ်ရန်:**\n` +
+          `   အလွယ်တကူ စာရိုက်လိုက်ပါ (ဥပမာ - "မနက်စာ ၄၅၀၀" သို့မဟုတ် "ကားဂိတ် ၅၀၀၀ ရေဖိုး ၁၀၀၀")\n\n` +
+          `၂။ **AI ဖြင့် စာရင်းပြန်မေးရန်:**\n` +
+          `   "ဒီလ အစားအသောက် ဘယ်လောက် ကုန်လဲ" သို့မဟုတ် "မနေ့က စာရင်းပြပါ"\n\n` +
+          `၃။ **Manual Step-by-Step မှတ်ရန်:**\n` +
+          `   ငွေပမာဏ သီးသန့် (ဥပမာ - "၁၀၀၀") ရိုက်ထည့်လိုက်ပါ။`,
+      );
+    }
+    return;
+  }
+
+  // -----------------------------
+  // 🔥 2. Number Only Check (e.g. "1000", "၁၀၀၀") -> Manual Mode
   // -----------------------------
   const isOnlyNumbers = text ? /^[0-9၁-၉\s,]+$/.test(text.trim()) : false;
 
@@ -92,9 +113,22 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 🔥 2. AI Quick Transaction Parser (စာစကားလုံး ပါလာရင် ဘာ State ဖြစ်နေပါစေ AI ဆီ သွားမည်)
+  // 🔥 3. AI Handling (Search Query vs Transaction Parser)
   // -----------------------------
   if (text && !isOnlyNumbers) {
+    // 🟢 3.1 Search Query Pattern Regex Match
+    const IS_QUERY_PATTERN =
+      /(ဘယ်လောက်|ကုန်လဲ|စရိတ်|စာရင်းပြ|ရလဲ|သုံးလိုက်တာ|ကုန်သွား|သုံးထား|ဘာက|ဘယ်ဟာ|အဓိက|အများဆုံး|ကျော်|what|how|much|many|spend|spent|earn|earned|cost|total|list|show|income|expense)/i;
+
+    if (IS_QUERY_PATTERN.test(text)) {
+      if (chatId) {
+        const queryReply = await processUserAIQuery(user.id, text);
+        return sendMessage(chatId, queryReply);
+      }
+      return;
+    }
+
+    // 🟢 3.2 Transaction Parser Flow
     const aiResults = await parseTextWithAI(text);
 
     if (aiResults && Array.isArray(aiResults)) {
@@ -158,7 +192,15 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
         }
 
         await clearSession(user.id);
-
+        return;
+      } else {
+        // 🟢 3.3 Transaction မဟုတ်သည့် မဆီမဆိုင် စာသားများအတွက် Guide Message ပြန်ပေးမည်
+        if (chatId) {
+          return sendMessage(
+            chatId,
+            "ကျွန်တော်က အသုံးစရိတ် စာရင်းမှတ်ပေးတဲ့ Bot ပါဗျ။ 📊 စာရင်းမှတ်ချင်ရင် 'မနက်စာ ၄၅၀၀' လို့ ရိုက်ပါ သို့မဟုတ် စာရင်းမေးချင်ရင် 'ဒီလ အစားအသောက် ဘယ်လောက် ကုန်လဲ' လို့ မေးနိုင်ပါတယ်ဗျ။",
+          );
+        }
         return;
       }
     } else {
@@ -168,11 +210,12 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
           "⚠️ လက်ရှိတွင် AI စနစ် ခေတ္တ မအားလပ်သေးပါ (Rate Limit ပြည့်နေပါသည်)။ ခဏစောင့်၍ ထပ်မံစမ်းသပ်ပေးပါဗျာ။",
         );
       }
+      return;
     }
   }
 
   // -----------------------------
-  // 3. Callback Queries
+  // 4. Callback Queries
   // -----------------------------
   const callbackData = update.callback_query?.data;
 
@@ -193,7 +236,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 4. Manual Step-by-step Conversation State Machine
+  // 5. Manual Step-by-step Conversation State Machine
   // -----------------------------
   if (!update.callback_query) {
     switch (session.currentState) {
