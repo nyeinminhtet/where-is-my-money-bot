@@ -59,7 +59,6 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
       return handleBalance(update, user);
     case "/set_budget":
       return askForBudget(update, user.id);
-
     case "/check_budget":
       return handleCheckBudget(update, user);
     case "/today":
@@ -85,7 +84,27 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 🔥 1. Number Only Check (e.g. "1000", "၁၀၀၀") -> Manual Mode
+  // 🔥 1. Help / Onboarding Pattern Check
+  // -----------------------------
+  const IS_HELP_PATTERN = /(ဘယ်လို|စရမလဲ|သုံးရမလဲ|ကူညီပါ|help|စတင်)/i;
+  if (text && IS_HELP_PATTERN.test(text.trim())) {
+    if (chatId) {
+      return sendMessage(
+        chatId,
+        `💡 **Bot ကို အလွယ်တကူ သုံးစွဲနည်း**\n\n` +
+          `၁။ **AI ဖြင့် စာရင်းမှတ်ရန်:**\n` +
+          `   အလွယ်တကူ စာရိုက်လိုက်ပါ (ဥပမာ - "မနက်စာ ၄၅၀၀" သို့မဟုတ် "ကားဂိတ် ၅၀၀၀ ရေဖိုး ၁၀၀၀")\n\n` +
+          `၂။ **AI ဖြင့် စာရင်းပြန်မေးရန်:**\n` +
+          `   "ဒီလ အစားအသောက် ဘယ်လောက် ကုန်လဲ" သို့မဟုတ် "မနေ့က စာရင်းပြပါ"\n\n` +
+          `၃။ **Manual Step-by-Step မှတ်ရန်:**\n` +
+          `   ငွေပမာဏ သီးသန့် (ဥပမာ - "၁၀၀၀") ရိုက်ထည့်လိုက်ပါ။`,
+      );
+    }
+    return;
+  }
+
+  // -----------------------------
+  // 🔥 2. Number Only Check (e.g. "1000", "၁၀၀၀") -> Manual Mode
   // -----------------------------
   const isOnlyNumbers = text ? /^[0-9၁-၉\s,]+$/.test(text.trim()) : false;
 
@@ -94,12 +113,12 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 🔥 2. AI Handling (Query vs Transaction Parser)
+  // 🔥 3. AI Handling (Search Query vs Transaction Parser)
   // -----------------------------
   if (text && !isOnlyNumbers) {
-    // 🟢 2.1 Query Pattern စစ်ဆေးခြင်း
+    // 🟢 3.1 Search Query Pattern Regex Match
     const IS_QUERY_PATTERN =
-      /(ဘယ်လောက်|ကုန်လဲ|စရိတ်|စာရင်းပြ|ရလဲ|သုံးလိုက်တာ|ကုန်သွား|သုံးထား)/i;
+      /(ဘယ်လောက်|ကုန်လဲ|စရိတ်|စာရင်းပြ|ရလဲ|သုံးလိုက်တာ|ကုန်သွား|သုံးထား|ဘာက|ဘယ်ဟာ|အဓိက|အများဆုံး|ကျော်|what|how|much|many|spend|spent|earn|earned|cost|total|list|show|income|expense)/i;
 
     if (IS_QUERY_PATTERN.test(text)) {
       if (chatId) {
@@ -109,7 +128,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
       return;
     }
 
-    // 🟢 2.2 Transaction Parser စစ်ဆေးခြင်း
+    // 🟢 3.2 Transaction Parser Flow
     const aiResults = await parseTextWithAI(text);
 
     if (aiResults && Array.isArray(aiResults)) {
@@ -173,10 +192,9 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
         }
 
         await clearSession(user.id);
-
-        return; // 🟢 Transaction သွင်းပြီးရင် ရပ်မည်
+        return;
       } else {
-        // 🟢 2.3 Transaction မဟုတ်ဘဲ အလကား စာအပိုရိုက်ထားတာဆိုရင် (ဥပမာ- "ငါဘယ်သူလဲ", "ဘာလဲဟ")
+        // 🟢 3.3 Transaction မဟုတ်သည့် မဆီမဆိုင် စာသားများအတွက် Guide Message ပြန်ပေးမည်
         if (chatId) {
           return sendMessage(
             chatId,
@@ -197,7 +215,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 3. Callback Queries
+  // 4. Callback Queries
   // -----------------------------
   const callbackData = update.callback_query?.data;
 
@@ -218,7 +236,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate) {
   }
 
   // -----------------------------
-  // 4. Manual Step-by-step Conversation State Machine
+  // 5. Manual Step-by-step Conversation State Machine
   // -----------------------------
   if (!update.callback_query) {
     switch (session.currentState) {
