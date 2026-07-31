@@ -99,22 +99,14 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-slate-950 text-slate-100 p-4 font-sans selection:bg-emerald-500 selection:text-white">
       <div className="max-w-md mx-auto space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
-          <div>
-            <h1 className="text-lg font-bold tracking-tight text-white">
-              Where Is My Money
-            </h1>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Welcome,{" "}
-              <span className="text-emerald-400 font-medium">
-                {user?.first_name || "User"}
-              </span>{" "}
-              👋
-            </p>
-          </div>
-          <span className="text-[10px] uppercase tracking-wider font-mono bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20">
-            Mini App
-          </span>
+        <div className="border-b border-slate-800/80 pb-3">
+          <p className="text-base font-medium text-slate-300">
+            Welcome,{" "}
+            <span className="text-emerald-400 font-bold">
+              {user?.first_name || "User"}
+            </span>{" "}
+            👋
+          </p>
         </div>
 
         {/* Financial Summary Card (Income / Expense / Balance) */}
