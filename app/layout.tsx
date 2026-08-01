@@ -1,5 +1,6 @@
 import Script from "next/script";
 
+import Providers from "./providers";
 import "./globals.css";
 
 export default function RootLayout({
@@ -15,7 +16,9 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
