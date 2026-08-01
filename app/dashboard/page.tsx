@@ -133,15 +133,21 @@ const DashboardPage = () => {
     });
   };
 
+  const handleSelectDate = (year: number, month: number) => {
+    setSelectedDate({ year, month });
+  };
+
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 p-4 font-sans selection:bg-emerald-500 selection:text-white">
       <div className="mx-auto flex max-w-md flex-col gap-4">
         <Header name={user?.first_name || "User"} />
+
         <MonthSelector
           month={selectedDate.month}
           year={selectedDate.year}
           onPrev={handlePrevMonth}
           onNext={handleNextMonth}
+          onSelectDate={handleSelectDate}
         />
         <SummaryCards
           balance={summary.balance}
