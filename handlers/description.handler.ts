@@ -1,9 +1,9 @@
-import type { TelegramUpdate } from "@/types/telegram";
 import type { User } from "@/generated/prisma/client";
+import type { TelegramUpdate } from "@/types/telegram";
 
 import { getChatId, getMessageText } from "@/lib/parser";
 
-import { getSession, clearSession } from "@/lib/session";
+import { clearSession, getSession } from "@/lib/session";
 
 import { sendMessage } from "@/lib/telegram";
 
@@ -12,10 +12,10 @@ import {
   getTotalExpenseThisMonth,
 } from "@/services/transaction.service";
 
-import { undoKeyboard } from "@/utils/keyboard";
-
 import { formatCurrency } from "@/utils/formatCurrency";
-import { getBalance } from "@/services/balance.service";
+import { undoKeyboard } from "@/utils/keyboard";
+// 1. getBalance အစား getBalanceDetails ကို ပြောင်း import လုပ်ပါမည်
+import { getBalanceDetails } from "@/services/balance.service";
 
 export const handleDescription = async (update: TelegramUpdate, user: User) => {
   const chatId = getChatId(update);
@@ -42,27 +42,41 @@ export const handleDescription = async (update: TelegramUpdate, user: User) => {
     description,
   });
   await clearSession(user.id);
-  const currentBalance = await getBalance(user.id);
+
+  // 2. getBalanceDetails ကို ခေါ်ယူပြီး Destructure လုပ်ပါမည်
+  const { totalNetBalance, carriedForwardBalance } = await getBalanceDetails(
+    user.id,
+  );
+
   const typeText = transaction.type === "INCOME" ? "ဝင်ငွေ" : "ထွက်ငွေ";
   const descriptionText = transaction.description
     ? transaction.description
     : "မရှိပါ";
-  sendMessage(
-    chatId,
-    [
-      "✅ စာရင်းသွင်းပြီးပါပြီ။",
-      "",
-      `📌 အမျိုးအစား - ${typeText}`,
-      `📂 ကဏ္ဍ - ${transaction.category}`,
-      `💰 ပမာဏ - ${formatCurrency(transaction.amount)}`,
-      `📝 မှတ်ချက် - ${descriptionText}`,
-      "",
-      `💵 လက်ကျန်ငွေ - ${formatCurrency(currentBalance)}`, // ✨ ဒီမှာ တွဲပြလိုက်တာ ကွက်တိပဲ!
-    ].join("\n"),
-    {
-      reply_markup: undoKeyboard(transaction.id),
-    },
-  );
+
+  // Message Lines Dynamic ဆောက်ခြင်း
+  const responseLines = [
+    "✅ **စာရင်းသွင်းပြီးပါပြီ။**",
+    "",
+    `📌 အမျိုးအစား - ${typeText}`,
+    `📂 ကဏ္ဍ - ${transaction.category}`,
+    `💰 ပမာဏ - ${formatCurrency(transaction.amount)}`,
+    `📝 မှတ်ချက် - ${descriptionText}`,
+    "",
+    `💵 **လက်ကျန်ငွေ - ${formatCurrency(totalNetBalance)}**`,
+  ];
+
+  // ယခင်လမှ ကျန်ငွေ ရှိနေရင် Indicator လေး ပါအောင် ထည့်ပေးမည်
+  if (carriedForwardBalance !== 0) {
+    responseLines.push(
+      `*(ယခင်လများမှ ကျန်ငွေ: ${formatCurrency(carriedForwardBalance)})*`,
+    );
+  }
+
+  await sendMessage(chatId, responseLines.join("\n"), {
+    parse_mode: "Markdown",
+    reply_markup: undoKeyboard(transaction.id),
+  });
+
   if (transaction.type === "EXPENSE" && user.monthlyBudget) {
     const totalExpense = await getTotalExpenseThisMonth(user.id);
     const budget = user.monthlyBudget;
@@ -78,7 +92,7 @@ export const handleDescription = async (update: TelegramUpdate, user: User) => {
       budgetMessage +=
         "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
     }
-    // စက္ကန့်ပိုင်းလေး ခြားပြီး ဒုတိယ Message အဖြစ် ပို့လိုက်တာပေါ့ ဆရာသမား
-    await sendMessage(chatId, budgetMessage);
+
+    await sendMessage(chatId, budgetMessage, { parse_mode: "Markdown" });
   }
 };
