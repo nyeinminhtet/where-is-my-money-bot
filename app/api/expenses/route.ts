@@ -5,6 +5,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const telegramId = searchParams.get("telegramId");
+    const monthParam = searchParams.get("month");
+    const yearParam = searchParams.get("year");
 
     if (!telegramId) {
       return NextResponse.json(
@@ -22,15 +24,19 @@ export async function GET(request: Request) {
     }
 
     const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const requestedMonth = monthParam ? Number(monthParam) : now.getMonth() + 1;
+    const requestedYear = yearParam ? Number(yearParam) : now.getFullYear();
 
-    // INCOME ရော EXPENSE ရော အကုန်ဆွဲယူမည် (Reversed မဖြစ်တာများ)
+    const startDate = new Date(requestedYear, requestedMonth - 1, 1);
+    const endDate = new Date(requestedYear, requestedMonth, 1);
+
     const transactions = await prisma.transaction.findMany({
       where: {
         userId: user.id,
         reversedAt: null,
         createdAt: {
-          gte: startOfMonth, // Greater than or equal to 1st of this month
+          gte: startDate,
+          lt: endDate,
         },
       },
       orderBy: {
@@ -38,7 +44,6 @@ export async function GET(request: Request) {
       },
     });
 
-    // Income, Expense, Balance စုစုပေါင်း တွက်ချက်ခြင်း
     let totalIncome = 0;
     let totalExpense = 0;
 
@@ -49,6 +54,13 @@ export async function GET(request: Request) {
         totalExpense += item.amount;
       }
     });
+
+    const breakdown = transactions
+      .filter((item) => item.type === "EXPENSE")
+      .reduce<Record<string, number>>((acc, item) => {
+        acc[item.category] = (acc[item.category] ?? 0) + item.amount;
+        return acc;
+      }, {});
 
     return NextResponse.json({
       success: true,
@@ -61,9 +73,13 @@ export async function GET(request: Request) {
         id: item.id,
         title: item.description || item.category,
         amount: item.amount,
-        type: item.type, // 'INCOME' or 'EXPENSE'
+        type: item.type,
         category: item.category,
         createdAt: item.createdAt,
+      })),
+      breakdown: Object.entries(breakdown).map(([category, amount]) => ({
+        category,
+        amount,
       })),
     });
   } catch (error) {
