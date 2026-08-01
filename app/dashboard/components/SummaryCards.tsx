@@ -1,12 +1,16 @@
+import { formatAmount } from "@/lib/helpers/summary";
+
 type SummaryCardsProps = {
-  balance: number;
+  totalNetBalance: number;
+  carriedForwardBalance: number;
   totalIncome: number;
   totalExpense: number;
   isLoading: boolean;
 };
 
 const SummaryCards = ({
-  balance,
+  totalNetBalance,
+  carriedForwardBalance,
   totalIncome,
   totalExpense,
   isLoading,
@@ -18,10 +22,15 @@ const SummaryCards = ({
           Net Balance (လက်ကျန်ငွေ)
         </p>
         <p
-          className={`text-3xl font-black tracking-tight mt-1 ${balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+          className={`text-3xl font-black tracking-tight mt-1 ${totalNetBalance >= 0 ? "text-emerald-400" : "text-rose-400"}`}
         >
-          {isLoading ? "..." : `${balance.toLocaleString()} Ks`}
+          {isLoading ? "..." : `${formatAmount(totalNetBalance)} Ks`}
         </p>
+        {carriedForwardBalance > 0 && (
+          <p className="mt-2 text-[11px] text-slate-400">
+            *(ယခင်လမှ ကျန်ငွေ: +{formatAmount(carriedForwardBalance)} Ks)*
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/80">
@@ -30,7 +39,7 @@ const SummaryCards = ({
             Total Income
           </p>
           <p className="text-base font-bold text-emerald-300 mt-0.5">
-            +{isLoading ? "..." : totalIncome.toLocaleString()} Ks
+            +{isLoading ? "..." : formatAmount(totalIncome)} Ks
           </p>
         </div>
 
@@ -39,7 +48,7 @@ const SummaryCards = ({
             Total Expense
           </p>
           <p className="text-base font-bold text-rose-300 mt-0.5">
-            -{isLoading ? "..." : totalExpense.toLocaleString()} Ks
+            -{isLoading ? "..." : formatAmount(totalExpense)} Ks
           </p>
         </div>
       </div>

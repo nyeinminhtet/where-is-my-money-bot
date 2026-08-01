@@ -11,9 +11,11 @@ import TransactionList from "./components/TransactionList";
 import ViewTabs from "./components/ViewTabs";
 
 type TransactionSummary = {
+  carriedForwardBalance: number;
   totalIncome: number;
   totalExpense: number;
-  balance: number;
+  totalNetBalance: number;
+  balance?: number;
 };
 
 type TransactionItem = {
@@ -88,7 +90,13 @@ const DashboardPage = () => {
       if (!user?.id) {
         return {
           success: true,
-          summary: { totalIncome: 0, totalExpense: 0, balance: 0 },
+          summary: {
+            carriedForwardBalance: 0,
+            totalIncome: 0,
+            totalExpense: 0,
+            totalNetBalance: 0,
+            balance: 0,
+          },
           transactions: [],
           breakdown: [],
         };
@@ -108,8 +116,10 @@ const DashboardPage = () => {
   const summary = useMemo(
     () =>
       data?.summary ?? {
+        carriedForwardBalance: 0,
         totalIncome: 0,
         totalExpense: 0,
+        totalNetBalance: 0,
         balance: 0,
       },
     [data?.summary],
@@ -150,7 +160,8 @@ const DashboardPage = () => {
           onSelectDate={handleSelectDate}
         />
         <SummaryCards
-          balance={summary.balance}
+          totalNetBalance={summary.totalNetBalance}
+          carriedForwardBalance={summary.carriedForwardBalance}
           totalIncome={summary.totalIncome}
           totalExpense={summary.totalExpense}
           isLoading={isLoading}

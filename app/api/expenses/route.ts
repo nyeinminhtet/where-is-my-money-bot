@@ -1,3 +1,4 @@
+import { getMonthDateRange } from "@/lib/helpers/summary";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -27,15 +28,17 @@ export async function GET(request: Request) {
     const requestedMonth = monthParam ? Number(monthParam) : now.getMonth() + 1;
     const requestedYear = yearParam ? Number(yearParam) : now.getFullYear();
 
-    const startDate = new Date(requestedYear, requestedMonth - 1, 1);
-    const endDate = new Date(requestedYear, requestedMonth, 1);
+    const { startDate, endDate } = getMonthDateRange(
+      requestedYear,
+      requestedMonth,
+    );
 
+    // Fetch all valid transactions up to the end of selected month
     const transactions = await prisma.transaction.findMany({
       where: {
         userId: user.id,
         reversedAt: null,
         createdAt: {
-          gte: startDate,
           lt: endDate,
         },
       },
@@ -44,18 +47,34 @@ export async function GET(request: Request) {
       },
     });
 
+    let carriedForwardBalance = 0;
     let totalIncome = 0;
     let totalExpense = 0;
+    const currentMonthTransactions = [];
 
-    transactions.forEach((item) => {
-      if (item.type === "INCOME") {
-        totalIncome += item.amount;
-      } else if (item.type === "EXPENSE") {
-        totalExpense += item.amount;
+    // Separate previous transactions and current month transactions cleanly
+    for (const item of transactions) {
+      if (item.createdAt < startDate) {
+        // Rollover Balance Calculation
+        if (item.type === "INCOME") {
+          carriedForwardBalance += item.amount;
+        } else if (item.type === "EXPENSE") {
+          carriedForwardBalance -= item.amount;
+        }
+      } else {
+        // Selected Month Transactions
+        currentMonthTransactions.push(item);
+        if (item.type === "INCOME") {
+          totalIncome += item.amount;
+        } else if (item.type === "EXPENSE") {
+          totalExpense += item.amount;
+        }
       }
-    });
+    }
 
-    const breakdown = transactions
+    const totalNetBalance = carriedForwardBalance + totalIncome - totalExpense;
+
+    const breakdown = currentMonthTransactions
       .filter((item) => item.type === "EXPENSE")
       .reduce<Record<string, number>>((acc, item) => {
         acc[item.category] = (acc[item.category] ?? 0) + item.amount;
@@ -65,11 +84,13 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       summary: {
+        carriedForwardBalance,
         totalIncome,
         totalExpense,
-        balance: totalIncome - totalExpense,
+        totalNetBalance,
+        balance: totalNetBalance,
       },
-      transactions: transactions.map((item) => ({
+      transactions: currentMonthTransactions.map((item) => ({
         id: item.id,
         title: item.description || item.category,
         amount: item.amount,
