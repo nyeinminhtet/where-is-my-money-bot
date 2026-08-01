@@ -37,7 +37,7 @@ type ExpensesResponse = {
   breakdown: CategoryBreakdownItem[];
 };
 
-export default function DashboardPage() {
+const DashboardPage = () => {
   const [user] = useState(() => {
     if (typeof window !== "undefined") {
       const telegramWindow = window as Window & {
@@ -167,4 +167,6 @@ export default function DashboardPage() {
       </div>
     </main>
   );
-}
+};
+
+export default DashboardPage;

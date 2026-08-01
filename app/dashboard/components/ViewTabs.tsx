@@ -3,7 +3,7 @@ type ViewTabsProps = {
   onChange: (tab: "history" | "analytics") => void;
 };
 
-export default function ViewTabs({ activeTab, onChange }: ViewTabsProps) {
+const ViewTabs = ({ activeTab, onChange }: ViewTabsProps) => {
   const tabs: Array<{
     key: "history" | "analytics";
     label: string;
@@ -20,7 +20,7 @@ export default function ViewTabs({ activeTab, onChange }: ViewTabsProps) {
           key={tab.key}
           type="button"
           onClick={() => onChange(tab.key)}
-          className={`flex-1 rounded-xl px-3 py-2 text-sm font-medium transition ${
+          className={`flex-1 rounded-xl cursor-pointer px-3 py-2 text-sm font-medium transition ${
             activeTab === tab.key
               ? "bg-emerald-500 text-slate-950"
               : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
@@ -32,4 +32,6 @@ export default function ViewTabs({ activeTab, onChange }: ViewTabsProps) {
       ))}
     </div>
   );
-}
+};
+
+export default ViewTabs;

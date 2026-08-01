@@ -2,7 +2,7 @@ type HeaderProps = {
   name: string;
 };
 
-export default function Header({ name }: HeaderProps) {
+const Header = ({ name }: HeaderProps) => {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
@@ -18,4 +18,6 @@ export default function Header({ name }: HeaderProps) {
       </p>
     </div>
   );
-}
+};
+
+export default Header;

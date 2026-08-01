@@ -22,12 +22,7 @@ const monthNames = [
   "December",
 ];
 
-export default function MonthSelector({
-  month,
-  year,
-  onPrev,
-  onNext,
-}: MonthSelectorProps) {
+const MonthSelector = ({ month, year, onPrev, onNext }: MonthSelectorProps) => {
   return (
     <div className="flex items-center justify-between rounded-2xl border border-slate-800/80 bg-slate-900/90 px-3 py-3 shadow-lg">
       <button
@@ -58,4 +53,6 @@ export default function MonthSelector({
       </button>
     </div>
   );
-}
+};
+
+export default MonthSelector;

@@ -14,12 +14,12 @@ type TransactionListProps = {
   errorMessage?: string;
 };
 
-export default function TransactionList({
+const TransactionList = ({
   transactions,
   isLoading,
   isError,
   errorMessage,
-}: TransactionListProps) {
+}: TransactionListProps) => {
   const groupedTransactions = transactions.reduce<
     Record<string, TransactionItem[]>
   >((groups, tx) => {
@@ -135,4 +135,6 @@ export default function TransactionList({
       ))}
     </div>
   );
-}
+};
+
+export default TransactionList;

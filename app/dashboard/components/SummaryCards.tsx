@@ -5,12 +5,12 @@ type SummaryCardsProps = {
   isLoading: boolean;
 };
 
-export default function SummaryCards({
+const SummaryCards = ({
   balance,
   totalIncome,
   totalExpense,
   isLoading,
-}: SummaryCardsProps) {
+}: SummaryCardsProps) => {
   return (
     <div className="rounded-2xl border border-slate-800/80 bg-slate-900/90 p-4 space-y-4 shadow-xl">
       <div>
@@ -45,4 +45,6 @@ export default function SummaryCards({
       </div>
     </div>
   );
-}
+};
+
+export default SummaryCards;
