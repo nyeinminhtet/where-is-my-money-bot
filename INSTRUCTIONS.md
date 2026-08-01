@@ -4,56 +4,72 @@ These instructions describe how to set up, configure, and deploy `where-is-my-mo
 
 ## Repository Rules
 
-- Use TypeScript for all application code.
+- Use TypeScript with **ES6 arrow functions** for all application code.
+- Enforce clean, modular code: **No component file should exceed 200 lines of code**.
+- Move all helper, transformation, and utility functions out of components and place them into `lib/helpers/` or `lib/utils/`.
+- Use **Bun** (`bun`) as the primary package manager for installation and running scripts.
 - Keep the project aligned with the Next.js App Router.
-- Build Telegram logic as serverless route handlers only.
-- Place app code in `app/`.
+- Build Telegram webhook logic as latency-sensitive serverless route handlers only.
+- Client-side data fetching must use `@tanstack/react-query`.
+- Keep components modular under `app/dashboard/components/` and avoid heavy page files.
+- Place all app code in `app/`.
 - Do not edit generated assets directly.
 - Do not leave placeholder code, fake data, or temporary stubs in committed files.
 - Preserve Myanmar text exactly and save files as UTF-8.
 
 ## 1. Install Dependencies
 
-```bash
-npm install
-```
-
-If Prisma is not yet installed in your environment, add it before generating the client:
+Use **Bun** to install required project dependencies:
 
 ```bash
-npm install prisma @prisma/client
+bun install
 ```
 
-## 2. Environment Variables
+If @tanstack/react-query, recharts, or lucide-react are not yet installed in your environment, add them:
 
-Create a `.env` file at the project root and define:
+```bash
+bun add @tanstack/react-query recharts lucide-react
+```
 
-- `DATABASE_URL`
-- `DIRECT_URL`
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_WEBHOOK_SECRET`
+If Prisma is not yet installed, add it before generating the client:
 
-### Variable Purpose
+```bash
+bun add prisma @prisma/client
+```
 
-- `DATABASE_URL`
-  - Use the Supabase pooler URL for runtime database access.
-- `DIRECT_URL`
-  - Use the direct PostgreSQL URL for Prisma migrations.
-- `TELEGRAM_BOT_TOKEN`
-  - The token issued by `@BotFather`.
-- `TELEGRAM_WEBHOOK_SECRET`
-  - A shared secret used to validate incoming webhook requests.
+2. Environment Variables
 
-## 3. Supabase Connection Pooling
+   Create a .env file at the project root and define:
+   - DATABASE_URL
+   - DIRECT_URL
+   - TELEGRAM_BOT_TOKEN
+   - TELEGRAM_WEBHOOK_SECRET
 
-This bot should use the Supabase pooler endpoint in production because serverless functions must not exhaust database connections.
+   Variable Purpose
+   - DATABASE_URL
+     - Use the Supabase pooler URL for runtime database access.
+
+   - DIRECT_URL
+     - Use the direct PostgreSQL URL for Prisma migrations.
+
+   - TELEGRAM_BOT_TOKEN
+     - The token issued by @BotFather.
+
+   - TELEGRAM_WEBHOOK_SECRET
+     - A shared secret used to validate incoming webhook requests.
+
+3. Supabase Connection Pooling
+   This bot should use the Supabase pooler endpoint in production because serverless functions must not exhaust database connections.
 
 Recommended configuration:
 
 1. Copy the Supabase pooled connection string.
-2. Put it in `DATABASE_URL`.
-3. Keep the direct PostgreSQL string in `DIRECT_URL`.
-4. Use `DIRECT_URL` for Prisma migrations and `DATABASE_URL` for runtime queries.
+
+2. Put it in DATABASE_URL.
+
+3. Keep the direct PostgreSQL string in DIRECT_URL.
+
+4. Use DIRECT_URL for Prisma migrations and DATABASE_URL for runtime queries.
 
 Example Prisma datasource:
 
@@ -65,55 +81,74 @@ datasource db {
 }
 ```
 
-## 4. Telegram Bot Token Setup
+4. Telegram Bot Token Setup
+   1. Open Telegram and message @BotFather.
 
-1. Open Telegram and message `@BotFather`.
-2. Create a new bot.
-3. Copy the bot token from BotFather.
-4. Save the token in `TELEGRAM_BOT_TOKEN`.
-5. Keep the bot name and username consistent with the project identity.
+   2. Create a new bot.
 
-## 5. Local Development
+   3. Copy the bot token from BotFather.
 
-Run the app locally:
+   4. Save the token in TELEGRAM_BOT_TOKEN.
 
-```bash
-npm run dev
-```
+   5. Keep the bot name and username consistent with the project identity.
 
-If Prisma is in use, generate the client and apply migrations:
+5. Local Development
+   Run the app locally with Bun:
 
 ```bash
-npx prisma generate
-npx prisma migrate dev
+bun dev
 ```
 
-## 6. Vercel Deployment
+If Prisma schema changes occur, generate the client and apply migrations:
 
-1. Push the repository to your Git provider.
-2. Import the project into Vercel.
-3. Configure the production environment variables:
-   - `DATABASE_URL`
-   - `DIRECT_URL`
-   - `TELEGRAM_BOT_TOKEN`
-   - `TELEGRAM_WEBHOOK_SECRET`
-4. Deploy the project.
-5. Confirm the live Vercel domain.
+```bash
+bun prisma generate
+bun prisma migrate dev
+```
 
-### Telegram Webhook URL
+6. Frontend Architecture & Clean Code Structure
 
+- Provider Setup: Wrap app/layout.tsx with <Providers> initializing @tanstack/react-query.
+
+- Helpers & Utilities (lib/helpers/):
+  - Extract date formatters, time-based greeting logic (e.g., getGreeting()), calculation utilities, and digit converters into lib/helpers/.
+
+- Component Decomposition (app/dashboard/components/):
+  - Keep each component single-purpose and under 200 lines:
+    - Header.tsx (Greeting + Telegram User info)
+    - MonthSelector.tsx (Month/Year state selector)
+    - SummaryCards.tsx (Net Balance, Income, Expense)
+    - ViewTabs.tsx (Tab switchers for History vs. Analytics)
+    - TransactionList.tsx (Date-grouped transactions)
+    - AnalyticsView.tsx (Recharts spending category chart)
+
+7. Vercel Deployment
+   1. Push the repository to your Git provider.
+
+   2. Import the project into Vercel.
+
+   3. Configure the production environment variables:
+      - DATABASE_URL
+      - DIRECT_URL
+      - TELEGRAM_BOT_TOKEN
+      - TELEGRAM_WEBHOOK_SECRET
+
+   4. Deploy the project.
+
+   5. Confirm the live Vercel domain.
+
+Telegram Webhook URL
 Set the Telegram webhook to the live HTTPS endpoint for the deployed app. The exact path is `/api/telegram/webhook` on the production domain assigned by Vercel.
 
-### `setWebhook` Command
-
+`setWebhook` Command
 Call Telegram `setWebhook` with the bot token, the webhook URL for the deployed app, and the shared secret token. The webhook URL must be the production HTTPS domain plus `/api/telegram/webhook`.
 
-## 7. Operational Checks
+8. Operational Checks
 
-- Verify `/start` responds in Myanmar language.
-- Verify Myanmar digits such as `၁၂၃၄၅` are parsed correctly.
-- Verify `/balance` and `/report` return chat-specific data.
-- Verify `/monthly` and `/yearly` return aggregated table-style summaries with Total Income, Total Expense, Net Balance, and Category Breakdown.
-- Keep monthly and yearly report queries server-side, using Prisma `groupBy` and PostgreSQL `date_trunc` so report generation remains safe in a serverless environment.
-- Verify Undo only affects the most recent transaction when intended.
+- Verify /start responds in Myanmar language.
+- Verify Myanmar digits such as ၁၂၃၄၅ are parsed correctly.
+- Verify /balance and /report return chat-specific data.
+- Verify /monthly and /yearly return aggregated table-style summaries with Total Income, Total Expense, Net Balance, and Category Breakdown.
+- Verify Web Mini App filters transactions dynamically when toggling months/years via MonthSelector.tsx.
+- Ensure all component files adhere to the ES6 arrow function syntax and stay strictly under 200 lines of code.
 - Verify webhook handlers return quickly enough for serverless execution.

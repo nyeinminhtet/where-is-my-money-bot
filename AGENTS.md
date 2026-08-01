@@ -2,7 +2,7 @@
 
 ## Mission
 
-AI agents working in this repository are maintaining `where-is-my-money-bot`, a Myanmar-language Telegram finance bot built with the Next.js App Router, Prisma, and Supabase PostgreSQL.
+AI agents working in this repository are maintaining `where-is-my-money-bot`, a Myanmar-language Telegram finance bot and web Mini App built with Next.js (App Router), Prisma, Supabase PostgreSQL, TanStack React Query, and Recharts.
 
 ## Mandatory Reading
 
@@ -10,13 +10,25 @@ AI agents working in this repository are maintaining `where-is-my-money-bot`, a 
 - Read the relevant Next.js guide in `node_modules/next/dist/docs/` before changing App Router behavior, route handlers, deployment assumptions, or file conventions.
 - Heed deprecation notices and version-specific Next.js documentation over memory.
 
+## Package Manager & Tooling
+
+- Use **Bun** (`bun`) as the primary package manager for adding dependencies or running scripts (e.g., `bun add <package>`).
+
+## Frontend, Clean Code & Architecture Rules
+
+- **ES6 Functions Only:** All TypeScript/JavaScript functions (components, helpers, event handlers) MUST strictly use ES6 arrow functions (`const myFunction = () => {}`). Do not use traditional `function` declarations.
+- **Strict 200-Line File Limit:** Every single component file MUST NOT exceed **200 lines of code**. If a file grows close to 200 lines, refactor and break it down into smaller, focused sub-components.
+- **Helper & Utility Extraction:** Keep components clean and focused purely on rendering and state. All pure utility functions, date formatters, time-based greeting logic, calculation helpers, and transformation logic MUST be extracted into standalone files inside `lib/helpers/` or `lib/utils/`.
+- **Data Fetching:** Use `@tanstack/react-query` for client-side data fetching. Avoid raw `useEffect` + `fetch` data-fetching hooks inside client components.
+- **Modular Component Design:** Keep `page.tsx` files strictly as orchestrators/containers. Do not dump all JSX, state, and complex UI logic directly in `page.tsx`. Break UI elements into small, reusable components under `app/<feature>/components/` (e.g., `app/dashboard/components/Header.tsx`, `MonthSelector.tsx`, `SummaryCards.tsx`, `AnalyticsView.tsx`, `TransactionList.tsx`).
+- **Analytics & Visualizations:** Use `recharts` for charts and category spending breakdowns.
+- Respect the repository structure and keep App Router code in `app/`.
+
 ## Behavioral Rules
 
 - Do not invent placeholder code, fake data, or temporary TODO stubs in committed files.
 - Do not hardcode production-only URLs unless the task explicitly asks for a concrete deployed value already known to be correct.
-- Prefer small, reviewable changes that match the project architecture.
-- Keep functions as arrow functions when writing new TypeScript application code.
-- Respect the repository structure and keep App Router code in `app/`.
+- Prefer small, reviewable, clean, and highly reusable changes that match the project architecture.
 - Never edit generated assets directly.
 
 ## Serverless Constraints
@@ -26,8 +38,8 @@ AI agents working in this repository are maintaining `where-is-my-money-bot`, a 
 - Avoid long-running loops, blocking work, or database-heavy fan-out inside the request path.
 - If a feature requires more time than a serverless function can safely hold, split it into smaller steps or defer the work.
 - Preserve idempotency where possible so repeated Telegram updates do not create duplicate records.
-- Monthly and yearly report queries must be optimized for serverless execution using Prisma `groupBy` and PostgreSQL `date_trunc` patterns instead of loading and aggregating large transaction sets in application memory.
-- Avoid per-request full-table scans when calculating `/monthly` and `/yearly`; push aggregation into PostgreSQL and return only the grouped results needed for the table output.
+- Monthly and yearly report queries (both API routes and bot commands) must be optimized for serverless execution using Prisma `groupBy`, Date Range filters (`month`/`year`), and PostgreSQL `date_trunc` patterns instead of loading and aggregating large transaction sets in application memory.
+- Avoid per-request full-table scans when calculating reports; push aggregation into PostgreSQL and return only the grouped results needed for the UI/Table output.
 
 ## Data and Encoding Rules
 
@@ -39,5 +51,5 @@ AI agents working in this repository are maintaining `where-is-my-money-bot`, a 
 ## Review Standard
 
 - If a requested change conflicts with these rules, call out the conflict before proceeding.
-- When reviewing or editing code, focus on correctness, runtime behavior, and data integrity first.
-- If the change touches Telegram flows, verify chat-scoped state handling and undo behavior.
+- When reviewing or editing code, focus on correctness, runtime behavior, clean code standards, and data integrity first.
+- If the change touches Telegram flows or Mini App UI, verify chat-scoped state handling, date filtering correctness, and responsiveness.
