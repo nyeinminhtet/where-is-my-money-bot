@@ -65,10 +65,10 @@ const MonthSelector = ({
       <button
         type="button"
         onClick={onPrev}
-        className="rounded-full border cursor-pointer border-slate-700/80 p-2 text-slate-300 transition hover:border-emerald-500/50 hover:bg-slate-800/50 hover:text-emerald-400 active:scale-95"
+        className="rounded-full border cursor-pointer flex items-center justify-center pr-0.5 size-9 border-slate-700/80 text-slate-300 transition hover:border-emerald-500/50 hover:bg-slate-800/50 hover:text-emerald-400 active:scale-95"
         aria-label="Previous month"
       >
-        <ChevronLeft size={18} />
+        <ChevronLeft size={25} />
       </button>
 
       {/* Shadcn-Style Popover Month Selector */}
@@ -140,10 +140,10 @@ const MonthSelector = ({
       <button
         type="button"
         onClick={onNext}
-        className="rounded-full border cursor-pointer border-slate-700/80 p-2 text-slate-300 transition hover:border-emerald-500/50 hover:bg-slate-800/50 hover:text-emerald-400 active:scale-95"
+        className="rounded-full border cursor-pointer flex items-center justify-center border-slate-700/80 size-9 pl-0.5  text-slate-300 transition hover:border-emerald-500/50 hover:bg-slate-800/50 hover:text-emerald-400 active:scale-95"
         aria-label="Next month"
       >
-        <ChevronRight size={18} />
+        <ChevronRight size={25} />
       </button>
     </div>
   );
