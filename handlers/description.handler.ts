@@ -80,19 +80,22 @@ export const handleDescription = async (update: TelegramUpdate, user: User) => {
   if (transaction.type === "EXPENSE" && user.monthlyBudget) {
     const totalExpense = await getTotalExpenseThisMonth(user.id);
     const budget = user.monthlyBudget;
-    const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
-    let budgetMessage = [
-      `📊 **လစဉ် Budget အခြေအနေ:**`,
-      `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
-    ].join("\n");
-    if (totalExpense >= budget) {
-      budgetMessage +=
-        "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
-    } else if (totalExpense >= budget * 0.8) {
-      budgetMessage +=
-        "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
-    }
 
-    await sendMessage(chatId, budgetMessage, { parse_mode: "Markdown" });
+    if (totalExpense >= budget * 0.8) {
+      const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
+      let budgetMessage = [
+        `📊 **လစဉ် Budget အခြေအနေ:**`,
+        `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
+      ].join("\n");
+      if (totalExpense >= budget) {
+        budgetMessage +=
+          "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
+      } else if (totalExpense >= budget * 0.8) {
+        budgetMessage +=
+          "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
+      }
+
+      await sendMessage(chatId, budgetMessage, { parse_mode: "Markdown" });
+    }
   }
 };
