@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
 import AnalyticsView from "./components/AnalyticsView";
@@ -10,6 +9,7 @@ import MonthSelector from "./components/MonthSelector";
 import SummaryCards from "./components/SummaryCards";
 import TransactionList from "./components/TransactionList";
 import ViewTabs from "./components/ViewTabs";
+import { useExpenses } from "@/lib/hooks/useExpenses";
 
 type TransactionSummary = {
   carriedForwardBalance: number;
@@ -86,35 +86,10 @@ const DashboardPage = () => {
     }
   }, []);
 
-  const { data, isLoading, isError, error } = useQuery<ExpensesResponse>({
-    queryKey: ["expenses", user?.id, selectedDate.month, selectedDate.year],
-    queryFn: async () => {
-      if (!user?.id) {
-        return {
-          success: true,
-          summary: {
-            carriedForwardBalance: 0,
-            totalIncome: 0,
-            totalExpense: 0,
-            totalNetBalance: 0,
-            balance: 0,
-          },
-          transactions: [],
-          breakdown: [],
-          monthlyBudget: null,
-        };
-      }
-
-      const response = await fetch(
-        `/api/expenses?telegramId=${user.id}&month=${selectedDate.month}&year=${selectedDate.year}`,
-      );
-      if (!response.ok) {
-        throw new Error("Failed to load expenses");
-      }
-      return response.json();
-    },
-    enabled: Boolean(user?.id),
-  });
+  const { data, isLoading, isError, error } = useExpenses(
+    user as { id: number },
+    selectedDate,
+  );
 
   const summary = useMemo(
     () =>
