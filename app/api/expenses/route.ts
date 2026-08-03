@@ -83,6 +83,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
+      monthlyBudget: user.monthlyBudget ?? null,
       summary: {
         carriedForwardBalance,
         totalIncome,
