@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import AnalyticsView from "./components/AnalyticsView";
 import Header from "./components/Header";
+import MonthlyBudgetCard from "./components/MonthlyBudgetCard";
 import MonthSelector from "./components/MonthSelector";
 import SummaryCards from "./components/SummaryCards";
 import TransactionList from "./components/TransactionList";
@@ -37,6 +38,7 @@ type ExpensesResponse = {
   summary: TransactionSummary;
   transactions: TransactionItem[];
   breakdown: CategoryBreakdownItem[];
+  monthlyBudget?: number | null; // 👈 2. API Response မှာ budget ပါလာရင် ဖမ်းနိုင်အောင် Type ထည့်ခြင်း
 };
 
 const DashboardPage = () => {
@@ -99,6 +101,7 @@ const DashboardPage = () => {
           },
           transactions: [],
           breakdown: [],
+          monthlyBudget: null,
         };
       }
 
@@ -166,6 +169,14 @@ const DashboardPage = () => {
           totalExpense={summary.totalExpense}
           isLoading={isLoading}
         />
+
+        {/* 👈 3. Budget Card ကို ဒီနေရာမှာ ထည့်ပေးထားပါတယ် */}
+        <MonthlyBudgetCard
+          monthlyBudget={data?.monthlyBudget ?? null}
+          totalExpense={summary.totalExpense}
+          isLoading={isLoading}
+        />
+
         <ViewTabs activeTab={activeTab} onChange={setActiveTab} />
 
         {activeTab === "history" ? (
