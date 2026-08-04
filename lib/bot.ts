@@ -19,6 +19,7 @@ import { handleToday } from "@/handlers/today.handler";
 import { handlePreviousMonth } from "@/handlers/previous.month.handler";
 import {
   askForBudget,
+  checkAndSendBudgetWarning,
   handleBudgetInput,
   handleCheckBudget,
 } from "@/handlers/budget.handler";
@@ -201,22 +202,11 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
             });
           }
         }
-        if (hasExpense && user.monthlyBudget && chatId) {
-          const totalExpense = await getTotalExpenseThisMonth(user.id);
-          const budget = user.monthlyBudget;
-          const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
-          let budgetMessage = [
-            `📊 **လစဉ် Budget အခြေအနေ:**`,
-            `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
-          ].join("\n");
-          if (totalExpense >= budget) {
-            budgetMessage +=
-              "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
-          } else if (totalExpense >= budget * 0.8) {
-            budgetMessage +=
-              "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
-          }
-          await sendMessage(chatId, budgetMessage);
+        if (hasExpense && chatId) {
+          await checkAndSendBudgetWarning(
+            { id: user.id, monthlyBudget: user.monthlyBudget },
+            chatId,
+          );
         }
         await clearSession(user.id);
         return;

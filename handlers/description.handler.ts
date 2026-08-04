@@ -16,6 +16,7 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { undoKeyboard } from "@/utils/keyboard";
 // 1. getBalance အစား getBalanceDetails ကို ပြောင်း import လုပ်ပါမည်
 import { getBalanceDetails } from "@/services/balance.service";
+import { checkAndSendBudgetWarning } from "./budget.handler";
 
 export const handleDescription = async (update: TelegramUpdate, user: User) => {
   const chatId = getChatId(update);
@@ -77,25 +78,10 @@ export const handleDescription = async (update: TelegramUpdate, user: User) => {
     reply_markup: undoKeyboard(transaction.id),
   });
 
-  if (transaction.type === "EXPENSE" && user.monthlyBudget) {
-    const totalExpense = await getTotalExpenseThisMonth(user.id);
-    const budget = user.monthlyBudget;
-
-    if (totalExpense >= budget * 0.8) {
-      const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
-      let budgetMessage = [
-        `📊 **လစဉ် Budget အခြေအနေ:**`,
-        `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
-      ].join("\n");
-      if (totalExpense >= budget) {
-        budgetMessage +=
-          "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
-      } else if (totalExpense >= budget * 0.8) {
-        budgetMessage +=
-          "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
-      }
-
-      await sendMessage(chatId, budgetMessage, { parse_mode: "Markdown" });
-    }
+  if (transaction.type === "EXPENSE") {
+    await checkAndSendBudgetWarning(
+      { id: user.id, monthlyBudget: user.monthlyBudget },
+      chatId,
+    );
   }
 };
