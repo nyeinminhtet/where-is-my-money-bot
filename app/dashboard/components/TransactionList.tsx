@@ -107,47 +107,49 @@ const TransactionList = ({
   return (
     <div className="space-y-4">
       {/* 🔍 Search Bar & Static Category Chips */}
-      <div className="space-y-2">
-        {/* Search Input */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-          <Input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="စာရင်းများ ရှာဖွေပါ..."
-            className="w-full bg-slate-900/60 text-slate-200 text-xs rounded-xl pl-9 pr-8 py-2.5 h-auto border-slate-800/60 focus-visible:ring-1 focus-visible:ring-slate-600 focus-visible:ring-offset-0 placeholder:text-slate-500 transition"
-          />
-          {searchTerm && (
-            <button
-              type="button"
-              onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-0.5 rounded-md transition"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-
-        {/* Static Category Chips Bar */}
-        <div className="flex gap-1.5 overflow-x-auto overscroll-x-contain pb-1.5 pt-0.5 no-scrollbar touch-pan-x min-h-9.5 items-center">
-          {CATEGORY_OPTIONS.map((cat) => {
-            const isSelected = selectedCategory === cat;
-            return (
+      <div className="sticky top-0 z-20 bg-slate-950/95 backdrop-blur-md pt-2 pb-2 -mx-1 px-1 border-b border-slate-900/80">
+        <div className="space-y-2">
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <Input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="စာရင်းများ ရှာဖွေပါ..."
+              className="w-full bg-slate-900/60 text-slate-200 text-xs rounded-xl pl-9 pr-8 py-2.5 h-auto border-slate-800/60 focus-visible:ring-1 focus-visible:ring-slate-600 focus-visible:ring-offset-0 placeholder:text-slate-500 transition"
+            />
+            {searchTerm && (
               <button
-                key={cat}
                 type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`relative cursor-pointer px-3 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-colors duration-150 border select-none shrink-0 ${
-                  isSelected
-                    ? "bg-slate-200 text-slate-950 border-slate-200"
-                    : "bg-slate-900/60 text-slate-400 border-slate-800/60 hover:text-slate-200 hover:border-slate-700"
-                }`}
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-0.5 rounded-md transition"
               >
-                {cat === "ALL" ? "အားလုံး" : cat}
+                <X className="w-3.5 h-3.5" />
               </button>
-            );
-          })}
+            )}
+          </div>
+
+          {/* Static Category Chips Bar */}
+          <div className="flex gap-1.5 overflow-x-auto overscroll-x-contain pb-1.5 pt-0.5 no-scrollbar touch-pan-x min-h-9.5 items-center">
+            {CATEGORY_OPTIONS.map((cat) => {
+              const isSelected = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`relative cursor-pointer px-3 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-colors duration-150 border select-none shrink-0 ${
+                    isSelected
+                      ? "bg-slate-200 text-slate-950 border-slate-200"
+                      : "bg-slate-900/60 text-slate-400 border-slate-800/60 hover:text-slate-200 hover:border-slate-700"
+                  }`}
+                >
+                  {cat === "ALL" ? "အားလုံး" : cat}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -161,7 +163,7 @@ const TransactionList = ({
       ) : (
         Object.entries(groupedTransactions).map(([dateGroup, items]) => (
           <div key={dateGroup} className="space-y-2">
-            <div className="sticky top-0 bg-slate-950/90 backdrop-blur py-1 z-10 flex justify-between items-center text-xs font-mono text-slate-400 border-b border-slate-800/40">
+            <div className="sticky top-[95px] z-10 bg-slate-950/90 backdrop-blur-sm py-1 flex justify-between items-center text-xs font-mono text-slate-400 border-b border-slate-800/40">
               <span>{dateGroup}</span>
               <span className="text-[10px] text-slate-500">
                 {items.length} items
@@ -213,7 +215,7 @@ const TransactionList = ({
                         {tx.amount.toLocaleString()} Ks
                       </span>
                       {/* Mobile affordance visual cue */}
-                      <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 group-hover:translate-x-0.5 transition" />
+                      <ChevronRight className="w-4 h-4 text-slate-400/80 group-hover:text-slate-200 group-hover:translate-x-0.5 transition-all shrink-0" />
                     </div>
                   </div>
                 );

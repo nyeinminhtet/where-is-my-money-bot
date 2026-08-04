@@ -108,7 +108,7 @@ const TransactionEditModal = ({
               <button
                 type="button"
                 onClick={() => handleTypeChange("EXPENSE")}
-                className={`py-1.5 text-xs font-semibold rounded-lg transition ${
+                className={`py-1.5 text-xs outline-none font-semibold rounded-lg transition ${
                   type === "EXPENSE"
                     ? "bg-rose-500 text-white shadow-sm"
                     : "text-slate-400 hover:text-slate-200"
@@ -119,7 +119,7 @@ const TransactionEditModal = ({
               <button
                 type="button"
                 onClick={() => handleTypeChange("INCOME")}
-                className={`py-1.5 text-xs font-semibold rounded-lg transition ${
+                className={`py-1.5 text-xs outline-none font-semibold rounded-lg transition ${
                   type === "INCOME"
                     ? "bg-emerald-500 text-white shadow-sm"
                     : "text-slate-400 hover:text-slate-200"
