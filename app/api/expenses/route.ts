@@ -112,3 +112,60 @@ export async function GET(request: Request) {
     );
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, title, amount, category, type } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Transaction ID is required" },
+        { status: 400 },
+      );
+    }
+
+    const updatedTransaction = await prisma.transaction.update({
+      where: { id },
+      data: {
+        description: title,
+        amount: Number(amount),
+        category,
+        type,
+      },
+    });
+
+    return NextResponse.json({ success: true, data: updatedTransaction });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Failed to update transaction" },
+      { status: 500 },
+    );
+  }
+}
+
+// 2. Delete transaction
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Transaction ID is required" },
+        { status: 400 },
+      );
+    }
+
+    await prisma.transaction.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Failed to delete transaction" },
+      { status: 500 },
+    );
+  }
+}

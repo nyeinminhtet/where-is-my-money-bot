@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExpensesResponse } from "@/types/expense";
 
 type CachedPayload = {
@@ -104,5 +104,50 @@ export const useExpenses = (
     placeholderData: () =>
       getCachedExpenses(selectedDate.month, selectedDate.year),
     staleTime: 1000 * 60 * 5, // 5 မိနစ်အတွင်း re-fetch ထပ်မလုပ်ပါ
+  });
+};
+
+export const useUpdateTransaction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      id: string;
+      title: string;
+      amount: number;
+      category: string;
+      type: "INCOME" | "EXPENSE";
+    }) => {
+      const res = await fetch("/api/expenses", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Failed to update transaction");
+      return res.json();
+    },
+    onSuccess: () => {
+      // Data ပြင်ပြီးတာနဲ့ Cache ကို Invalid လုပ်ပြီး Dashboard Data အသစ် ပြန်ဆွဲမည်
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+    },
+  });
+};
+
+// Transaction ဖျက်ရန် Mutation Hook
+export const useDeleteTransaction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/expenses?id=${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete transaction");
+      return res.json();
+    },
+    onSuccess: () => {
+      // Data ဖျက်ပြီးတာနဲ့ Cache ကို Invalid လုပ်ပြီး Dashboard Data အသစ် ပြန်ဆွဲမည်
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+    },
   });
 };
