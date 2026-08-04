@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, X } from "lucide-react";
+import { ChevronRight, Search, X } from "lucide-react";
 
 import TransactionEditModal from "./TransactionEditModal";
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
@@ -180,11 +180,11 @@ const TransactionList = ({
                   <div
                     key={tx.id}
                     onClick={() => setSelectedTransaction(tx)}
-                    className="flex justify-between items-center bg-slate-900/60 p-3 rounded-xl border border-slate-800/60 hover:border-slate-700 active:scale-[0.99] transition cursor-pointer"
+                    className="flex justify-between items-center bg-slate-900/60 hover:bg-slate-900 p-3 rounded-xl border border-slate-800/60 hover:border-slate-700 active:bg-slate-800/80 active:scale-[0.98] transition-all cursor-pointer group select-none"
                   >
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 min-w-0">
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold border ${
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold border shrink-0 ${
                           isIncome
                             ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                             : "bg-rose-500/10 border-rose-500/20 text-rose-400"
@@ -192,24 +192,29 @@ const TransactionList = ({
                       >
                         {isIncome ? "⇣" : "⇡"}
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-200">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-200 truncate">
                           {tx.title}
                         </p>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-[11px] text-slate-500 truncate">
                           {txTime} • {tx.category}
                         </p>
                       </div>
                     </div>
 
-                    <span
-                      className={`text-sm font-bold font-mono ${
-                        isIncome ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      {isIncome ? "+" : "-"}
-                      {tx.amount.toLocaleString()} Ks
-                    </span>
+                    {/* Amount & Indicator Wrapper */}
+                    <div className="flex items-center space-x-2 shrink-0">
+                      <span
+                        className={`text-sm font-bold font-mono ${
+                          isIncome ? "text-emerald-400" : "text-rose-400"
+                        }`}
+                      >
+                        {isIncome ? "+" : "-"}
+                        {tx.amount.toLocaleString()} Ks
+                      </span>
+                      {/* Mobile affordance visual cue */}
+                      <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 group-hover:translate-x-0.5 transition" />
+                    </div>
                   </div>
                 );
               })}

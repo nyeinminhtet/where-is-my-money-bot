@@ -168,7 +168,7 @@ const TransactionEditModal = ({
             {/* Description Input */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-slate-400">
-                မှတ်ချက် / ခေါင်းစဉ်
+                မှတ်ချက်
               </label>
               <Input
                 type="text"
@@ -217,14 +217,14 @@ const TransactionEditModal = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row justify-end gap-2 pt-2">
-            <AlertDialogCancel className="mt-0 bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800 text-xs rounded-xl px-4 py-2">
+            <AlertDialogCancel className="mt-0 bg-slate-900 hover:bg-slate-800 hover:text-white text-slate-300 border-slate-800 text-xs rounded-xl px-4 py-2">
               မဖျက်တော့ပါ
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={ConfirmDelete}
               className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-xl px-4 py-2 transition"
             >
-              {isDeleting ? "ဖျက်နေသည်..." : "သေချာသည်၊ ဖျက်မည်"}
+              {isDeleting ? "ဖျက်နေသည်..." : "သေချာသည်"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
