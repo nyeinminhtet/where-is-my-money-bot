@@ -24,10 +24,7 @@ import {
   handleCheckBudget,
 } from "@/handlers/budget.handler";
 import { parseTextWithAI } from "./gemini";
-import {
-  createTransaction,
-  getTotalExpenseThisMonth,
-} from "@/services/transaction.service";
+import { createTransaction } from "@/services/transaction.service";
 import { sendMessage } from "./telegram";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { undoKeyboard } from "@/utils/keyboard";

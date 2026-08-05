@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Loader2, PlusIcon } from "lucide-react";
+import { AlertCircle, Loader2, PlusIcon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -48,7 +48,9 @@ const createTransactionApi = async (payload: {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || "Failed to create transaction");
+    throw new Error(
+      errorData.error || "စာရင်းသိမ်းဆည်းရာတွင် အမှားတစ်ခု ဖြစ်ပေါ်နေပါသည်။",
+    );
   }
 
   return res.json();
@@ -87,13 +89,18 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["transactions"] }),
       ]);
-      setOpen(false);
-      reset();
+      handleClose();
     },
     onError: (error) => {
       console.error("Error creating transaction:", error);
     },
   });
+
+  const handleClose = () => {
+    setOpen(false);
+    reset();
+    createMutation.reset(); // Error state ကိုပါ Clear ပြုလုပ်ပေးမည်
+  };
 
   const onSubmit = (data: TransactionFormValues) => {
     createMutation.mutate({
@@ -108,14 +115,20 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
   const handleTypeChange = (newType: "EXPENSE" | "INCOME") => {
     setValue("type", newType);
     setValue("category", DEFAULT_CATEGORIES[newType][0]); // အသစ်ပြောင်းသွားသော type ရဲ့ ပထမဆုံး category ကို Auto Select မှတ်မည်
+    if (createMutation.isError) {
+      createMutation.reset();
+    }
   };
 
   return (
     <Dialog
       open={open}
-      onOpenChange={() => {
-        setOpen((v) => !v);
-        reset();
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          handleClose();
+        } else {
+          setOpen(true);
+        }
       }}
     >
       {/* 📍 Bottom Right Floating Action Button (FAB) */}
@@ -139,6 +152,17 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+          {/* 🚨 Backend Server Error Alert Banner */}
+          {createMutation.isError && (
+            <div className="flex items-center gap-2 p-3 text-xs text-rose-400 bg-rose-950/40 border border-rose-800/60 rounded-xl animate-in fade-in slide-in-from-top-1">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+              <span>
+                {createMutation.error?.message ||
+                  "စာရင်းသိမ်းဆည်းရာတွင် အမှားတစ်ခု ဖြစ်ပေါ်နေပါသည်"}
+              </span>
+            </div>
+          )}
+
           {/* Income / Expense Toggle */}
           <div className="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
             <button

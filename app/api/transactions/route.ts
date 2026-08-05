@@ -117,9 +117,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userId, amount, type, category, description } = body;
+    const { userId: telegramId, amount, type, category, description } = body;
 
-    if (!userId || !amount || !type) {
+    if (!telegramId || !amount || !type) {
       return NextResponse.json(
         { error: "လိုအပ်သော အချက်အလက်များ မပြည့်စုံပါ" },
         { status: 400 },
@@ -136,11 +136,24 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("userId", userId);
+    const user = await prisma.user.findUnique({
+      where: {
+        telegramId,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          error: "အသုံးပြုသူ ရှာမတွေ့ပါ",
+        },
+        { status: 404 },
+      );
+    }
 
     const newTransaction = await prisma.transaction.create({
       data: {
-        userId,
+        userId: user.id,
         amount: Number(amount),
         type,
         category: category || "အခြား",
