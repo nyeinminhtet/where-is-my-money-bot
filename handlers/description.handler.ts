@@ -7,10 +7,7 @@ import { clearSession, getSession } from "@/lib/session";
 
 import { sendMessage } from "@/lib/telegram";
 
-import {
-  createTransaction,
-  getTotalExpenseThisMonth,
-} from "@/services/transaction.service";
+import { createTransaction } from "@/services/transaction.service";
 
 import { formatCurrency } from "@/utils/formatCurrency";
 import { undoKeyboard } from "@/utils/keyboard";

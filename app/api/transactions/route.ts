@@ -140,7 +140,7 @@ export async function POST(request: Request) {
     // Database ထဲသို့ Transaction သစ် ထည့်သွင်းခြင်း
     const newTransaction = await prisma.transaction.create({
       data: {
-        userId: typeof userId === "string" ? parseInt(userId, 10) : userId,
+        userId: String(userId),
         amount: Number(amount),
         type,
         category: category || "အခြား",
