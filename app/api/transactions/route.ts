@@ -113,6 +113,51 @@ export async function GET(request: Request) {
   }
 }
 
+//Post transaction
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { userId, amount, type, category, description } = body;
+
+    // Validation စစ်ဆေးခြင်း
+    if (!userId || !amount || !type) {
+      return NextResponse.json(
+        { error: "လိုအပ်သော အချက်အလက်များ မပြည့်စုံပါ" },
+        { status: 400 },
+      );
+    }
+
+    if (type !== "EXPENSE" && type !== "INCOME") {
+      return NextResponse.json(
+        {
+          error:
+            "အမျိုးအစား မှားယွင်းနေပါသည်။ (EXPENSE သို့မဟုတ် INCOME သာ ဖြစ်ရမည်)",
+        },
+        { status: 400 },
+      );
+    }
+
+    // Database ထဲသို့ Transaction သစ် ထည့်သွင်းခြင်း
+    const newTransaction = await prisma.transaction.create({
+      data: {
+        userId: typeof userId === "string" ? parseInt(userId, 10) : userId,
+        amount: Number(amount),
+        type,
+        category: category || "အခြား",
+        description: description || null,
+      },
+    });
+
+    return NextResponse.json(newTransaction, { status: 201 });
+  } catch (error) {
+    console.error("POST /api/transactions Error:", error);
+    return NextResponse.json(
+      { error: "စာရင်း သိမ်းဆည်းရာတွင် အမှားတစ်ခု ဖြစ်ပေါ်နေပါသည်" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function PUT(request: Request) {
   try {
     const body = await request.json();

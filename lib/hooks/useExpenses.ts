@@ -86,12 +86,12 @@ export const useExpenses = (
   selectedDate: { month: number; year: number },
 ) => {
   return useQuery<ExpensesResponse>({
-    queryKey: ["expenses", user?.id, selectedDate.month, selectedDate.year],
+    queryKey: ["transactions", user?.id, selectedDate.month, selectedDate.year],
     queryFn: async () => {
       const response = await fetch(
-        `/api/expenses?telegramId=${user!.id}&month=${selectedDate.month}&year=${selectedDate.year}`,
+        `/api/transactions?telegramId=${user!.id}&month=${selectedDate.month}&year=${selectedDate.year}`,
       );
-      if (!response.ok) throw new Error("Failed to load expenses");
+      if (!response.ok) throw new Error("Failed to load transacitons");
 
       const data = await response.json();
 
@@ -119,7 +119,7 @@ export const useUpdateTransaction = () => {
       category: string;
       type: "INCOME" | "EXPENSE";
     }) => {
-      const res = await fetch("/api/expenses", {
+      const res = await fetch("/api/transactions", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -129,7 +129,7 @@ export const useUpdateTransaction = () => {
     },
     onSuccess: () => {
       // Data ပြင်ပြီးတာနဲ့ Cache ကို Invalid လုပ်ပြီး Dashboard Data အသစ် ပြန်ဆွဲမည်
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
   });
 };
@@ -140,14 +140,14 @@ export const useDeleteTransaction = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/expenses?id=${id}`, {
+      const res = await fetch(`/api/transactions?id=${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete transaction");
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
   });
 };
