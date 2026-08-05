@@ -81,7 +81,6 @@ const TransactionEditModal = ({
     mode: "onChange",
   });
 
-  // Edit modal ဖွင့်တိုင်း (သို့မဟုတ်) transaction ယူဆောင်လာမှု ပြောင်းတိုင်း Form state အသစ်ပြန်ပြောင်းရန်
   useEffect(() => {
     if (transaction && isOpen) {
       reset({
@@ -97,11 +96,9 @@ const TransactionEditModal = ({
   const categoryOptions =
     DEFAULT_CATEGORIES[selectedType] || DEFAULT_CATEGORIES.EXPENSE;
 
-  // Type ပြောင်းလျှင် သက်ဆိုင်ရာ Category အသစ်၏ ပထမဆုံး Option သို့ Auto-Select လုပ်ပေးမည်
   const handleTypeChange = (newType: "INCOME" | "EXPENSE") => {
     setValue("type", newType);
 
-    // getValues("category") ကို သုံးပြီး လက်ရှိ ရွေးထားတဲ့ Category ကို စစ်ပါ
     const currentCategory = getValues("category");
 
     if (!DEFAULT_CATEGORIES[newType].includes(currentCategory)) {
@@ -285,23 +282,25 @@ const TransactionEditModal = ({
 
       {/* Delete Confirmation Alert Dialog */}
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent className="bg-slate-950 border-slate-800 text-slate-100 sm:max-w-sm rounded-2xl p-5">
-          <AlertDialogHeader>
+        <AlertDialogContent className="bg-slate-950 border-slate-800 text-slate-100 max-w-[90vw] sm:max-w-sm rounded-2xl p-5 overflow-hidden">
+          <AlertDialogHeader className="space-y-1 text-left">
             <AlertDialogTitle className="text-base font-semibold text-slate-100">
               စာရင်း ဖျက်ရန် သေချာပါသလား?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-xs text-slate-400">
+            <AlertDialogDescription className="text-xs text-slate-400 leading-relaxed">
               ဒီပြုလုပ်ချက်ကို ပြန်လည်ပြင်ဆင်၍ ရနိုင်မည်မဟုတ်ပါ။ စာရင်းဒေတာကို
               အပြီးတိုင် ဖျက်ပစ်ပါမည်။
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row justify-end gap-2 pt-2">
-            <AlertDialogCancel className="mt-0 bg-slate-900 hover:bg-slate-800 hover:text-white text-slate-300 border-slate-800 text-xs rounded-xl px-4 py-2">
+
+          <AlertDialogFooter className="flex-row items-center justify-end gap-2 pt-4 bg-transparent border-t-0 sm:space-x-0">
+            <AlertDialogCancel className="mt-0 h-9 bg-slate-900 hover:bg-slate-800 hover:text-white text-slate-300 border-slate-800 text-xs font-medium rounded-xl px-4 transition cursor-pointer">
               မဖျက်တော့ပါ
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={ConfirmDelete}
-              className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-xl px-4 py-2 transition"
+              disabled={isDeleting}
+              className="h-9 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-xl px-4 transition border-0 cursor-pointer disabled:opacity-50"
             >
               {isDeleting ? "ဖျက်နေသည်..." : "သေချာသည်"}
             </AlertDialogAction>
