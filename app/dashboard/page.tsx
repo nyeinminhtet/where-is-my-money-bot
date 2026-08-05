@@ -139,7 +139,7 @@ const DashboardPage = () => {
           />
         )}
       </div>
-      <CreateTransactionModal userId={user?.id as number} />
+      <CreateTransactionModal userId={String(user?.id as number)} />
     </main>
   );
 };
