@@ -10,36 +10,7 @@ import SummaryCards from "./components/SummaryCards";
 import TransactionList from "./components/TransactionList";
 import ViewTabs from "./components/ViewTabs";
 import { useExpenses } from "@/lib/hooks/useExpenses";
-
-type TransactionSummary = {
-  carriedForwardBalance: number;
-  totalIncome: number;
-  totalExpense: number;
-  totalNetBalance: number;
-  balance?: number;
-};
-
-type TransactionItem = {
-  id: string;
-  title: string;
-  amount: number;
-  type: "INCOME" | "EXPENSE";
-  category: string;
-  createdAt: string;
-};
-
-type CategoryBreakdownItem = {
-  category: string;
-  amount: number;
-};
-
-type ExpensesResponse = {
-  success: boolean;
-  summary: TransactionSummary;
-  transactions: TransactionItem[];
-  breakdown: CategoryBreakdownItem[];
-  monthlyBudget?: number | null; // 👈 2. API Response မှာ budget ပါလာရင် ဖမ်းနိုင်အောင် Type ထည့်ခြင်း
-};
+import CreateTransactionModal from "./components/CreateTransactionModal";
 
 const DashboardPage = () => {
   const [user] = useState(() => {
@@ -126,7 +97,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-4 font-sans selection:bg-emerald-500 selection:text-white">
+    <main className="min-h-screen relative bg-slate-950 text-slate-100 p-4 font-sans selection:bg-emerald-500 selection:text-white">
       <div className="mx-auto flex max-w-md flex-col gap-4">
         <Header name={user?.first_name || "User"} />
 
@@ -168,6 +139,7 @@ const DashboardPage = () => {
           />
         )}
       </div>
+      <CreateTransactionModal userId={user?.id as number} />
     </main>
   );
 };
