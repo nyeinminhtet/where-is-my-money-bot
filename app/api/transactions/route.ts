@@ -119,7 +119,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { userId, amount, type, category, description } = body;
 
-    // Validation စစ်ဆေးခြင်း
     if (!userId || !amount || !type) {
       return NextResponse.json(
         { error: "လိုအပ်သော အချက်အလက်များ မပြည့်စုံပါ" },
@@ -137,7 +136,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Database ထဲသို့ Transaction သစ် ထည့်သွင်းခြင်း
+    console.log("userId", userId);
+
     const newTransaction = await prisma.transaction.create({
       data: {
         userId,
