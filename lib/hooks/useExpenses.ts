@@ -103,7 +103,8 @@ export const useExpenses = (
     enabled: Boolean(user?.id),
     placeholderData: () =>
       getCachedExpenses(selectedDate.month, selectedDate.year),
-    staleTime: 1000 * 60 * 5, // 5 မိနစ်အတွင်း re-fetch ထပ်မလုပ်ပါ
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -146,7 +147,6 @@ export const useDeleteTransaction = () => {
       return res.json();
     },
     onSuccess: () => {
-      // Data ဖျက်ပြီးတာနဲ့ Cache ကို Invalid လုပ်ပြီး Dashboard Data အသစ် ပြန်ဆွဲမည်
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
     },
   });
