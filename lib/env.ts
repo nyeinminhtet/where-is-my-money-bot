@@ -1,15 +1,18 @@
 const getEnvVar = (key: string, defaultValue?: string): string => {
-    const value = process.env[key] || defaultValue;
-    if (!value) {
-        throw new Error(`❌ Missing required environment variable: ${key}`);
-    }
-    return value;
+  const value = process.env[key] || defaultValue;
+  if (!value) {
+    throw new Error(`❌ Missing required environment variable: ${key}`);
+  }
+  return value;
 };
 
 export const env = {
   // Prisma / Database
   databaseUrl: getEnvVar("DATABASE_URL"),
   directUrl: getEnvVar("DIRECT_URL"),
+
+  // App url
+  appUrl: getEnvVar("NEXT_PUBLIC_SITE_URL"),
 
   // Telegram
   telegram: {
