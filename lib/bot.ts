@@ -1,7 +1,7 @@
 import { SessionState } from "@/generated/prisma/client";
 import type { TelegramUpdate } from "@/types/telegram";
 
-import { getCommand } from "@/lib/parser";
+import { getCommand } from "@/lib/telegram/parser";
 import { clearSession, getOrCreateSession } from "@/lib/session";
 import { findOrCreateUser } from "@/services/user.service";
 
@@ -23,17 +23,20 @@ import {
   handleBudgetInput,
   handleCheckBudget,
 } from "@/handlers/budget.handler";
-import { parseTextWithAI } from "./gemini";
+import { parseTextWithAI } from "@/lib/ai/gemini";
 import { createTransaction } from "@/services/transaction.service";
-import { sendMessage } from "./telegram";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { sendMessage } from "@/lib/telegram/client";
 import { undoKeyboard } from "@/utils/keyboard";
-import { handleHelp } from "@/handlers/helpe.handler";
+import { handleHelp } from "@/handlers/help.handler";
 import { handleVoice } from "@/handlers/voice.handler";
 import { handlePhoto } from "@/handlers/photo.handler";
 
-import { processUserAIQuery } from "@/services/ai-query.service"; // 🟢 Import သစ် ထည့်ရန်
+import { processUserAIQuery } from "@/services/ai-query.service";
 import { checkAndUpdateAiQuota } from "@/services/rate-limit.service";
+import {
+  buildTransactionSummaryMessage,
+  normalizeCategory,
+} from "@/lib/helpers/transaction-summary";
 
 export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
@@ -107,7 +110,7 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   }
 
   // -----------------------------
-  // 🟢 3. ACTIVE MANUAL SESSION STATES CHECK (AI ထက် အရင်စစ်ရမည်)
+  // 3. Active Manual Session States Check (before AI dispatch)
   // -----------------------------
   if (session.currentState === (SessionState.WAITING_BUDGET as SessionState)) {
     return handleBudgetInput(update, user);
@@ -121,7 +124,7 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   }
 
   // -----------------------------
-  // 🔥 4. Help / Onboarding Pattern Check
+  // 4. Help / Onboarding Pattern Check
   // -----------------------------
   const IS_HELP_PATTERN = /(ဘယ်လို|စရမလဲ|သုံးရမလဲ|ကူညီပါ|help|စတင်)/i;
   if (text && IS_HELP_PATTERN.test(text.trim())) {
@@ -141,7 +144,7 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   }
 
   // -----------------------------
-  // 🔥 5. Number Only Check (e.g. "1000", "၁၀၀၀") -> Manual Mode
+  // 5. Number Only Check (e.g. "1000", "၁၀၀၀") -> Manual Mode
   // -----------------------------
   const isOnlyNumbers = text ? /^[0-9၁-၉\s,]+$/.test(text.trim()) : false;
   if (isOnlyNumbers) {
@@ -149,10 +152,10 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   }
 
   // -----------------------------
-  // 🔥 6. AI Handling (Search Query vs Transaction Parser)
+  // 6. AI Handling (Search Query vs Transaction Parser)
   // -----------------------------
   if (text && !isOnlyNumbers) {
-    // 🟢 6.1 Search Query Pattern Regex Match
+    // 6.1 Search Query Pattern Regex Match
     const IS_QUERY_PATTERN =
       /(ဘယ်လောက်|ကုန်လဲ|စရိတ်|စာရင်းပြ|ရလဲ|သုံးလိုက်တာ|ကုန်သွား|သုံးထား|ဘာက|ဘယ်ဟာ|အဓိက|အများဆုံး|ကျော်|what|how|much|many|spend|spent|earn|earned|cost|total|list|show|income|expense)/i;
 
@@ -177,7 +180,7 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
       return;
     }
 
-    // 🟢 6.2 Transaction Parser Flow
+    // 6.2 Transaction Parser Flow
     const aiResults = await parseTextWithAI(text);
     if (aiResults && Array.isArray(aiResults)) {
       const validTransactions = aiResults.filter(
@@ -190,21 +193,15 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
             userId: user.id,
             amount: tx.amount,
             type: tx.type,
-            category: tx.category || "အခြား",
+            category: normalizeCategory(tx.category),
             description: tx.description || text,
           });
           if (createdTx.type === "EXPENSE") {
             hasExpense = true;
           }
-          const typeText = createdTx.type === "INCOME" ? "ဝင်ငွေ" : "ထွက်ငွေ";
-          const singleTxMessage = [
-            `✅ စာရင်းသွင်းပြီးပါပြီ။`,
-            ``,
-            `📌 အမျိုးအစား - ${typeText}`,
-            `📂 ကဏ္ဍ - ${createdTx.category}`,
-            `💰 ပမာဏ - ${formatCurrency(createdTx.amount)}`,
-            `📝 မှတ်ချက် - ${createdTx.description || "မရှိပါ"}`,
-          ].join("\n");
+          const singleTxMessage = buildTransactionSummaryMessage(createdTx, {
+            header: "✅ စာရင်းသွင်းပြီးပါပြီ။",
+          });
           if (chatId) {
             await sendMessage(chatId, singleTxMessage, {
               reply_markup: undoKeyboard(createdTx.id),

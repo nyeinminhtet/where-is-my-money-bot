@@ -3,16 +3,21 @@ interface CategoryData {
   amount: number;
 }
 
+const formatCompactNumber = (value: number): string => {
+  if (value === 0) return "";
+  if (value >= 1000000) return (value / 1000000).toFixed(1) + "M";
+  if (value >= 1000) return (value / 1000).toFixed(0) + "k";
+  return String(value);
+};
+
 export const generateCategoryChartUrl = (data: CategoryData[]): string => {
   const sortedData = [...data].sort((a, b) => b.amount - a.amount);
   const total = sortedData.reduce((sum, item) => sum + item.amount, 0);
 
-  // 🟢 Category Name, Amount (k) နဲ့ % ကို Label တစ်ခုတည်းမှာ ပေါင်းစပ်ခြင်း
+  // Combine category name, compact amount, and percentage into one label.
   const formattedLabels = sortedData.map((item) => {
     const percentage = total > 0 ? ((item.amount / total) * 100).toFixed(0) : 0;
-    const formattedVal =
-      item.amount >= 1000 ? (item.amount / 1000).toFixed(0) + "k" : item.amount;
-
+    const formattedVal = formatCompactNumber(item.amount) || "0";
     return `${item.category}: ${formattedVal} (${percentage}%)`;
   });
 
@@ -26,14 +31,14 @@ export const generateCategoryChartUrl = (data: CategoryData[]): string => {
         {
           data: amounts,
           backgroundColor: [
-            "#FF6384", // မိသားစု
-            "#36A2EB", // အစားအသောက်
-            "#FFCE56", // အခြား
-            "#4BC0C0", // ကျန်းမာရေး
-            "#9966FF", // ဖျော်ဖြေရေး
-            "#FF9F40", // သွားလာရေး
-            "#B0BEC5", // ဈေးဝယ်ခြင်း
-            "#81C784", // မီး/ရေ/အင်တာနက်
+            "#FF6384",
+            "#36A2EB",
+            "#FFCE56",
+            "#4BC0C0",
+            "#9966FF",
+            "#FF9F40",
+            "#B0BEC5",
+            "#81C784",
           ],
           borderColor: "#ffffff",
           borderWidth: 2,
@@ -41,39 +46,27 @@ export const generateCategoryChartUrl = (data: CategoryData[]): string => {
       ],
     },
     options: {
-      // 🟢 Chart.js Version Compatibility အတွက် Legend configuration အမှန်
-      legend: {
-        display: true,
-        position: "right", // ညာဘက်သို့ ဒေါင်လိုက်ရွှေ့မည်
-        labels: {
-          fontSize: 13,
-          boxWidth: 15,
-          padding: 12,
-        },
-      },
       plugins: {
         legend: {
           display: true,
-          position: "right", // v3/v4 plugins အတွက်ပါ ထပ်ထည့်ပေးထားသည်
+          position: "right",
           labels: {
-            font: {
-              size: 13,
-            },
+            font: { size: 13 },
             boxWidth: 15,
             padding: 12,
           },
         },
         datalabels: {
-          display: false, // Pie slice ပေါ်က စာသားများကို ပိတ်ထားသည်
+          display: false,
         },
       },
     },
   };
 
-  // QuickChart API (version 2.9 သို့မဟုတ် 3 ကို သေချာအောင် ခေါ်ဆိုခြင်း)
-  return `https://quickchart.io/chart?v=3&c=${encodeURIComponent(
+  const url = `https://quickchart.io/chart?v=3&c=${encodeURIComponent(
     JSON.stringify(chartConfig),
   )}&w=850&h=450&bkg=white`;
+  return url;
 };
 
 interface MonthlyBreakdown {
@@ -103,13 +96,13 @@ export const generateYearlyBarChartUrl = (
         {
           label: "ဝင်ငွေ",
           data: incomes,
-          backgroundColor: "#2ECC71", // အစိမ်းရောင်
+          backgroundColor: "#2ECC71",
           borderRadius: 4,
         },
         {
           label: "ထွက်ငွေ",
           data: expenses,
-          backgroundColor: "#FF6384", // အနီ/ပန်းရောင်
+          backgroundColor: "#FF6384",
           borderRadius: 4,
         },
       ],
@@ -133,16 +126,7 @@ export const generateYearlyBarChartUrl = (
           align: "top",
           font: { size: 10, weight: "bold" },
           color: "#333",
-          formatter: (value: number) => {
-            if (value === 0) return "";
-            if (value >= 1000000) {
-              return (value / 1000000).toFixed(1) + "M"; // ဥပမာ- 1.4M
-            }
-            if (value >= 1000) {
-              return (value / 1000).toFixed(0) + "k"; // ဥပမာ- 1127k
-            }
-            return value;
-          },
+          formatter: formatCompactNumber,
         },
         title: {
           display: true,
@@ -154,17 +138,16 @@ export const generateYearlyBarChartUrl = (
       scales: {
         y: {
           ticks: {
-            callback: (value: number) => {
-              if (value >= 1000) return (value / 1000).toFixed(0) + "k";
-              return value;
-            },
+            callback: (value: number) =>
+              value >= 1000 ? `${(value / 1000).toFixed(0)}k` : String(value),
           },
         },
       },
     },
   };
 
-  return `https://quickchart.io/chart?v=3&c=${encodeURIComponent(
+  const url = `https://quickchart.io/chart?v=3&c=${encodeURIComponent(
     JSON.stringify(chartConfig),
   )}&w=800&h=450&bkg=white`;
+  return url;
 };

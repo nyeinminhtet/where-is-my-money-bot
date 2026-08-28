@@ -11,24 +11,24 @@ const cleanupOldExpensesCache = () => {
   if (typeof window === "undefined") return;
 
   const now = Date.now();
-  const ONE_MONTH_MS = 1000 * 60 * 60 * 24 * 30; // ရက် ၃၀ (Milliseconds)
+  const ONE_MONTH_MS = 1000 * 60 * 60 * 24 * 30; // 30 days (milliseconds)
 
-  // LocalStorage ထဲက Key အားလုံးကို စစ်မည်
+  // Scan all keys in localStorage.
   Object.keys(localStorage).forEach((key) => {
-    // ငါတို့ App ရဲ့ expenses cache key ဟုတ်မဟုတ် စစ်မည် (expenses_M_YYYY)
+    // Only target this app's expense cache keys (expenses_M_YYYY).
     if (key.startsWith("expenses_")) {
       try {
         const item = localStorage.getItem(key);
         if (item) {
           const parsed = JSON.parse(item) as CachedPayload;
 
-          // Timestamp သက်တမ်း 1 လကျော်နေရင် ဖျက်ပစ်မည်
+          // Remove entries older than one month based on their savedAt timestamp.
           if (parsed.savedAt && now - parsed.savedAt > ONE_MONTH_MS) {
             localStorage.removeItem(key);
           }
         }
       } catch {
-        // Error ပေးနိုင်သော Corrupted data များကိုလည်း ဖျက်ပစ်မည်
+        // Remove any corrupted/unparseable cache entries.
         localStorage.removeItem(key);
       }
     }
@@ -36,7 +36,7 @@ const cleanupOldExpensesCache = () => {
 };
 
 /**
- * Data အသစ်ရတိုင်း Timestamp ပါ တစ်ပါတည်း ထည့်ပြီး LocalStorage ထဲ သိမ်းမည်
+ * Save data to localStorage with a savedAt timestamp for expiry tracking.
  */
 const saveCacheWithTimestamp = (
   month: number,
@@ -45,11 +45,11 @@ const saveCacheWithTimestamp = (
 ) => {
   if (typeof window === "undefined") return;
 
-  // Data မသိမ်းမီ အဟောင်းများကို Auto Cleanup အရင်လုပ်မည်
+  // Auto-clean expired entries before writing new data.
   cleanupOldExpensesCache();
 
   const payload: CachedPayload = {
-    savedAt: Date.now(), // လက်ရှိ အချိန် Timestamp
+    savedAt: Date.now(), // Current timestamp
     data: data,
   };
 
@@ -57,7 +57,7 @@ const saveCacheWithTimestamp = (
 };
 
 /**
- * LocalStorage ထဲက Cache Data ကို ပြန်ထုတ်ယူမည်
+ * Retrieve cached data from localStorage.
  */
 const getCachedExpenses = (
   month: number,
@@ -70,11 +70,11 @@ const getCachedExpenses = (
 
   try {
     const parsed = JSON.parse(cached);
-    // Timestamp ပါသော Format အသစ်ဟုတ်မဟုတ် စစ်ပြီး Data ပြန်ထုတ်ပေးမည်
+    // Return the data for the newer timestamped format, if present.
     if (parsed && typeof parsed === "object" && "data" in parsed) {
       return (parsed as CachedPayload).data;
     }
-    // သို့မဟုတ် Format အဟောင်းဖြစ်နေလျှင် direct Return ပြန်ပေးမည်
+    // Otherwise fall back to the legacy direct format.
     return parsed as ExpensesResponse;
   } catch {
     return undefined;
@@ -128,13 +128,13 @@ export const useUpdateTransaction = () => {
       return res.json();
     },
     onSuccess: () => {
-      // Data ပြင်ပြီးတာနဲ့ Cache ကို Invalid လုပ်ပြီး Dashboard Data အသစ် ပြန်ဆွဲမည်
+      // Invalidate the cache so the dashboard refetches fresh data.
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
   });
 };
 
-// Transaction ဖျက်ရန် Mutation Hook
+// Mutation hook for deleting a transaction.
 export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();
 

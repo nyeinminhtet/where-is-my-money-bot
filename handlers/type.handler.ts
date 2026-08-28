@@ -3,11 +3,11 @@ import type { User } from "@/generated/prisma/client";
 
 import { SessionState, TransactionType } from "@/generated/prisma/client";
 
-import { getChatId, getCallbackData } from "@/lib/parser";
+import { getChatId, getCallbackData } from "@/lib/telegram/parser";
 
 import { updateTempType, updateState } from "@/lib/session";
 
-import { sendMessage } from "@/lib/telegram";
+import { sendMessage } from "@/lib/telegram/client";
 
 import { categoryKeyboard } from "@/utils/keyboard";
 

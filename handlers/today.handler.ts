@@ -2,8 +2,8 @@
 
 import type { TelegramUpdate } from "@/types/telegram";
 import type { User } from "@/generated/prisma/client";
-import { getChatId } from "@/lib/parser";
-import { sendMessage } from "@/lib/telegram";
+import { getChatId } from "@/lib/telegram/parser";
+import { sendMessage } from "@/lib/telegram/client";
 import { getMonthlyReport, getTodayReport } from "@/services/report.service";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { getTodayRange } from "@/utils/date";

@@ -6,7 +6,7 @@ AI agents working in this repository are maintaining `where-is-my-money-bot`, a 
 
 ## Mandatory Reading
 
-- Read [`/Users/nyeinminhtet/Desktop/personal-projects/where-is-my-money-bot/INSTRUCTIONS.md`](/Users/nyeinminhtet/Desktop/personal-projects/where-is-my-money-bot/INSTRUCTIONS.md) before making changes.
+- Read `INSTRUCTIONS.md` (in the repository root) before making changes.
 - Read the relevant Next.js guide in `node_modules/next/dist/docs/` before changing App Router behavior, route handlers, deployment assumptions, or file conventions.
 - Heed deprecation notices and version-specific Next.js documentation over memory.
 
@@ -40,6 +40,23 @@ AI agents working in this repository are maintaining `where-is-my-money-bot`, a 
 - Preserve idempotency where possible so repeated Telegram updates do not create duplicate records.
 - Monthly and yearly report queries (both API routes and bot commands) must be optimized for serverless execution using Prisma `groupBy`, Date Range filters (`month`/`year`), and PostgreSQL `date_trunc` patterns instead of loading and aggregating large transaction sets in application memory.
 - Avoid per-request full-table scans when calculating reports; push aggregation into PostgreSQL and return only the grouped results needed for the UI/Table output.
+
+## Gemini API Handling
+
+- Centralize all Gemini access in `lib/ai/gemini.ts`. Do not create ad-hoc client instances or inline prompt/response schemas in handlers or services.
+- Read Gemini credentials from env only (`GEMINI_API_KEY`, optional `GEMINI_MODEL`, `GEMINI_PROXY_URL`). Never hardcode keys, URLs, or model names in committed code.
+- Route every Gemini request through the shared rate limiter (`lib/rate-limiter.ts`, `waitForRateLimit`) so free-tier quota limits are respected and requests are throttled rather than rejected.
+- Treat the raw Gemini response as untrusted input. Validate and coerce it against the exported Zod `responseSchema` before use; never trust a field the schema did not type.
+- Preserve the user's original Myanmar text (amounts, titles, categories) returned by the model; only normalize the intended `type`/`amount`/`category` fields.
+- All Gemini calls are latency-sensitive within a Telegram webhook. Await them briefly and return a clear error message if parsing fails; do not block the request with retries beyond the rate limiter's guidance.
+
+## Audio / Image Update Processing
+
+- Voice note (`.ogg`) and receipt-photo handling is centralized in `lib/helpers/multimodal.ts` via `processMultimodalMedia` and must be used by both `handlers/voice.handler.ts` and `handlers/photo.handler.ts`.
+- Download Telegram media through `lib/telegram/client.ts` (`getFile` / `downloadFile`) and pass the buffer plus the correct `mimeType` to `parseInputWithGemini` — do not re-download or build file URLs in handlers.
+- Keep media processing out of the synchronous request path as much as possible: send a `ChatAction` first, then fetch the file and call the AI model.
+- Handle each returned transaction individually and preserve idempotency (do not create duplicate records on repeated updates).
+- After saving expenses, call `checkAndSendBudgetWarning` so budget warnings stay consistent with the text-only flow.
 
 ## Data and Encoding Rules
 

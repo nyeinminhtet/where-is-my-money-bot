@@ -116,7 +116,7 @@ const DashboardPage = () => {
           isLoading={isLoading}
         />
 
-        {/* 👈 3. Budget Card ကို ဒီနေရာမှာ ထည့်ပေးထားပါတယ် */}
+        {/* 3. Budget card placeholder */}
         <MonthlyBudgetCard
           monthlyBudget={data?.monthlyBudget ?? null}
           totalExpense={summary.totalExpense}

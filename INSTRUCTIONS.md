@@ -39,11 +39,19 @@ bun add prisma @prisma/client
 
 2. Environment Variables
 
-   Create a .env file at the project root and define:
+   Copy `.env.example` to `.env` at the project root and fill in your values:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Define (at minimum):
    - DATABASE_URL
    - DIRECT_URL
+   - NEXT_PUBLIC_SITE_URL
    - TELEGRAM_BOT_TOKEN
-   - TELEGRAM_WEBHOOK_SECRET
+   - GEMINI_API_KEY
+   - CRON_SECRET
 
    Variable Purpose
    - DATABASE_URL
@@ -52,11 +60,23 @@ bun add prisma @prisma/client
    - DIRECT_URL
      - Use the direct PostgreSQL URL for Prisma migrations.
 
+   - NEXT_PUBLIC_SITE_URL
+     - The public site URL used as `metadataBase` / Mini App link.
+
    - TELEGRAM_BOT_TOKEN
      - The token issued by @BotFather.
 
-   - TELEGRAM_WEBHOOK_SECRET
-     - A shared secret used to validate incoming webhook requests.
+   - GEMINI_API_KEY
+     - The Google AI Studio / Gemini API key used for text and multimodal parsing.
+
+   - GEMINI_MODEL
+     - Optional Gemini model override (defaults to `gemini-3.1-flash-lite`).
+
+   - ADMIN_TELEGRAM_ID
+     - Telegram user id granted unlimited AI quota (admin).
+
+   - CRON_SECRET
+     - Shared secret used to authorize the daily reminder cron route.
 
 3. Supabase Connection Pooling
    This bot should use the Supabase pooler endpoint in production because serverless functions must not exhaust database connections.
@@ -130,18 +150,25 @@ bun prisma migrate dev
    3. Configure the production environment variables:
       - DATABASE_URL
       - DIRECT_URL
+      - NEXT_PUBLIC_SITE_URL
       - TELEGRAM_BOT_TOKEN
-      - TELEGRAM_WEBHOOK_SECRET
+      - GEMINI_API_KEY
+      - CRON_SECRET
 
    4. Deploy the project.
 
    5. Confirm the live Vercel domain.
 
 Telegram Webhook URL
-Set the Telegram webhook to the live HTTPS endpoint for the deployed app. The exact path is `/api/telegram/webhook` on the production domain assigned by Vercel.
+Set the Telegram webhook to the live HTTPS endpoint for the deployed app. The exact path is `/api/telegram` on the production domain assigned by Vercel.
 
 `setWebhook` Command
-Call Telegram `setWebhook` with the bot token, the webhook URL for the deployed app, and the shared secret token. The webhook URL must be the production HTTPS domain plus `/api/telegram/webhook`.
+Call Telegram `setWebhook` with the bot token and the webhook URL for the deployed app. The webhook URL must be the production HTTPS domain plus `/api/telegram`.
+
+```bash
+curl -F "url=https://<your-domain>/api/telegram" \
+  "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook"
+```
 
 8. Operational Checks
 

@@ -1,5 +1,8 @@
 const MYANMAR_TIMEZONE = "Asia/Yangon";
 
+// Myanmar is UTC+6:30 (equivalent to this offset in milliseconds).
+export const MYANMAR_OFFSET_MS = 6.5 * 60 * 60 * 1000;
+
 /**
  * Get current date in Myanmar timezone.
  */
@@ -63,6 +66,21 @@ export const getCurrentMonthRange = (): {
         start,
         end,
     };
+};
+
+/**
+ * Get a date range (start and end) for a specific month and year.
+ * @param year - e.g. 2024
+ * @param month - 1-based month (January = 1)
+ * @returns { startDate: Date, endDate: Date } where endDate is exclusive (start of next month).
+ */
+export const getMonthDateRange = (year: number, month: number): {
+    startDate: Date;
+    endDate: Date;
+} => {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
+    return { startDate, endDate };
 };
 
 /**

@@ -1,6 +1,6 @@
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
-import { sendMessage } from "@/lib/telegram";
+import { sendMessage } from "@/lib/telegram/client";
 import { NextResponse } from "next/server";
 
 export const GET = async (request: Request) => {

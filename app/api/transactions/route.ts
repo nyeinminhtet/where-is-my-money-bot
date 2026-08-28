@@ -1,4 +1,4 @@
-import { getMonthDateRange } from "@/lib/helpers/summary";
+import { getMonthDateRange } from "@/utils/date";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 

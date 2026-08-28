@@ -2,8 +2,8 @@ import type { TelegramUpdate } from "@/types/telegram";
 import type { User } from "@/generated/prisma/client";
 import { SessionState } from "@/generated/prisma/client";
 
-import { sendMessage } from "@/lib/telegram";
-import { getChatId } from "@/lib/parser";
+import { sendMessage } from "@/lib/telegram/client";
+import { getChatId } from "@/lib/telegram/parser";
 import { updateState } from "@/lib/session";
 import { mainMenuKeyboard } from "@/utils/keyboard";
 

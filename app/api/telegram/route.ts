@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { handleTelegramUpdate } from "@/lib/bot";
-import { sendMessage } from "@/lib/telegram";
+import { sendMessage } from "@/lib/telegram/client";
 
 export const POST = async (request: NextRequest) => {
     try {

@@ -1,127 +1,182 @@
-# Where Is My Money Bot
+# Where Is My Money
 
-A Myanmar-language Telegram bot for tracking income and expenses with a simple guided chat flow.
+**AI-Powered Financial Tracking Telegram Bot & Next.js Mini App**
 
-## What It Does
-
-`Where Is My Money Bot` helps users record daily transactions directly in Telegram. The bot supports multi-user use through Telegram chat IDs, accepts Myanmar digits as input, and guides the user through a short sequence:
-
-1. Amount
-2. Category selection
-3. Description
-4. Success confirmation with Undo
-
-It is designed for fast, low-friction money tracking in Myanmar language.
-
-## Stack
-
-- Next.js App Router
-- Serverless API routes only
-- Prisma ORM
-- Supabase PostgreSQL
-- Telegram Bot API
+A Myanmar-language expense tracker that lets you log income and expenses from Telegram — by typing plain language, sending a voice note, or snapping a receipt photo — then review everything on a rich web dashboard.
 
 ## Features
 
-- Multi-user support by Telegram `chat_id`
-- Myanmar-to-English digit parsing
-- Conversation-based transaction capture
-- `/start` onboarding
-- `/balance` balance lookup
-- `/report` summary reporting
-- `/monthly` monthly financial breakdowns
-- `/yearly` yearly financial breakdowns
-- Undo for the most recent saved transaction
+- **Multimodal AI Expense Logging** — Parse unstructured Burmese/English natural-language text, voice messages (`.ogg`), and receipt photo scans through Google's Gemini API. Just say or type what you spent and the bot figures out the rest.
+- **Interactive Mini App Dashboard** — A Next.js web app with React, Tailwind CSS, and Shadcn UI that shows monthly balances, visual budget progress bars, and full transaction history with charts.
+- **Rate-Limited Pipeline** — Queue-backed API request throttling keeps AI operations safe and predictable under free-tier quota limits.
+- **Localization Support** — Tailored for Myanmar Kyat (MMK) currency formatting and local-language parsing, including native Myanmar digits (`၁၂၀၀၀`).
 
-## Quick Start
+## Tech Stack
 
-### 1. Install Dependencies
+| Layer                   | Technology                                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| **Frontend / Mini App** | Next.js (App Router), TypeScript, Tailwind CSS, Shadcn UI, Recharts                      |
+| **Backend**             | Node.js, Telegram Bot API                                                                |
+| **Database**            | PostgreSQL + Prisma ORM (Supabase)                                                       |
+| **AI Integration**      | Google Gemini (SDK — Multimodal Audio/Vision API, default model `gemini-3.1-flash-lite`) |
 
-```bash
-npm install
+## Architecture Overview
+
+```
+app/
+  api/            # Serverless routes (Telegram webhook, transactions, cron)
+  dashboard/      # Web Mini App (components + page)
+components/       # Shared UI components
+constants/        # Category constants
+handlers/         # Per-command Telegram handlers
+lib/
+  ai/             # Consolidated Gemini client, schemas, and parsers
+  charts/         # QuickChart + report chart generators
+  helpers/        # Shared business logic (multimodal, summary, budget, breakdown)
+  hooks/          # Client-side hooks (useExpenses, useDebounce)
+  schema/         # Zod transaction schema
+  telegram/       # Telegram API client + update parser
+  bot.ts          # Webhook dispatcher / routing
+services/         # Prisma data-access services
+types/            # Shared TypeScript types
+utils/            # Pure helpers (date, currency format, keyboard)
 ```
 
-### 2. Configure Environment Variables
+## Getting Started
 
-Create a `.env` file at the project root and define:
+### Prerequisites
 
-- `DATABASE_URL`
-- `DIRECT_URL`
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_WEBHOOK_SECRET`
+- [Bun](https://bun.sh) (this project's preferred package manager)
+- A [Supabase](https://supabase.com) PostgreSQL database
+- A Telegram bot token from [@BotFather](https://t.me/BotFather)
+- A Google AI Studio / Gemini API key
 
-### 3. Prepare Prisma
-
-```bash
-npx prisma generate
-npx prisma migrate dev
-```
-
-### 4. Run Locally
+### 1. Install dependencies
 
 ```bash
-npm run dev
+bun install
 ```
+
+### 2. Configure environment variables
+
+Copy the sample file and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+Key variables (full reference in [`.env.example`](.env.example)):
+
+```bash
+# Database
+DATABASE_URL="postgresql://..."
+DIRECT_URL="postgresql://..."
+
+# App
+NEXT_PUBLIC_SITE_URL="https://your-domain.vercel.app"
+
+# Telegram
+TELEGRAM_BOT_TOKEN="123456789:AA..."
+ADMIN_TELEGRAM_ID="0"
+
+# Gemini AI
+GEMINI_API_KEY="your-key-here"
+GEMINI_MODEL="gemini-3.1-flash-lite"
+
+# Cron
+CRON_SECRET=""
+```
+
+### 3. Generate Prisma client & apply migrations
+
+```bash
+bunx prisma generate
+bunx prisma migrate deploy
+```
+
+### 4. Run locally
+
+```bash
+bun run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view the Mini App dashboard.
 
 ## Telegram Setup
 
-1. Open `@BotFather` in Telegram.
-2. Create a bot and copy the token.
-3. Put the token into `TELEGRAM_BOT_TOKEN`.
-4. Deploy the app.
-5. Set the webhook to the live HTTPS endpoint for the deployed app.
+1. Create a bot with [@BotFather](https://t.me/BotFather) and copy the token into `TELEGRAM_BOT_TOKEN`.
+2. Deploy the app so it has a public HTTPS endpoint.
+3. Register the webhook to point at your deployed `/api/telegram` route:
 
-The webhook path is `/api/telegram/webhook` on the live Vercel domain for your deployment.
+```bash
+curl -F "url=https://<your-domain>/api/telegram" \
+  "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook"
+```
 
-## User Guide
+## Demo
 
-### စတင်အသုံးပြုရန်
+- 🤖 **Live Bot:** [@where_is_my_money_mm_bot](https://t.me/where_is_my_money_mm_bot)
 
-Send `/start` to begin. The bot will explain how to enter your money records.
+<!-- ## Screenshots
 
-### ငွေသွင်း / ငွေထုတ် မှတ်ရန်
+### Mini App Dashboard
 
-Send an amount in either English digits or Myanmar digits.
+`[Insert Mini App screenshot here]`
 
-Examples:
+### Budget Progress & Analytics
+
+`[Insert budget/analytics screenshot here]`
+
+### Transaction History
+
+`[Insert transaction list screenshot here]` -->
+
+## Usage Guide
+
+> 🇲🇲 The bot's UI is in Myanmar. Below are the core flows.
+
+### Get started
+
+Send `/start` to receive onboarding instructions.
+
+### Record income / expense
+
+Send an amount in English or Myanmar digits:
 
 - `12000`
 - `၁၂၀၀၀`
 
-Then choose a category from the keyboard, add a short description, and confirm the saved entry.
+Then pick a category, add a short description, and confirm the entry.
 
-### လက်ကျန်ကြည့်ရန်
+**Faster:** type or dictate a full sentence (e.g. _"coffee ၂၀၀၀"_), send a voice note, or send a photo of a receipt — the bot parses it automatically.
 
-Send `/balance` to see your current balance summary for that Telegram chat.
+### Your balance
 
-### အစီရင်ခံစာကြည့်ရန်
+Send `/balance` for the current balance of that Telegram chat.
 
-Send `/report` to view a transaction summary for the selected time window.
+### Reports
 
-### လစဉ် အကျဉ်းချုပ်ကြည့်ရန်
-
-Send `/monthly` to view the current month's breakdown. The bot returns a table-style summary with:
-
-- Total Income
-- Total Expense
-- Net Balance
-- Category Breakdown
-
-### နှစ်စဉ် အကျဉ်းချုပ်ကြည့်ရန်
-
-Send `/yearly` to view the current year's breakdown. The bot returns the same table-style summary fields:
-
-- Total Income
-- Total Expense
-- Net Balance
-- Category Breakdown
+- `/report` — summary for the selected time window
+- `/monthly` — current month breakdown (total income, total expense, net balance, category breakdown)
+- `/yearly` — current year breakdown
 
 ### Undo
 
-After a transaction is saved, the bot shows an Undo button. Use it immediately if you need to reverse the latest entry.
+After a transaction saves, tap the **Undo** button to reverse the latest entry.
 
-## Project Notes
+## Project Scripts
 
-- The application is intended to run as a serverless Next.js deployment.
-- Webhook handlers should stay fast and reliable.
-- Myanmar text must remain UTF-8 encoded end to end.
+```bash
+bun run dev      # Start the dev server
+bun run build    # Generate Prisma client + production build
+bun run start    # Start the production server
+bun run lint     # Run ESLint
+```
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Contributing
+
+Contributions are welcome. Please open an issue or pull request for any improvements, and follow the guidelines in `AGENTS.md` and `INSTRUCTIONS.md` when making changes.
