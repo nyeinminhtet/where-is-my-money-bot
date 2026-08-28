@@ -1,5 +1,5 @@
 import { generateCategoryChartUrl } from "./quickchart";
-import { sendMessage, sendPhoto } from "./telegram";
+import { sendMessage, sendPhoto } from "@/lib/telegram/client";
 
 export const sendReportWithChart = async (
   chatId: number | string,

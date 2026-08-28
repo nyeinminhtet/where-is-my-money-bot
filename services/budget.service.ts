@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { SessionState } from "@/generated/prisma/client";
+import { updateSession } from "@/lib/session";
 
 export const setBudget = async (userId: string, amount: number) => {
   return await prisma.user.update({
@@ -10,8 +12,5 @@ export const setBudget = async (userId: string, amount: number) => {
 };
 
 export const updateBudgetSession = async (userId: string) => {
-    return await prisma.botSession.update({
-        where: { userId: userId },
-        data: { currentState: "WAITING_BUDGET" },
-    });
+  return updateSession(userId, { currentState: SessionState.WAITING_BUDGET });
 };

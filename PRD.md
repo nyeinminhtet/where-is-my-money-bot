@@ -6,7 +6,7 @@
 
 ## Summary
 
-`Where Is My Money Bot` is a Telegram bot and integrated Telegram Web Mini App (Dashboard) for tracking personal income and expenses in Myanmar language. Users can log transactions through a short guided chat flow in Telegram, or view, filter, and analyze their financial habits using a modern Web Mini App built with Next.js (App Router), TanStack React Query, and Recharts.
+`Where Is My Money Bot` is a Telegram bot and integrated Telegram Web Mini App (Dashboard) for tracking personal income and expenses in Myanmar language. Users can log transactions through a short guided chat flow in Telegram — including free-text messages, voice notes, and receipt photos parsed by the Google Gemini Multimodal API — or view, filter, and analyze their financial habits using a modern Web Mini App built with Next.js (App Router), TanStack React Query, and Recharts.
 
 ## Problem Statement
 
@@ -39,14 +39,18 @@ People often record money in chat apps, notes, or memory, which makes balances h
 - Multi-user support using Telegram `chat_id` and `telegramId`.
 - Automatic Myanmar-to-English digit parsing.
 - Guided state flow: Amount -> Category keyboard -> Description -> Success confirmation with Undo button.
-- Bot Commands: `/start`, `/balance`, `/report`, `/monthly`, `/yearly`.
+- **AI-Assisted Key Features (Google Gemini Multimodal API):**
+  - `Voice message parsing (.ogg)` — transcribe and extract expense/income details from voice notes.
+  - `Receipt photo OCR scanning` — scan receipt photos and parse transaction line items.
+  - `Natural-language expense logging` — parse unstructured Burmese/English text into structured transactions.
+- Queue-backed API rate limiting so Gemini requests stay within free-tier quota limits.
+- Bot Commands: `/start`, `/balance`, `/report`, `/monthly`, `/yearly`, `/today`, `/budget`, `/undo`, `/help`.
 - Data persistence using Prisma ORM with Supabase PostgreSQL.
 - Next.js App Router route handlers as the API surface.
 
 ### Out of Scope
 
 - Bank account auto-sync.
-- Receipt OCR scanning.
 - Forecasting and budgeting automation.
 - Multi-currency support.
 
@@ -64,6 +68,7 @@ People often record money in chat apps, notes, or memory, which makes balances h
 - **Database:** Supabase PostgreSQL with Prisma ORM.
 - **State & Data Fetching:** `@tanstack/react-query`.
 - **UI & Charts:** Tailwind CSS, `recharts`, `lucide-react`.
+- **AI Integration:** Google Gemini Multimodal API (text, audio, and vision inputs) with queue-backed rate limiting.
 
 ## Success Metrics
 

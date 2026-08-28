@@ -3,11 +3,11 @@ import type { User } from "@/generated/prisma/client";
 
 import { SessionState } from "@/generated/prisma/client";
 
-import { getChatId, getCallbackData } from "@/lib/parser";
+import { getChatId, getCallbackData } from "@/lib/telegram/parser";
 
 import { updateTempCategory, updateState, getSession } from "@/lib/session";
 
-import { sendMessage } from "@/lib/telegram";
+import { sendMessage } from "@/lib/telegram/client";
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
 
 export const handleCategory = async (update: TelegramUpdate, user: User) => {
@@ -21,7 +21,6 @@ export const handleCategory = async (update: TelegramUpdate, user: User) => {
     if (!callbackData.startsWith("CATEGORY_")) {
         return sendMessage(chatId, "အမျိုးအစား မမှန်ပါ။");
     }
-    // const category = callbackData.replace("CATEGORY_", "");
     const categoryIndex = Number(callbackData.replace("CATEGORY_", ""));
     if (Number.isNaN(categoryIndex)) {
         return sendMessage(chatId, "အမျိုးအစား မမှန်ပါ။");
@@ -37,7 +36,6 @@ export const handleCategory = async (update: TelegramUpdate, user: User) => {
     }
     await updateTempCategory(user.id, category);
     await updateState(user.id, SessionState.WAITING_DESCRIPTION);
-    // return sendMessage(chatId, "အသေးစိတ်ဖော်ပြချက် ထည့်ပါ။");
     return sendMessage(chatId, "📝 အသေးစိတ်ဖော်ပြချက် ထည့်ပါ (သို့မဟုတ် ကျော်ပါ)။", {
         reply_markup: {
             inline_keyboard: [

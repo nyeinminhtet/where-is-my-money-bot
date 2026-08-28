@@ -48,7 +48,7 @@ export const getTotalExpenseThisMonth = async (userId: string) => {
     const aggregate = await prisma.transaction.aggregate({
         where: {
             userId: userId,
-            type: TransactionType.EXPENSE, // မင်းရဲ့ TransactionType enum အတိုင်း ထည့်ပါ
+            type: TransactionType.EXPENSE,
             createdAt: {
                 gte: start,
                 lte: end,

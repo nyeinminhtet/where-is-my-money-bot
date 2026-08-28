@@ -1,4 +1,4 @@
-import { formatAmount } from "@/lib/helpers/summary";
+import { formatAmount } from "@/utils/formatCurrency";
 
 type SummaryCardsProps = {
   totalNetBalance: number;

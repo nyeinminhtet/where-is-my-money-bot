@@ -1,14 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { parseUserQueryIntent } from "@/lib/gemini";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { env } from "@/lib/env";
+import {
+  parseUserQueryIntent,
+  getAnswerModel,
+} from "@/lib/ai/gemini";
 
-const genAI = new GoogleGenerativeAI(env.gemini.apiKey);
-
-const answerModel = genAI.getGenerativeModel(
-  { model: env.gemini.model },
-  { baseUrl: env.gemini.proxyUrl },
-);
+const answerModel = getAnswerModel();
 
 export const processUserAIQuery = async (userId: string, userText: string) => {
     // 1. Gemini Intent Parsing
@@ -16,7 +12,7 @@ export const processUserAIQuery = async (userId: string, userText: string) => {
     if (!intent || !intent.isFinanceRelated) {
         return "ကျွန်တော်က အသုံးစရိတ်နဲ့ ပိုက်ဆံစာရင်းနဲ့ ဆိုင်တဲ့ မေးခွန်းတွေကိုပဲ ဖြေကြားပေးနိုင်ပါတယ်ဗျာ။ 📊";
     }
-    // 2. Prisma Dynamic Where Clause Construction
+    // Prisma Dynamic Where Clause Construction
     const whereClause: any = { userId };
     if (intent.startDate || intent.endDate) {
         whereClause.createdAt = {};
@@ -30,9 +26,9 @@ export const processUserAIQuery = async (userId: string, userText: string) => {
     if (intent.type) {
         whereClause.type = intent.type;
     }
-    // 🟢 Specific Category/Keyword Filter (Only apply if explicitly extracted)
+    // Specific Category/Keyword Filter (only applied when explicitly extracted)
     const searchConditions: any[] = [];
-    const isValidValue = (val: any) => val &&
+    const isValidValue = (val: string | null | undefined): val is string =>
         typeof val === "string" &&
         val.toLowerCase() !== "null" &&
         val.trim() !== "";
@@ -60,7 +56,7 @@ export const processUserAIQuery = async (userId: string, userText: string) => {
         return "ရှာဖွေမှုနဲ့ ကိုက်ညီတဲ့ စာရင်း မတွေ့ရှိပါဘူးဗျာ။";
     }
     const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
-    // 3. Answer Generation Prompt with Strict Male Persona
+    // Answer Generation Prompt with Strict Male Persona
     const answerPrompt = `
 User asked: "${userText}"
 Data Context:

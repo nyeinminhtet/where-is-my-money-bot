@@ -3,7 +3,7 @@ import type {
   TelegramInlineKeyboardMarkup,
   TelegramReplyKeyboardMarkup,
 } from "@/types/telegram";
-import { env } from "./env";
+import { env } from "@/lib/env";
 
 const getBotToken = (): string => {
     const token = env.telegram.botToken;

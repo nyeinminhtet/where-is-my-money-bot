@@ -45,8 +45,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false, // 👈 User က လက်နဲ့ Zoom ဆွဲလို့ မရအောင် တားဆီးပေးသည် (App-like feel ရစေရန်)
-  viewportFit: "cover", // 👈 Mobile Notch တွေနဲ့ တသားတည်းဖြစ်စေရန်
+  userScalable: false, // Disable pinch-to-zoom for an app-like feel
+  viewportFit: "cover", // Fill mobile notches for a seamless look
 };
 
 const notoSansHeading = Noto_Sans({

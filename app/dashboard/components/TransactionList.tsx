@@ -41,7 +41,7 @@ const TransactionList = ({
   const [selectedTransaction, setSelectedTransaction] =
     useState<TransactionItem | null>(null);
 
-  // 3. Search နှင့် Static Category စစ်ဆေးမှု Logic
+  // Search and static category filtering logic.
   const filteredTransactions = useMemo(() => {
     return transactions.filter((tx) => {
       const matchesSearch = tx.title

@@ -1,11 +1,16 @@
 import type { TelegramUpdate } from "@/types/telegram";
 import { SessionState, type User } from "@/generated/prisma/client";
-import { getChatId, getMessageText } from "@/lib/parser";
-import { sendMessage } from "@/lib/telegram";
+import { getChatId, getMessageText } from "@/lib/telegram/parser";
+import { sendMessage } from "@/lib/telegram/client";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { updateBudgetSession, setBudget } from "@/services/budget.service";
 import { updateState } from "@/lib/session";
 import { getTotalExpenseThisMonth } from "@/services/transaction.service";
+import {
+  getBudgetStatusMessage,
+  getBudgetWarningMessage,
+  getBudgetWarningText,
+} from "@/lib/helpers/budget";
 
 type UserWithBudget = {
   id: string;
@@ -34,7 +39,6 @@ export const handleBudgetInput = async (update: TelegramUpdate, user: User) => {
 export const askForBudget = async (update: TelegramUpdate, userId: string) => {
   const chatId = getChatId(update);
   if (!chatId) return;
-  // ဒီနေရာမှာ User ရဲ့ State ကို DB ထဲမှာ 'AWAITING_BUDGET' လို့ သွားပြောင်းထားရမယ် ဆရာသမား
   await updateBudgetSession(userId);
   return sendMessage(
     chatId,
@@ -51,60 +55,30 @@ export const handleCheckBudget = async (update: TelegramUpdate, user: User) => {
       "⚠️ လစဉ် အသုံးစရိတ် မသတ်မှတ်ရသေးပါ။\n⚙️ 'အသုံးစရိတ် သတ်မှတ်ရန်' ခလုတ်ကို နှိပ်ပြီး အရင်သတ်မှတ်ပေးပါ။",
     );
   }
-  // ၂။ ဒီလသုံးထားသမျှနဲ့ ရာခိုင်နှုန်းကို တွက်ချက်မယ်
   const totalExpense = await getTotalExpenseThisMonth(user.id);
-  const budget = user.monthlyBudget;
-  const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
-  const remainingBudget = budget - totalExpense;
-  const budgetMessage = [
-    `📊 **သင်၏ လစဉ် အသုံးစရိတ် အခြေအနေ**`,
-    "---------------------------------",
-    `💰 သတ်မှတ်ထားသော အသုံးစရိတ်  : ${formatCurrency(budget)}`,
-    `📉 အသုံးပြုပြီးသမျှ : ${formatCurrency(totalExpense)} (${percentageUsed}%)`,
-    `💵 ကျန်ရှိငွေ        : ${formatCurrency(remainingBudget >= 0 ? remainingBudget : 0)}`,
-  ].join("\n");
-  // ၄။ Budget ကျော်နေရင် Warning စာသားပါ တစ်ခါတည်း တွဲပြမယ်ဗျာ
-  let finalMessage = budgetMessage;
-  if (totalExpense >= budget) {
-    finalMessage +=
-      "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ အသုံးစရိတ် ပြည့်/ကျော်သွားပါပြီခင်ဗျာ! 📉";
-  } else if (totalExpense >= budget * 0.8) {
-    finalMessage +=
-      "\n\n⚠️ **သတိပေးချက်:** ဒီလ အသုံးစရိတ် ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
-  }
-  return sendMessage(chatId, finalMessage);
+  return sendMessage(
+    chatId,
+    getBudgetStatusMessage({ totalExpense, budget: user.monthlyBudget }),
+  );
 };
 
 export const checkAndSendBudgetWarning = async (
   user: UserWithBudget,
   chatId: number | string,
 ) => {
-  // User မှာ Budget သတ်မှတ်ထားခြင်း မရှိပါက မည်သည့် Message မှ မပို့ပါ
+  // Skip when the user has no budget configured.
   if (!user.monthlyBudget) return;
 
   const totalExpense = await getTotalExpenseThisMonth(user.id);
   const budget = user.monthlyBudget;
-  const threshold = budget * 0.8; // 80% Threshold
 
-  // 80% မပြည့်သေးပါက ထပ်မံ အလုပ်မလုပ်ဘဲ Return ပြန်မည်
-  if (totalExpense < threshold) return;
+  // Only warn once the user has used 80% or more of their budget.
+  if (totalExpense < budget * 0.8) return;
+  if (!getBudgetWarningText({ totalExpense, budget })) return;
 
-  const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
-
-  let warningText = "";
-  if (totalExpense >= budget) {
-    warningText =
-      "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
-  } else {
-    warningText =
-      "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
-  }
-
-  const budgetMessage = [
-    `📊 **လစဉ် Budget အခြေအနေ:**`,
-    `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
-    warningText,
-  ].join("\n");
-
-  await sendMessage(chatId, budgetMessage, { parse_mode: "Markdown" });
+  await sendMessage(
+    chatId,
+    getBudgetWarningMessage({ totalExpense, budget }),
+    { parse_mode: "Markdown" },
+  );
 };

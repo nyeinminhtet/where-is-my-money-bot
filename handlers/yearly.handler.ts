@@ -1,16 +1,16 @@
 import type { TelegramUpdate } from "@/types/telegram";
 import type { User } from "@/generated/prisma/client";
 
-import { getChatId } from "@/lib/parser";
+import { getChatId } from "@/lib/telegram/parser";
 
-import { sendMessage, sendPhoto } from "@/lib/telegram";
+import { sendMessage, sendPhoto } from "@/lib/telegram/client";
 
 import { getYearlyReport } from "@/services/report.service";
 
 import { formatCurrency } from "@/utils/formatCurrency";
 
 import { getCurrentYear, getCurrentYearRange } from "@/utils/date";
-import { generateYearlyBarChartUrl } from "@/lib/quickchart";
+import { generateYearlyBarChartUrl } from "@/lib/charts/quickchart";
 
 export const handleYearly = async (update: TelegramUpdate, user: User) => {
     const chatId = getChatId(update);
