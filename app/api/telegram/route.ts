@@ -8,8 +8,9 @@ export const POST = async (request: NextRequest) => {
         const update = await request.json();
         const msg = update.message;
         if (msg) {
-            if (msg.document || msg.photo || msg.voice || msg.audio || msg.video) {
-                await sendMessage(msg.chat.id, "⚠️ မင်္ဂလာပါ! ကျွန်တော်က ဓာတ်ပုံ၊ ဗွီဒီယို၊ အသံဖိုင်တွေကို လက်ခံနိုင်တာ မဟုတ်ပါဘူး။ ကျေးဇူးပြု၍ စာသားပဲ ပို့ပေးပါ။");
+            // Only block video, document, and audio (not voice/photos — those are handled by the bot)
+            if (msg.document || msg.audio || msg.video) {
+                await sendMessage(msg.chat.id, "⚠️ မင်္ဂလာပါ! ကျွန်တော်က ဗွီဒီယို၊ ဖိုင်တွေကို လက်ခံနိုင်တာ မဟုတ်ပါဘူး။ ကျေးဇူးပြု၍ စာသား၊ အသံ (Voice) သို့မဟုတ် ဓာတ်ပုံ ပို့ပေးပါ။");
                 return NextResponse.json({ ok: true });
             }
             if (msg.text) {

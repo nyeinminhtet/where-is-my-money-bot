@@ -16,12 +16,46 @@ export type TelegramChat = {
   last_name?: string;
 };
 
+export type TelegramVoice = {
+  file_id: string;
+  file_unique_id: string;
+  duration: number;
+  mime_type?: string;
+  file_size?: number;
+};
+
+export type TelegramPhotoSize = {
+  file_id: string;
+  file_unique_id: string;
+  width: number;
+  height: number;
+  file_size?: number;
+};
+
+export type TelegramDocument = {
+  file_id: string;
+  file_unique_id: string;
+  file_name?: string;
+  mime_type?: string;
+  file_size?: number;
+};
+
 export type TelegramMessage = {
   message_id: number;
   date: number;
   chat: TelegramChat;
   from?: TelegramUser;
   text?: string;
+  voice?: TelegramVoice;
+  photo?: TelegramPhotoSize[];
+  document?: TelegramDocument;
+};
+
+export type TelegramFile = {
+  file_id: string;
+  file_unique_id: string;
+  file_size?: number;
+  file_path?: string;
 };
 
 export type TelegramCallbackQuery = {

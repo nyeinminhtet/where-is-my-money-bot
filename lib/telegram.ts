@@ -1,4 +1,5 @@
 import type {
+  TelegramFile,
   TelegramInlineKeyboardMarkup,
   TelegramReplyKeyboardMarkup,
 } from "@/types/telegram";
@@ -83,4 +84,30 @@ export const sendPhoto = async (
     caption,
     parse_mode: "Markdown",
   });
+};
+
+export const sendChatAction = async (
+  chatId: number | string,
+  action: "typing" | "upload_photo" | "record_voice" | "upload_voice",
+) => {
+  return telegramRequest("sendChatAction", {
+    chat_id: chatId,
+    action,
+  });
+};
+
+export const getFile = async (fileId: string): Promise<TelegramFile> => {
+  return telegramRequest<TelegramFile>("getFile", {
+    file_id: fileId,
+  });
+};
+
+export const downloadFile = async (filePath: string): Promise<ArrayBuffer> => {
+  const token = env.telegram.botToken;
+  const url = `${env.telegram.apiUrl}/file/bot${token}/${filePath}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.statusText}`);
+  }
+  return response.arrayBuffer();
 };

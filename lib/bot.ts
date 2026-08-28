@@ -29,6 +29,8 @@ import { sendMessage } from "./telegram";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { undoKeyboard } from "@/utils/keyboard";
 import { handleHelp } from "@/handlers/helpe.handler";
+import { handleVoice } from "@/handlers/voice.handler";
+import { handlePhoto } from "@/handlers/photo.handler";
 
 import { processUserAIQuery } from "@/services/ai-query.service"; // 🟢 Import သစ် ထည့်ရန်
 import { checkAndUpdateAiQuota } from "@/services/rate-limit.service";
@@ -44,6 +46,16 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   const command = getCommand(update);
   const text = update.message?.text;
   const chatId = update.message?.chat.id;
+
+  // -----------------------------
+  // 0. Voice & Photo Message Handling (before text processing)
+  // -----------------------------
+  if (update.message?.voice) {
+    return handleVoice(update, user);
+  }
+  if (update.message?.photo) {
+    return handlePhoto(update, user);
+  }
 
   // -----------------------------
   // 1. Commands & Main Menu Texts
