@@ -2,8 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { handleTelegramUpdate } from "@/lib/bot";
 import { sendMessage } from "@/lib/telegram";
+import { verifyWebAppSecret } from "@/lib/security/validate-telegram-data";
 
 export const POST = async (request: NextRequest) => {
+    const secretToken = request.headers.get("x-telegram-bot-api-secret-token");
+    if (!verifyWebAppSecret(secretToken)) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
         const update = await request.json();
         const msg = update.message;

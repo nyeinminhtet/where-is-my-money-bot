@@ -19,6 +19,7 @@ export const env = {
     botToken: getEnvVar("TELEGRAM_BOT_TOKEN"),
     apiUrl: getEnvVar("TELEGRAM_API_URL", "https://api.telegram.org"),
     adminId: getEnvVar("ADMIN_TELEGRAM_ID"),
+    webhookSecret: getEnvVar("TELEGRAM_WEBHOOK_SECRET"),
   },
 
   // Gemini AI

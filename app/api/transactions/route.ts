@@ -1,11 +1,50 @@
 import { getMonthDateRange } from "@/lib/helpers/summary";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { validateTelegramInitData, ValidatedTelegramData } from "@/lib/security/validate-telegram-data";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
-export async function GET(request: Request) {
+const extractAndValidateAuth = (request: Request): ValidatedTelegramData | null => {
+  const initDataHeader = request.headers.get("x-telegram-init-data");
+  if (initDataHeader) {
+    return validateTelegramInitData(initDataHeader);
+  }
+
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("tma ")) {
+    return validateTelegramInitData(authHeader.slice(4));
+  }
+
+  return null;
+};
+
+export const GET = async (request: Request) => {
   try {
+    const authData = extractAndValidateAuth(request);
+    if (!authData) {
+      return NextResponse.json(
+        { error: "Telegram Mini App data မှန်ကန်မှု မရှိပါ" },
+        { status: 401 },
+      );
+    }
+
+    const rateLimit = checkRateLimit(`tx:${authData.user.id}`, 30);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Request limit exceeded" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(rateLimit.retryAfterMs / 1000)) } },
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const telegramId = searchParams.get("telegramId");
+
+    if (telegramId && String(authData.user.id) !== telegramId) {
+      return NextResponse.json(
+        { error: "Telegram ID မမှန်ကန်ပါ" },
+        { status: 403 },
+      );
+    }
     const monthParam = searchParams.get("month");
     const yearParam = searchParams.get("year");
 
@@ -113,9 +152,24 @@ export async function GET(request: Request) {
   }
 }
 
-//Post transaction
-export async function POST(request: Request) {
+export const POST = async (request: Request) => {
   try {
+    const authData = extractAndValidateAuth(request);
+    if (!authData) {
+      return NextResponse.json(
+        { error: "Telegram Mini App data မှန်ကန်မှု မရှိပါ" },
+        { status: 401 },
+      );
+    }
+
+    const rateLimit = checkRateLimit(`tx:${authData.user.id}`, 30);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Request limit exceeded" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(rateLimit.retryAfterMs / 1000)) } },
+      );
+    }
+
     const body = await request.json();
     const { userId: telegramId, amount, type, category, description } = body;
 
@@ -123,6 +177,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "လိုအပ်သော အချက်အလက်များ မပြည့်စုံပါ" },
         { status: 400 },
+      );
+    }
+
+    if (String(authData.user.id) !== String(telegramId)) {
+      return NextResponse.json(
+        { error: "Telegram ID မမှန်ကန်ပါ" },
+        { status: 403 },
       );
     }
 
@@ -169,10 +230,26 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
-}
+};
 
-export async function PUT(request: Request) {
+export const PUT = async (request: Request) => {
   try {
+    const authData = extractAndValidateAuth(request);
+    if (!authData) {
+      return NextResponse.json(
+        { error: "Telegram Mini App data မှန်ကန်မှု မရှိပါ" },
+        { status: 401 },
+      );
+    }
+
+    const rateLimit = checkRateLimit(`tx:${authData.user.id}`, 30);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Request limit exceeded" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(rateLimit.retryAfterMs / 1000)) } },
+      );
+    }
+
     const body = await request.json();
     const { id, title, amount, category, type } = body;
 
@@ -180,6 +257,25 @@ export async function PUT(request: Request) {
       return NextResponse.json(
         { success: false, error: "Transaction ID is required" },
         { status: 400 },
+      );
+    }
+
+    const existingTransaction = await prisma.transaction.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+
+    if (!existingTransaction) {
+      return NextResponse.json(
+        { success: false, error: "Transaction not found" },
+        { status: 404 },
+      );
+    }
+
+    if (String(existingTransaction.user.telegramId) !== String(authData.user.id)) {
+      return NextResponse.json(
+        { error: "Telegram ID မမှန်ကန်ပါ" },
+        { status: 403 },
       );
     }
 
@@ -200,11 +296,26 @@ export async function PUT(request: Request) {
       { status: 500 },
     );
   }
-}
+};
 
-// 2. Delete transaction
-export async function DELETE(request: Request) {
+export const DELETE = async (request: Request) => {
   try {
+    const authData = extractAndValidateAuth(request);
+    if (!authData) {
+      return NextResponse.json(
+        { error: "Telegram Mini App data မှန်ကန်မှု မရှိပါ" },
+        { status: 401 },
+      );
+    }
+
+    const rateLimit = checkRateLimit(`tx:${authData.user.id}`, 30);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Request limit exceeded" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(rateLimit.retryAfterMs / 1000)) } },
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -212,6 +323,25 @@ export async function DELETE(request: Request) {
       return NextResponse.json(
         { success: false, error: "Transaction ID is required" },
         { status: 400 },
+      );
+    }
+
+    const existingTransaction = await prisma.transaction.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+
+    if (!existingTransaction) {
+      return NextResponse.json(
+        { success: false, error: "Transaction not found" },
+        { status: 404 },
+      );
+    }
+
+    if (String(existingTransaction.user.telegramId) !== String(authData.user.id)) {
+      return NextResponse.json(
+        { error: "Telegram ID မမှန်ကန်ပါ" },
+        { status: 403 },
       );
     }
 
@@ -226,4 +356,4 @@ export async function DELETE(request: Request) {
       { status: 500 },
     );
   }
-}
+};
