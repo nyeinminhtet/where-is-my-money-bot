@@ -1,5 +1,5 @@
-import { getChatId } from "@/lib/parser";
-import { sendMessage } from "@/lib/telegram";
+import { getChatId } from "@/lib/telegram/parser";
+import { sendMessage } from "@/lib/telegram/client";
 import type { TelegramUpdate } from "@/types/telegram";
 
 export const handleHelp = async (update: TelegramUpdate) => {

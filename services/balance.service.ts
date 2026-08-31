@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma";
 
 export const getBalanceDetails = async (userId: string) => {
   const now = new Date();
-  // လက်ရှိလ၏ ၁ ရက်နေ့ 00:00:00 ကို ရှာခြင်း
+  // First day of the current month at 00:00:00.
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  // 1. ယခင်လများမှ စုစုပေါင်း Income
+  // 1. Total income from previous months.
   const prevIncome = await prisma.transaction.aggregate({
     _sum: { amount: true },
     where: {
@@ -17,7 +17,7 @@ export const getBalanceDetails = async (userId: string) => {
     },
   });
 
-  // 2. ယခင်လများမှ စုစုပေါင်း Expense
+  // 2. Total expense from previous months.
   const prevExpense = await prisma.transaction.aggregate({
     _sum: { amount: true },
     where: {
@@ -28,7 +28,7 @@ export const getBalanceDetails = async (userId: string) => {
     },
   });
 
-  // 3. ဒီလထဲမှ စုစုပေါင်း Income
+  // 3. Total income within the current month.
   const currentIncome = await prisma.transaction.aggregate({
     _sum: { amount: true },
     where: {
@@ -39,7 +39,7 @@ export const getBalanceDetails = async (userId: string) => {
     },
   });
 
-  // 4. ဒီလထဲမှ စုစုပေါင်း Expense
+  // 4. Total expense within the current month.
   const currentExpense = await prisma.transaction.aggregate({
     _sum: { amount: true },
     where: {
