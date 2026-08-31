@@ -50,6 +50,7 @@ bun add prisma @prisma/client
    - DIRECT_URL
    - NEXT_PUBLIC_SITE_URL
    - TELEGRAM_BOT_TOKEN
+   - TELEGRAM_WEBHOOK_SECRET
    - GEMINI_API_KEY
    - CRON_SECRET
 
@@ -77,6 +78,9 @@ bun add prisma @prisma/client
 
    - CRON_SECRET
      - Shared secret used to authorize the daily reminder cron route.
+
+   - TELEGRAM_WEBHOOK_SECRET
+     - Secret token for Telegram webhook request verification. Set the same value when calling `setWebhook`.
 
 3. Supabase Connection Pooling
    This bot should use the Supabase pooler endpoint in production because serverless functions must not exhaust database connections.
@@ -152,6 +156,7 @@ bun prisma migrate dev
       - DIRECT_URL
       - NEXT_PUBLIC_SITE_URL
       - TELEGRAM_BOT_TOKEN
+      - TELEGRAM_WEBHOOK_SECRET
       - GEMINI_API_KEY
       - CRON_SECRET
 
@@ -163,10 +168,11 @@ Telegram Webhook URL
 Set the Telegram webhook to the live HTTPS endpoint for the deployed app. The exact path is `/api/telegram` on the production domain assigned by Vercel.
 
 `setWebhook` Command
-Call Telegram `setWebhook` with the bot token and the webhook URL for the deployed app. The webhook URL must be the production HTTPS domain plus `/api/telegram`.
+Call Telegram `setWebhook` with the bot token, the webhook URL, and a `secret_token` for request verification. The `secret_token` must match `TELEGRAM_WEBHOOK_SECRET` in your environment.
 
 ```bash
 curl -F "url=https://<your-domain>/api/telegram" \
+  -F "secret_token=<TELEGRAM_WEBHOOK_SECRET>" \
   "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook"
 ```
 

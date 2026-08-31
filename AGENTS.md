@@ -70,3 +70,13 @@ AI agents working in this repository are maintaining `where-is-my-money-bot`, a 
 - If a requested change conflicts with these rules, call out the conflict before proceeding.
 - When reviewing or editing code, focus on correctness, runtime behavior, clean code standards, and data integrity first.
 - If the change touches Telegram flows or Mini App UI, verify chat-scoped state handling, date filtering correctness, and responsiveness.
+
+## Security Rules
+
+- **Webhook Verification:** All Telegram webhook handlers must verify `X-Telegram-Bot-Api-Secret-Token` against `TELEGRAM_WEBHOOK_SECRET` using `verifyWebAppSecret()` before processing any update. Return 401 immediately on mismatch.
+- **Mini App Data Validation:** All transaction API routes must validate Telegram Mini App `initData` via `validateTelegramInitData()` (HMAC-SHA256 + 30-minute expiry) before reading or writing user data.
+- **Ownership Enforcement:** Every transaction read/write/delete must verify `authData.user.id` matches the resource owner. Never allow cross-user access.
+- **Timing-Safe Comparisons:** All secret and hash comparisons MUST use `crypto.timingSafeEqual` — never `===`. Guard against length mismatches before comparing.
+- **Rate Limiting:** Apply `checkRateLimit()` from `lib/rate-limiter.ts` to all user-facing API routes. Default: 30 requests per 60 seconds per user.
+- **Secrets in Env Only:** Never hardcode `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_BOT_TOKEN`, or `CRON_SECRET` in committed code. Read from `lib/env.ts` only.
+- **Frontend Auth Headers:** All frontend API calls to `/api/transactions` must send `x-telegram-init-data` header via `getTelegramInitData()` from `lib/telegram-webapp.ts`.

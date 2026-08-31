@@ -77,6 +77,7 @@ NEXT_PUBLIC_SITE_URL="https://your-domain.vercel.app"
 
 # Telegram
 TELEGRAM_BOT_TOKEN="123456789:AA..."
+TELEGRAM_WEBHOOK_SECRET="your-random-secret"
 ADMIN_TELEGRAM_ID="0"
 
 # Gemini AI
@@ -106,10 +107,12 @@ Open [http://localhost:3000](http://localhost:3000) to view the Mini App dashboa
 
 1. Create a bot with [@BotFather](https://t.me/BotFather) and copy the token into `TELEGRAM_BOT_TOKEN`.
 2. Deploy the app so it has a public HTTPS endpoint.
-3. Register the webhook to point at your deployed `/api/telegram` route:
+3. Choose a random secret and set it as `TELEGRAM_WEBHOOK_SECRET`.
+4. Register the webhook with the secret token:
 
 ```bash
 curl -F "url=https://<your-domain>/api/telegram" \
+  -F "secret_token=<TELEGRAM_WEBHOOK_SECRET>" \
   "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook"
 ```
 
