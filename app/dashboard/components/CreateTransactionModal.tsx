@@ -21,6 +21,7 @@ import {
   transactionSchema,
 } from "@/lib/schema/transaction.schema";
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
+import { getTelegramInitData } from "@/lib/telegram-webapp";
 import {
   Select,
   SelectContent,
@@ -40,9 +41,13 @@ const createTransactionApi = async (payload: {
   category: string;
   description: string;
 }) => {
+  const initData = getTelegramInitData();
   const res = await fetch("/api/transactions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(initData ? { "x-telegram-init-data": initData } : {}),
+    },
     body: JSON.stringify(payload),
   });
 

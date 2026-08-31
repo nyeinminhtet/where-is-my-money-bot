@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExpensesResponse } from "@/types/expense";
+import { getTelegramInitData } from "@/lib/telegram-webapp";
 
 type CachedPayload = {
   savedAt: number; // Timestamp
@@ -88,8 +89,12 @@ export const useExpenses = (
   return useQuery<ExpensesResponse>({
     queryKey: ["transactions", user?.id, selectedDate.month, selectedDate.year],
     queryFn: async () => {
+      const initData = getTelegramInitData();
       const response = await fetch(
         `/api/transactions?telegramId=${user!.id}&month=${selectedDate.month}&year=${selectedDate.year}`,
+        {
+          headers: initData ? { "x-telegram-init-data": initData } : {},
+        },
       );
       if (!response.ok) throw new Error("Failed to load transacitons");
 
@@ -119,9 +124,13 @@ export const useUpdateTransaction = () => {
       category: string;
       type: "INCOME" | "EXPENSE";
     }) => {
+      const initData = getTelegramInitData();
       const res = await fetch("/api/transactions", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(initData ? { "x-telegram-init-data": initData } : {}),
+        },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Failed to update transaction");
@@ -140,8 +149,10 @@ export const useDeleteTransaction = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      const initData = getTelegramInitData();
       const res = await fetch(`/api/transactions?id=${id}`, {
         method: "DELETE",
+        headers: initData ? { "x-telegram-init-data": initData } : {},
       });
       if (!res.ok) throw new Error("Failed to delete transaction");
       return res.json();
