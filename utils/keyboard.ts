@@ -1,19 +1,20 @@
-import { MENU } from "@/constants/menu";
 import type {
   TelegramInlineKeyboardButton,
   TelegramInlineKeyboardMarkup,
+  TelegramReplyKeyboardMarkup,
 } from "@/types/telegram";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const typeKeyboard = (): TelegramInlineKeyboardMarkup => {
+export const typeKeyboard = (lang: Locale = "mm"): TelegramInlineKeyboardMarkup => {
     return {
         inline_keyboard: [
             [
                 {
-                    text: "💰 ဝင်ငွေ",
+                    text: getTranslation(lang, "TYPE_INCOME"),
                     callback_data: "TYPE_INCOME",
                 },
                 {
-                    text: "💸 ထွက်ငွေ",
+                    text: getTranslation(lang, "TYPE_EXPENSE"),
                     callback_data: "TYPE_EXPENSE",
                 },
             ],
@@ -39,10 +40,10 @@ export const categoryKeyboard = (categories: string[]): TelegramInlineKeyboardMa
     };
 };
 
-export const undoKeyboard = (transactionId: string) => {
+export const undoKeyboard = (transactionId: string, lang: Locale = "mm"): TelegramInlineKeyboardMarkup => {
     return {
         inline_keyboard: [
-            [{ text: "🗑️ ပြန်ဖျက်မည်", callback_data: `UNDO_${transactionId}` }],
+            [{ text: getTranslation(lang, "UNDO_BUTTON"), callback_data: `UNDO_${transactionId}` }],
         ],
     };
 };
@@ -60,36 +61,36 @@ export const backKeyboard = (): TelegramInlineKeyboardMarkup => {
     };
 };
 
-export const mainMenuKeyboard = () => {
+export const mainMenuKeyboard = (lang: Locale = "mm"): TelegramReplyKeyboardMarkup => {
     return {
         keyboard: [
             [
                 {
-                    text: MENU.BALANCE,
+                    text: getTranslation(lang, "MENU_BALANCE"),
                 },
                 {
-                    text: MENU.TODAY,
-                },
-            ],
-            [
-                {
-                    text: MENU.MONTHLY,
-                },
-                {
-                    text: MENU.PREVIOUS_MONTH,
+                    text: getTranslation(lang, "MENU_TODAY"),
                 },
             ],
             [
                 {
-                    text: MENU.SET_BUDGET,
+                    text: getTranslation(lang, "MENU_MONTHLY"),
                 },
                 {
-                    text: MENU.CHECK_BUDGET,
+                    text: getTranslation(lang, "MENU_PREVIOUS_MONTH"),
                 },
             ],
             [
                 {
-                    text: MENU.YEARLY,
+                    text: getTranslation(lang, "MENU_SET_BUDGET"),
+                },
+                {
+                    text: getTranslation(lang, "MENU_CHECK_BUDGET"),
+                },
+            ],
+            [
+                {
+                    text: getTranslation(lang, "MENU_YEARLY"),
                 },
             ],
         ],

@@ -1,16 +1,20 @@
+import { useI18n } from "@/lib/hooks/useI18n";
+
 type ViewTabsProps = {
   activeTab: "history" | "analytics";
   onChange: (tab: "history" | "analytics") => void;
 };
 
 const ViewTabs = ({ activeTab, onChange }: ViewTabsProps) => {
+  const { t } = useI18n();
+
   const tabs: Array<{
     key: "history" | "analytics";
     label: string;
     icon: string;
   }> = [
-    { key: "history", label: "History", icon: "📋" },
-    { key: "analytics", label: "Analytics", icon: "📊" },
+    { key: "history", label: t("HISTORY"), icon: "📋" },
+    { key: "analytics", label: t("ANALYTICS"), icon: "📊" },
   ];
 
   return (

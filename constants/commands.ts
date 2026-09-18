@@ -5,6 +5,7 @@ export const COMMANDS = {
   MONTHLY: "/monthly",
   YEARLY: "/yearly",
   UNDO: "/undo",
+  LANGUAGE: "/language",
 } as const;
 
 export type CommandName = keyof typeof COMMANDS;

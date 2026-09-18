@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useI18n } from "@/lib/hooks/useI18n";
 
 interface CreateTransactionModalProps {
   userId: number | string;
@@ -53,9 +54,7 @@ const createTransactionApi = async (payload: {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(
-      errorData.error || "စာရင်းသိမ်းဆည်းရာတွင် အမှားတစ်ခု ဖြစ်ပေါ်နေပါသည်။",
-    );
+    throw new Error(errorData.error || "Error creating transaction");
   }
 
   return res.json();
@@ -63,7 +62,7 @@ const createTransactionApi = async (payload: {
 
 const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
   const [open, setOpen] = useState(false);
-
+  const { t } = useI18n();
   const queryClient = useQueryClient();
 
   const {
@@ -104,7 +103,7 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
   const handleClose = () => {
     setOpen(false);
     reset();
-    createMutation.reset(); // Error state ကိုပါ Clear ပြုလုပ်ပေးမည်
+    createMutation.reset();
   };
 
   const onSubmit = (data: TransactionFormValues) => {
@@ -119,7 +118,7 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
 
   const handleTypeChange = (newType: "EXPENSE" | "INCOME") => {
     setValue("type", newType);
-    setValue("category", DEFAULT_CATEGORIES[newType][0]); // အသစ်ပြောင်းသွားသော type ရဲ့ ပထမဆုံး category ကို Auto Select မှတ်မည်
+    setValue("category", DEFAULT_CATEGORIES[newType][0]);
     if (createMutation.isError) {
       createMutation.reset();
     }
@@ -129,14 +128,10 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          handleClose();
-        } else {
-          setOpen(true);
-        }
+        if (!isOpen) handleClose();
+        else setOpen(true);
       }}
     >
-      {/* 📍 Bottom Right Floating Action Button (FAB) */}
       <DialogTrigger>
         <Button
           type="button"
@@ -148,27 +143,23 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
         </Button>
       </DialogTrigger>
 
-      {/* 📋 Create Transaction Modal (Shadcn Dialog) */}
       <DialogContent className="sm:max-w-106.25 bg-slate-950 border-slate-800 text-slate-100 rounded-2xl p-5">
         <DialogHeader>
           <DialogTitle className="text-base font-semibold text-slate-200">
-            စာရင်းအသစ် ထည့်သွင်းရန်
+            {t("ADD_TRANSACTION")}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-          {/* 🚨 Backend Server Error Alert Banner */}
           {createMutation.isError && (
             <div className="flex items-center gap-2 p-3 text-xs text-rose-400 bg-rose-950/40 border border-rose-800/60 rounded-xl animate-in fade-in slide-in-from-top-1">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span>
-                {createMutation.error?.message ||
-                  "စာရင်းသိမ်းဆည်းရာတွင် အမှားတစ်ခု ဖြစ်ပေါ်နေပါသည်"}
+                {createMutation.error?.message || t("ERROR_GENERIC")}
               </span>
             </div>
           )}
 
-          {/* Income / Expense Toggle */}
           <div className="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
             <button
               type="button"
@@ -179,30 +170,28 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              ထွက်ငွေ (-)
+              {t("EXPENSE")} (-)
             </button>
             <button
               type="button"
               onClick={() => handleTypeChange("INCOME")}
-              className={`py-2 text-xs outline-none cursor-pointer font-semibold rounded-lg transition-colors  ${
+              className={`py-2 text-xs outline-none cursor-pointer font-semibold rounded-lg transition-colors ${
                 selectedType === "INCOME"
                   ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-inset ring-emerald-500/30"
-                  : " text-slate-400 hover:text-slate-200"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              ဝင်ငွေ (+)
+              {t("INCOME")} (+)
             </button>
           </div>
 
-          {/* Amount Input */}
           <div className="space-y-1.5">
-            <label className="text-[11px] text-slate-400">ပမာဏ (ကျပ်)</label>
+            <label className="text-[11px] text-slate-400">{t("AMOUNT")}</label>
             <Input
               type="number"
               placeholder="0"
               onPaste={(e) => {
-                const pasteData = e.clipboardData.getData("text");
-                if (/[eE+-]/.test(pasteData)) {
+                if (/[eE+-]/.test(e.clipboardData.getData("text"))) {
                   e.preventDefault();
                 }
               }}
@@ -221,18 +210,15 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
             )}
           </div>
 
-          {/* Category Input */}
           <div className="space-y-1">
-            <label className="text-[11px] text-slate-400">
-              ကဏ္ဍ (Category)
-            </label>
+            <label className="text-[11px] text-slate-400">{t("CATEGORY")}</label>
             <Controller
               name="category"
               control={control}
               render={({ field }) => (
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-slate-100 text-sm rounded-xl h-10 focus:ring-slate-700">
-                    <SelectValue placeholder="ကဏ္ဍ ရွေးပါ" />
+                    <SelectValue placeholder={t("CATEGORY_PROMPT")} />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-900 border-slate-800 text-slate-100 rounded-xl">
                     {categoryOptions.map((cat) => (
@@ -255,20 +241,16 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
             )}
           </div>
 
-          {/* Description Input */}
           <div className="space-y-1">
-            <label className="text-[11px] text-slate-400">
-              မှတ်ချက် (Optional)
-            </label>
+            <label className="text-[11px] text-slate-400">{t("DESCRIPTION")}</label>
             <Input
               type="text"
-              placeholder="အသေးစိတ် မှတ်ချက်..."
+              placeholder="..."
               {...register("description")}
               className="bg-slate-900 border-slate-800 text-slate-100 placeholder:text-slate-600 focus-visible:ring-slate-700 text-sm rounded-xl h-10"
             />
           </div>
 
-          {/* Submit Button */}
           <Button
             type="submit"
             disabled={createMutation.isPending}
@@ -277,7 +259,7 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
             {createMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
             ) : (
-              "စာရင်းသိမ်းမည်"
+              t("SAVE")
             )}
           </Button>
         </form>

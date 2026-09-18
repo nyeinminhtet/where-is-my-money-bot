@@ -6,10 +6,13 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { getPreviousMonthRange } from "@/utils/date";
 import { sendReportWithChart } from "@/lib/charts/report-chart";
 import { buildCategoryBreakdownLines } from "@/lib/helpers/category-breakdown";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handlePreviousMonth = async (update: TelegramUpdate, user: User) => {
+export const handlePreviousMonth = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
   const chatId = getChatId(update);
   if (!chatId) return;
+
+  const lang = userLanguage;
   const { start, end } = getPreviousMonthRange();
   const report = await getMonthlyReport(user.id, start, end);
   const prevDate = new Date();
@@ -22,13 +25,15 @@ export const handlePreviousMonth = async (update: TelegramUpdate, user: User) =>
     income: report.income,
     expense: report.expense,
   });
+
   const message = [
-    `📅 ${yearLabel} ခုနှစ် / ${monthLabel} လပိုင်း စာရင်းချုပ်`,
+    getTranslation(lang, "PREV_MONTH_HEADER", { year: yearLabel, month: monthLabel }),
     "---------------------------------",
-    `💰 ဝင်ငွေစုစုပေါင်း: ${formatCurrency(report.income)}`,
-    `💸 ထွက်ငွေစုစုပေါင်း: ${formatCurrency(report.expense)}`,
-    `💵 လက်ကျန်စုစုပေါင်း: ${formatCurrency(report.balance)}`,
+    getTranslation(lang, "PREV_MONTH_INCOME", { amount: formatCurrency(report.income) }),
+    getTranslation(lang, "PREV_MONTH_EXPENSE", { amount: formatCurrency(report.expense) }),
+    getTranslation(lang, "PREV_MONTH_BALANCE", { amount: formatCurrency(report.balance) }),
     ...breakdownLines,
   ].join("\n");
+
   return sendReportWithChart(chatId, message, report.categoryExpenses ?? []);
 };

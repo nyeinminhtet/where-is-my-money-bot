@@ -6,20 +6,23 @@ import { deleteMessage, answerCallbackQuery } from "@/lib/telegram/client";
 import { deleteTransaction } from "@/services/transaction.service";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { getTypeText } from "@/lib/helpers/transaction-summary";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleUndo = async (update: TelegramUpdate, user: User) => {
+export const handleUndo = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
     const chatId = getChatId(update);
     const callbackQuery = update.callback_query;
     const callbackData = callbackQuery?.data;
     const messageId = callbackQuery?.message?.message_id;
     if (!chatId || !callbackData) return;
 
+    const lang = userLanguage;
+
     // Legacy undo handler for entries created before the system migrated.
     if (callbackData === "UNDO_LAST") {
         if (callbackQuery?.id) {
             await answerCallbackQuery(
                 callbackQuery.id,
-                "⚠️ ဒီစာရင်းက စနစ်မပြောင်းခင်က စာရင်းအဟောင်းဖြစ်တဲ့အတွက် Bot ထဲကနေ လှမ်းဖျက်လို့ မရတော့ပါ။",
+                getTranslation(lang, "UNDO_LEGACY"),
                 true,
             );
         }
@@ -34,7 +37,7 @@ export const handleUndo = async (update: TelegramUpdate, user: User) => {
         if (callbackQuery?.id) {
             await answerCallbackQuery(
                 callbackQuery.id,
-                "⚠️ ဒီစာရင်းက ဖျက်ပြီးသား ဖြစ်နေပါသည် (သို့မဟုတ် မရှိတော့ပါ)၊",
+                getTranslation(lang, "UNDO_NOT_FOUND"),
                 true,
             );
         }
@@ -55,7 +58,10 @@ export const handleUndo = async (update: TelegramUpdate, user: User) => {
     if (callbackQuery?.id) {
         await answerCallbackQuery(
             callbackQuery.id,
-            `🗑️ ${transaction.description || typeText} (${formatCurrency(transaction.amount)}) စာရင်းဖျက်လိုက်ပါပြီ!`,
+            getTranslation(lang, "UNDO_DELETED", {
+                description: transaction.description || typeText,
+                amount: formatCurrency(transaction.amount),
+            }),
             false,
         );
     }

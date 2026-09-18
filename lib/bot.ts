@@ -4,6 +4,7 @@ import type { TelegramUpdate } from "@/types/telegram";
 import { getCommand } from "@/lib/telegram/parser";
 import { clearSession, getOrCreateSession } from "@/lib/session";
 import { findOrCreateUser } from "@/services/user.service";
+import type { Locale } from "@/lib/i18n";
 
 import { handleStart } from "@/handlers/start.handler";
 import { handleAmount } from "@/handlers/amount.handler";
@@ -14,7 +15,7 @@ import { handleBalance } from "@/handlers/balance.handler";
 import { handleMonthly } from "@/handlers/monthly.handler";
 import { handleYearly } from "@/handlers/yearly.handler";
 import { handleUndo } from "@/handlers/undo.handler";
-import { MENU } from "@/constants/menu";
+import { isMenuCommand } from "@/constants/menu";
 import { handleToday } from "@/handlers/today.handler";
 import { handlePreviousMonth } from "@/handlers/previous.month.handler";
 import {
@@ -30,6 +31,7 @@ import { undoKeyboard } from "@/utils/keyboard";
 import { handleHelp } from "@/handlers/help.handler";
 import { handleVoice } from "@/handlers/voice.handler";
 import { handlePhoto } from "@/handlers/photo.handler";
+import { handleLanguage, handleLanguageCallback } from "@/handlers/language.handler";
 
 import { processUserAIQuery } from "@/services/ai-query.service";
 import { checkAndUpdateAiQuota } from "@/services/rate-limit.service";
@@ -37,6 +39,7 @@ import {
   buildTransactionSummaryMessage,
   normalizeCategory,
 } from "@/lib/helpers/transaction-summary";
+import { getTranslation } from "@/lib/i18n";
 
 export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   const telegramUser = update.message?.from ?? update.callback_query?.from;
@@ -45,6 +48,7 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   }
 
   const user = await findOrCreateUser(telegramUser);
+  const userLanguage: Locale = (user.language as Locale) || "mm";
   const session = await getOrCreateSession(user.id);
   const command = getCommand(update);
   const text = update.message?.text;
@@ -54,10 +58,10 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   // 0. Voice & Photo Message Handling (before text processing)
   // -----------------------------
   if (update.message?.voice) {
-    return handleVoice(update, user);
+    return handleVoice(update, user, userLanguage);
   }
   if (update.message?.photo) {
-    return handlePhoto(update, user);
+    return handlePhoto(update, user, userLanguage);
   }
 
   // -----------------------------
@@ -65,80 +69,76 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   // -----------------------------
   switch (command) {
     case "/start":
-      return handleStart(update, user);
+      return handleStart(update, userLanguage);
     case "/help":
-      return handleHelp(update);
+      return handleHelp(update, userLanguage);
     case "/balance":
-      return handleBalance(update, user);
+      return handleBalance(update, user, userLanguage);
     case "/set_budget":
-      return askForBudget(update, user.id);
+      return askForBudget(update, user.id, userLanguage);
     case "/check_budget":
-      return handleCheckBudget(update, user);
+      return handleCheckBudget(update, user, userLanguage);
     case "/today":
-      return handleToday(update, user);
+      return handleToday(update, user, userLanguage);
     case "/monthly":
-      return handleMonthly(update, user);
+      return handleMonthly(update, user, userLanguage);
     case "/previous_month":
-      return handlePreviousMonth(update, user);
+      return handlePreviousMonth(update, user, userLanguage);
     case "/yearly":
-      return handleYearly(update, user);
+      return handleYearly(update, user, userLanguage);
+    case "/language":
+      return handleLanguage(update, user);
   }
 
-  if (text === MENU.BALANCE) return handleBalance(update, user);
-  if (text === MENU.TODAY) return handleToday(update, user);
-  if (text === MENU.MONTHLY) return handleMonthly(update, user);
-  if (text === MENU.PREVIOUS_MONTH) return handlePreviousMonth(update, user);
-  if (text === MENU.YEARLY) return handleYearly(update, user);
-  if (text === MENU.SET_BUDGET) return askForBudget(update, user.id);
-  if (text === MENU.CHECK_BUDGET) return handleCheckBudget(update, user);
+  if (text && isMenuCommand(text, "BALANCE")) return handleBalance(update, user, userLanguage);
+  if (text && isMenuCommand(text, "TODAY")) return handleToday(update, user, userLanguage);
+  if (text && isMenuCommand(text, "MONTHLY")) return handleMonthly(update, user, userLanguage);
+  if (text && isMenuCommand(text, "PREVIOUS_MONTH")) return handlePreviousMonth(update, user, userLanguage);
+  if (text && isMenuCommand(text, "YEARLY")) return handleYearly(update, user, userLanguage);
+  if (text && isMenuCommand(text, "SET_BUDGET")) return askForBudget(update, user.id, userLanguage);
+  if (text && isMenuCommand(text, "CHECK_BUDGET")) return handleCheckBudget(update, user, userLanguage);
 
   // -----------------------------
   // 2. Callback Queries Handling
   // -----------------------------
   const callbackData = update.callback_query?.data;
   if (callbackData?.startsWith("UNDO_")) {
-    return handleUndo(update, user);
+    return handleUndo(update, user, userLanguage);
   }
   if (callbackData?.startsWith("TYPE_")) {
-    return handleType(update, user);
+    return handleType(update, user, userLanguage);
   }
   if (callbackData?.startsWith("CATEGORY_")) {
-    return handleCategory(update, user);
+    return handleCategory(update, user, userLanguage);
+  }
+  if (callbackData?.startsWith("LANG_")) {
+    return handleLanguageCallback(update, user);
   }
   if (callbackData === "DESCRIPTION_SKIP") {
-    return handleDescription(update, user);
+    return handleDescription(update, user, userLanguage);
   }
 
   // -----------------------------
   // 3. Active Manual Session States Check (before AI dispatch)
   // -----------------------------
   if (session.currentState === (SessionState.WAITING_BUDGET as SessionState)) {
-    return handleBudgetInput(update, user);
+    return handleBudgetInput(update, user, userLanguage);
   }
 
   if (
     !update.callback_query &&
     session.currentState === SessionState.WAITING_DESCRIPTION
   ) {
-    return handleDescription(update, user);
+    return handleDescription(update, user, userLanguage);
   }
 
   // -----------------------------
   // 4. Help / Onboarding Pattern Check
   // -----------------------------
-  const IS_HELP_PATTERN = /(ဘယ်လို|စရမလဲ|သုံးရမလဲ|ကူညီပါ|help|စတင်)/i;
+  const IS_HELP_PATTERN = /(ဘယ်လို|စရမလဲ|သုံးရမလဲ|ကူညီပါ|help|စတင်|getting started|how to)/i;
   if (text && IS_HELP_PATTERN.test(text.trim())) {
     if (chatId) {
-      return sendMessage(
-        chatId,
-        `💡 **Bot ကို အလွယ်တကူ သုံးစွဲနည်း**\n\n` +
-          `၁။ **AI ဖြင့် စာရင်းမှတ်ရန်:**\n` +
-          `   အလွယ်တကူ စာရိုက်လိုက်ပါ (ဥပမာ - "မနက်စာ ၄၅၀၀" သို့မဟုတ် "ကားဂိတ် ၅၀၀၀ ရေဖိုး ၁၀၀၀")\n\n` +
-          `၂။ **AI ဖြင့် စာရင်းပြန်မေးရန်:**\n` +
-          `   "ဒီလ အစားအသောက် ဘယ်လောက် ကုန်လဲ" သို့မဟုတ် "မနေ့က စာရင်းပြပါ"\n\n` +
-          `၃။ **Manual Step-by-Step မှတ်ရန်:**\n` +
-          `   ငွေပမာဏ သီးသန့် (ဥပမာ - "၁၀၀၀") ရိုက်ထည့်လိုက်ပါ။`,
-      );
+      return sendMessage(chatId, getTranslation(userLanguage, "HELP_PATTERN"));
     }
     return;
   }
@@ -148,7 +148,7 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
   // -----------------------------
   const isOnlyNumbers = text ? /^[0-9၁-၉\s,]+$/.test(text.trim()) : false;
   if (isOnlyNumbers) {
-    return handleAmount(update, user);
+    return handleAmount(update, user, userLanguage);
   }
 
   // -----------------------------
@@ -168,13 +168,10 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
         );
 
         if (!quota.allowed) {
-          return sendMessage(
-            chatId,
-            "တောင်းပန်ပါတယ်ဗျာ၊ ဒီနေ့အတွက် AI မေးခွန်းမေးမြန်းနိုင်သည့် အကြိမ်အရေအတွက် (၁၀ကြိမ်) ပြည့်သွားပါပြီ။ မနက်ဖြန်တွင် ပြန်လည် မေးမြန်းနိုင်ပါတယ်ဗျာ။ ခုလောလောဆယ် manual keyboard button တွေနဲ့ပဲ အလုပ်လုပ်နိုင်ပါတယ် ခင်ဗျာ...",
-          );
+          return sendMessage(chatId, getTranslation(userLanguage, "AI_QUOTA_EXCEEDED"));
         }
 
-        const queryReply = await processUserAIQuery(user.id, text);
+        const queryReply = await processUserAIQuery(user.id, text, user.language);
         return sendMessage(chatId, queryReply);
       }
       return;
@@ -200,11 +197,12 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
             hasExpense = true;
           }
           const singleTxMessage = buildTransactionSummaryMessage(createdTx, {
-            header: "✅ စာရင်းသွင်းပြီးပါပြီ။",
+            header: getTranslation(userLanguage, "TX_SAVED"),
+            language: userLanguage,
           });
           if (chatId) {
             await sendMessage(chatId, singleTxMessage, {
-              reply_markup: undoKeyboard(createdTx.id),
+              reply_markup: undoKeyboard(createdTx.id, userLanguage),
             });
           }
         }
@@ -212,25 +210,20 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
           await checkAndSendBudgetWarning(
             { id: user.id, monthlyBudget: user.monthlyBudget },
             chatId,
+            userLanguage,
           );
         }
         await clearSession(user.id);
         return;
       } else {
         if (chatId) {
-          return sendMessage(
-            chatId,
-            "ကျွန်တော်က အသုံးစရိတ် စာရင်းမှတ်ပေးတဲ့ Bot ပါဗျ။ 📊 စာရင်းမှတ်ချင်ရင် 'မနက်စာ ၄၅၀၀' လို့ ရိုက်ပါ သို့မဟုတ် စာရင်းမေးချင်ရင် 'ဒီလ အစားအသောက် ဘယ်လောက် ကုန်လဲ' လို့ မေးနိုင်ပါတယ်ဗျ။",
-          );
+          return sendMessage(chatId, getTranslation(userLanguage, "NOT_A_TRANSACTION"));
         }
         return;
       }
     } else {
       if (chatId) {
-        return sendMessage(
-          chatId,
-          "⚠️ လက်ရှိတွင် AI စနစ် ခေတ္တ မအားလပ်သေးပါ (Rate Limit ပြည့်နေပါသည်)။ ခဏစောင့်၍ ထပ်မံစမ်းသပ်ပေးပါဗျာ။",
-        );
+        return sendMessage(chatId, getTranslation(userLanguage, "AI_RATE_LIMIT"));
       }
       return;
     }
@@ -243,7 +236,7 @@ export const handleTelegramUpdate = async (update: TelegramUpdate) => {
     switch (session.currentState) {
       case SessionState.WAITING_AMOUNT:
       case SessionState.IDLE:
-        return handleAmount(update, user);
+        return handleAmount(update, user, userLanguage);
       default:
         return;
     }

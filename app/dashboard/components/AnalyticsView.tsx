@@ -1,5 +1,6 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import EmptyAnalytics from "./EmptyAnalytics";
+import { useI18n } from "@/lib/hooks/useI18n";
 
 type CategoryBreakdown = {
   category: string;
@@ -11,26 +12,25 @@ type AnalyticsViewProps = {
   isLoading: boolean;
 };
 
-// 🎨 High-Contrast & Modern Palette for Categories
 const PALETTE = [
-  "#10b981", // Emerald Green
-  "#f97316", // Orange
-  "#ec4899", // Pink
-  "#3b82f6", // Blue
-  "#eab308", // Yellow
-  "#a855f7", // Purple
-  "#06b6d4", // Cyan
-  "#f43f5e", // Rose
-  "#84cc16", // Lime
-  "#6366f1", // Indigo
+  "#10b981",
+  "#f97316",
+  "#ec4899",
+  "#3b82f6",
+  "#eab308",
+  "#a855f7",
+  "#06b6d4",
+  "#f43f5e",
+  "#84cc16",
+  "#6366f1",
 ];
 
-// Helper: Consistent Color Generator based on Category Name
 const getCategoryColor = (categoryName: string, index: number): string => {
   return PALETTE[index % PALETTE.length];
 };
 
 const AnalyticsView = ({ breakdown, isLoading }: AnalyticsViewProps) => {
+  const { t } = useI18n();
   const total = breakdown.reduce((sum, item) => sum + item.amount, 0);
 
   if (isLoading) {
@@ -60,7 +60,7 @@ const AnalyticsView = ({ breakdown, isLoading }: AnalyticsViewProps) => {
               }}
               formatter={(value) => [
                 `${Number(value ?? 0).toLocaleString()} Ks`,
-                "ပမာဏ",
+                t("AMOUNT"),
               ]}
             />
             <Pie
@@ -92,7 +92,6 @@ const AnalyticsView = ({ breakdown, isLoading }: AnalyticsViewProps) => {
             <div key={item.category} className="space-y-1">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  {/* Category Color Dot for clear identification */}
                   <span
                     className="w-2.5 h-2.5 rounded-full"
                     style={{ backgroundColor: color }}
@@ -115,7 +114,7 @@ const AnalyticsView = ({ breakdown, isLoading }: AnalyticsViewProps) => {
                 />
               </div>
               <p className="text-[11px] text-slate-500 pl-4">
-                {percentage}% of spending
+                {percentage}%
               </p>
             </div>
           );

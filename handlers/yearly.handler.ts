@@ -11,34 +11,43 @@ import { formatCurrency } from "@/utils/formatCurrency";
 
 import { getCurrentYear, getCurrentYearRange } from "@/utils/date";
 import { generateYearlyBarChartUrl } from "@/lib/charts/quickchart";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleYearly = async (update: TelegramUpdate, user: User) => {
+export const handleYearly = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
     const chatId = getChatId(update);
-    if (!chatId)
-        return;
+    if (!chatId) return;
+
+    const lang = userLanguage;
     const { start, end } = getCurrentYearRange();
     const report = await getYearlyReport(user.id, start, end);
     const year = getCurrentYear();
+
     const breakdownLines = report.monthlyBreakdown && report.monthlyBreakdown.length > 0
         ? [
             "",
-            "--- 📈 လအလိုက် အနှစ်ချုပ် ---",
+            getTranslation(lang, "YEARLY_MONTHLY_BREAKDOWN"),
             ...report.monthlyBreakdown
                 .filter((m) => m.hasData)
                 .map((m) => {
-                return `📅 ${m.month} လပိုင်း: 💰 +${formatCurrency(m.income)} | 💸 -${formatCurrency(m.expense)}`;
+                return getTranslation(lang, "YEARLY_MONTH_ITEM", {
+                    month: m.month,
+                    income: formatCurrency(m.income),
+                    expense: formatCurrency(m.expense),
+                });
             }),
         ]
         : [];
+
     const message = [
-        `📅 ${year} ခုနှစ် နှစ်ချုပ်စာရင်း`,
+        getTranslation(lang, "YEARLY_HEADER", { year }),
         "",
-        `💰 ဝင်ငွေ: ${formatCurrency(report.income)}`,
-        `💸 ထွက်ငွေ: ${formatCurrency(report.expense)}`,
+        getTranslation(lang, "YEARLY_INCOME", { amount: formatCurrency(report.income) }),
+        getTranslation(lang, "YEARLY_EXPENSE", { amount: formatCurrency(report.expense) }),
         "",
-        `💵 လက်ကျန်: ${formatCurrency(report.balance)}`,
-        ...breakdownLines, // ✨ လအလိုက်စာရင်းကို အောက်က ဆက်ပြတာ
+        getTranslation(lang, "YEARLY_BALANCE", { amount: formatCurrency(report.balance) }),
+        ...breakdownLines,
     ].join("\n");
+
     if (report.monthlyBreakdown && report.monthlyBreakdown.length > 0) {
         const chartUrl = generateYearlyBarChartUrl(report.monthlyBreakdown, year);
         return sendPhoto(chatId, chartUrl, message);
