@@ -5,6 +5,7 @@ import { sendMessage } from "@/lib/telegram/client";
 import { getChatId } from "@/lib/telegram/parser";
 import { prisma } from "@/lib/prisma";
 import { getTranslation, type Locale } from "@/lib/i18n";
+import { mainMenuKeyboard } from "@/utils/keyboard";
 
 const languageKeyboard = () => ({
   inline_keyboard: [
@@ -45,5 +46,7 @@ export const handleLanguageCallback = async (
   });
 
   const message = getTranslation(newLang, newLang === "en" ? "LANGUAGE_CHANGED_EN" : "LANGUAGE_CHANGED_MM");
-  await sendMessage(chatId, message);
+  await sendMessage(chatId, message, {
+    reply_markup: mainMenuKeyboard(newLang),
+  });
 };
