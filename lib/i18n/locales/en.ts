@@ -165,13 +165,72 @@ export const en = {
   EXPENSE: "Expense",
   BUDGET: "Budget",
   REMAINING: "Remaining",
-  USED: "Used",
+  USED: "Spent",
   MONTH: "Month",
   YEAR: "Year",
   TRANSACTIONS: "Transactions",
   TOTAL: "Total",
   ERROR_GENERIC: "❌ An error occurred. Please try again.",
   BUDGET_EXCEEDED: "🚨 Budget exceeded!",
+  YESTERDAY: "Yesterday",
+  ITEMS_COUNT: "{count} items",
+  ALL: "All",
+  SEARCH_PLACEHOLDER: "Search transactions...",
+  SELECT_CATEGORY: "Select a category",
+  BUDGET_LABEL: "Budget",
+  SPENT_LABEL: "Spent:",
+  CURRENCY: "Ks",
+
+  // Categories - Income
+  CAT_SALARY: "Salary",
+  CAT_BUSINESS: "Business",
+  CAT_FREELANCE: "Freelance",
+  CAT_GIFT: "Gift",
+  CAT_INVESTMENT: "Investment",
+  CAT_OTHER: "Other",
+
+  // Categories - Expense
+  CAT_FOOD: "Food & Drink",
+  CAT_TRANSPORT: "Transport",
+  CAT_RENT: "Rent",
+  CAT_UTILITIES: "Utilities",
+  CAT_HEALTH: "Health",
+  CAT_SHOPPING: "Shopping",
+  CAT_EDUCATION: "Education",
+  CAT_ENTERTAINMENT: "Entertainment",
+  CAT_FAMILY: "Family",
+
+  // Month names (short)
+  MONTH_JAN: "Jan",
+  MONTH_FEB: "Feb",
+  MONTH_MAR: "Mar",
+  MONTH_APR: "Apr",
+  MONTH_MAY: "May",
+  MONTH_JUN: "Jun",
+  MONTH_JUL: "Jul",
+  MONTH_AUG: "Aug",
+  MONTH_SEP: "Sep",
+  MONTH_OCT: "Oct",
+  MONTH_NOV: "Nov",
+  MONTH_DEC: "Dec",
+
+  // Month names (full)
+  MONTH_FULL_JAN: "January",
+  MONTH_FULL_FEB: "February",
+  MONTH_FULL_MAR: "March",
+  MONTH_FULL_APR: "April",
+  MONTH_FULL_MAY: "May",
+  MONTH_FULL_JUN: "June",
+  MONTH_FULL_JUL: "July",
+  MONTH_FULL_AUG: "August",
+  MONTH_FULL_SEP: "September",
+  MONTH_FULL_OCT: "October",
+  MONTH_FULL_NOV: "November",
+  MONTH_FULL_DEC: "December",
+
+  // Delete confirmation
+  DELETE_CONFIRM_TITLE: "Delete?",
+  DELETE_CONFIRM_MESSAGE: "This transaction has already been deleted or no longer exists.",
 } as const;
 
 export type TranslationKey = keyof typeof en;

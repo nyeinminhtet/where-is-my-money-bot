@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useI18n } from "@/lib/hooks/useI18n";
+import { getCategoryName } from "@/lib/helpers/category-translations";
 
 interface CreateTransactionModalProps {
   userId: number | string;
@@ -62,7 +63,7 @@ const createTransactionApi = async (payload: {
 
 const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
   const [open, setOpen] = useState(false);
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const queryClient = useQueryClient();
 
   const {
@@ -218,7 +219,7 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
               render={({ field }) => (
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-slate-100 text-sm rounded-xl h-10 focus:ring-slate-700">
-                    <SelectValue placeholder={t("CATEGORY_PROMPT")} />
+                    <SelectValue placeholder={t("SELECT_CATEGORY")} />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-900 border-slate-800 text-slate-100 rounded-xl">
                     {categoryOptions.map((cat) => (
@@ -227,7 +228,7 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
                         value={cat}
                         className="text-xs text-slate-200 cursor-pointer rounded-lg hover:bg-slate-800 focus:bg-slate-800 focus:text-slate-100 data-[highlighted]:bg-slate-800 data-[highlighted]:text-slate-100"
                       >
-                        {cat}
+                        {getCategoryName(cat, lang, t)}
                       </SelectItem>
                     ))}
                   </SelectContent>

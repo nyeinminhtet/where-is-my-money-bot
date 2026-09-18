@@ -185,6 +185,65 @@ export const mm = {
   TOTAL: "စုစုပေါင်း",
   ERROR_GENERIC: "❌ အမှားတစ်ခု ဖြစ်ပေါ်နေပါသည်။ ထပ်ကြိုးစားပေးပါ။",
   BUDGET_EXCEEDED: "🚨 ဘတ်ဂျက် ကျော်လွန်ပါပြီ!",
+  YESTERDAY: "မနေ့က",
+  ITEMS_COUNT: "စာရင်း {count} ခု",
+  ALL: "အားလုံး",
+  SEARCH_PLACEHOLDER: "စာရင်းများ ရှာဖွေပါ...",
+  SELECT_CATEGORY: "ကဏ္ဍ ရွေးပါ",
+  BUDGET_LABEL: "ဘတ်ဂျက်",
+  SPENT_LABEL: "သုံးပြီး:",
+  CURRENCY: "Ks",
+
+  // Categories - Income
+  CAT_SALARY: "လစာ",
+  CAT_BUSINESS: "စီးပွားရေး",
+  CAT_FREELANCE: "Freelance",
+  CAT_GIFT: "လက်ဆောင်",
+  CAT_INVESTMENT: "ရင်းနှီးမြှုပ်နှံမှု",
+  CAT_OTHER: "အခြား",
+
+  // Categories - Expense
+  CAT_FOOD: "အစားအသောက်",
+  CAT_TRANSPORT: "သွားလာရေး",
+  CAT_RENT: "အိမ်ငှားခ",
+  CAT_UTILITIES: "မီး/ရေ/အင်တာနက်",
+  CAT_HEALTH: "ကျန်းမာရေး",
+  CAT_SHOPPING: "ဈေးဝယ်ခြင်း",
+  CAT_EDUCATION: "ပညာရေး",
+  CAT_ENTERTAINMENT: "ဖျော်ဖြေရေး",
+  CAT_FAMILY: "မိသားစု",
+
+  // Month names (short)
+  MONTH_JAN: "ဇန်",
+  MONTH_FEB: "ဖေ",
+  MONTH_MAR: "မတ်",
+  MONTH_APR: "ဧပြီ",
+  MONTH_MAY: "မေ",
+  MONTH_JUN: "ဇွန်",
+  MONTH_JUL: "ဇူလိုင်",
+  MONTH_AUG: "ဩ",
+  MONTH_SEP: "စက်တင်ဘာ",
+  MONTH_OCT: "အောက်တိုဘာ",
+  MONTH_NOV: "နိုဝင်ဘာ",
+  MONTH_DEC: "ဒီဇင်ဘာ",
+
+  // Month names (full)
+  MONTH_FULL_JAN: "ဇန်နဝါရီ",
+  MONTH_FULL_FEB: "ဖေဖော်ဝါရီ",
+  MONTH_FULL_MAR: "မတ်",
+  MONTH_FULL_APR: "ဧပြီ",
+  MONTH_FULL_MAY: "မေ",
+  MONTH_FULL_JUN: "ဇွန်",
+  MONTH_FULL_JUL: "ဇူလိုင်",
+  MONTH_FULL_AUG: "ဩဂုတ်",
+  MONTH_FULL_SEP: "စက်တင်ဘာ",
+  MONTH_FULL_OCT: "အောက်တိုဘာ",
+  MONTH_FULL_NOV: "နိုဝင်ဘာ",
+  MONTH_FULL_DEC: "ဒီဇင်ဘာ",
+
+  // Delete confirmation
+  DELETE_CONFIRM_TITLE: "ဖျက်မလား?",
+  DELETE_CONFIRM_MESSAGE: "ဒီစာရင်းက ဖျက်ပြီးသား ဖြစ်နေပါသည် (သို့မဟုတ် မရှိတော့ပါ)",
 } as const;
 
 export type TranslationKey = keyof typeof mm;
