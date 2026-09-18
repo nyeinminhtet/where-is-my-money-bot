@@ -45,8 +45,6 @@ export const handleLanguageCallback = async (
     data: { language: newLang },
   });
 
-  user.language = newLang;
-
   const message = getTranslation(
     newLang,
     newLang === "en" ? "LANGUAGE_CHANGED_EN" : "LANGUAGE_CHANGED_MM",
