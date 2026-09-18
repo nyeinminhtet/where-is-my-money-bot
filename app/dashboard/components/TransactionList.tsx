@@ -6,6 +6,7 @@ import { ChevronRight, Search, X } from "lucide-react";
 import TransactionEditModal from "./TransactionEditModal";
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/lib/hooks/useI18n";
 
 type TransactionItem = {
   id: string;
@@ -40,8 +41,8 @@ const TransactionList = ({
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [selectedTransaction, setSelectedTransaction] =
     useState<TransactionItem | null>(null);
+  const { t } = useI18n();
 
-  // Search and static category filtering logic.
   const filteredTransactions = useMemo(() => {
     return transactions.filter((tx) => {
       const matchesSearch = tx.title
@@ -49,12 +50,10 @@ const TransactionList = ({
         .includes(searchTerm.toLowerCase());
       const matchesCategory =
         selectedCategory === "ALL" || tx.category === selectedCategory;
-
       return matchesSearch && matchesCategory;
     });
   }, [transactions, searchTerm, selectedCategory]);
 
-  // 4. Date Grouping Logic
   const groupedTransactions = filteredTransactions.reduce<
     Record<string, TransactionItem[]>
   >((groups, tx) => {
@@ -70,16 +69,13 @@ const TransactionList = ({
     });
 
     if (date.toDateString() === today.toDateString()) {
-      dateKey = "Today (ယနေ့)";
+      dateKey = t("HISTORY");
     } else if (date.toDateString() === yesterday.toDateString()) {
-      dateKey = "Yesterday (မနေ့က)";
+      dateKey = "Yesterday";
     }
 
-    if (!groups[dateKey]) {
-      groups[dateKey] = [];
-    }
+    if (!groups[dateKey]) groups[dateKey] = [];
     groups[dateKey].push(tx);
-
     return groups;
   }, {});
 
@@ -99,24 +95,22 @@ const TransactionList = ({
   if (isError) {
     return (
       <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-300">
-        {errorMessage || "Unable to load transactions."}
+        {errorMessage || t("ERROR_GENERIC")}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* 🔍 Search Bar & Static Category Chips */}
       <div className="sticky top-0 z-20 bg-slate-950/95 backdrop-blur-md pt-2 pb-2 -mx-1 px-1 border-b border-slate-900/80">
         <div className="space-y-2">
-          {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             <Input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="စာရင်းများ ရှာဖွေပါ..."
+              placeholder={`${t("TRANSACTIONS")}...`}
               className="w-full bg-slate-900/60 text-slate-200 text-xs rounded-xl pl-9 pr-8 py-2.5 h-auto border-slate-800/60 focus-visible:ring-1 focus-visible:ring-slate-600 focus-visible:ring-offset-0 placeholder:text-slate-500 transition"
             />
             {searchTerm && (
@@ -130,7 +124,6 @@ const TransactionList = ({
             )}
           </div>
 
-          {/* Static Category Chips Bar */}
           <div className="flex gap-1.5 overflow-x-auto overscroll-x-contain pb-1.5 pt-0.5 no-scrollbar touch-pan-x min-h-9.5 items-center">
             {CATEGORY_OPTIONS.map((cat) => {
               const isSelected = selectedCategory === cat;
@@ -145,7 +138,7 @@ const TransactionList = ({
                       : "bg-slate-900/60 text-slate-400 border-slate-800/60 hover:text-slate-200 hover:border-slate-700"
                   }`}
                 >
-                  {cat === "ALL" ? "အားလုံး" : cat}
+                  {cat === "ALL" ? "ALL" : cat}
                 </button>
               );
             })}
@@ -153,12 +146,11 @@ const TransactionList = ({
         </div>
       </div>
 
-      {/* 📋 Transactions List */}
       {filteredTransactions.length === 0 ? (
         <div className="text-center py-10 text-slate-500 text-xs">
           {searchTerm || selectedCategory !== "ALL"
-            ? "ရှာဖွေထားသော စာရင်း မရှိပါ။"
-            : "စာရင်း မရှိသေးပါ။ Bot ထဲမှာ စာရင်းစရိုက်ကြည့်ပါ!"}
+            ? t("NO_TRANSACTIONS")
+            : t("NO_TRANSACTIONS")}
         </div>
       ) : (
         Object.entries(groupedTransactions).map(([dateGroup, items]) => (
@@ -204,7 +196,6 @@ const TransactionList = ({
                       </div>
                     </div>
 
-                    {/* Amount & Indicator Wrapper */}
                     <div className="flex items-center space-x-2 shrink-0">
                       <span
                         className={`text-sm font-bold font-mono ${
@@ -214,7 +205,6 @@ const TransactionList = ({
                         {isIncome ? "+" : "-"}
                         {tx.amount.toLocaleString()} Ks
                       </span>
-                      {/* Mobile affordance visual cue */}
                       <ChevronRight className="w-4 h-4 text-slate-400/80 group-hover:text-slate-200 group-hover:translate-x-0.5 transition-all shrink-0" />
                     </div>
                   </div>
@@ -225,7 +215,6 @@ const TransactionList = ({
         ))
       )}
 
-      {/* ✏️ Transaction Edit Modal */}
       {selectedTransaction && (
         <TransactionEditModal
           isOpen={!!selectedTransaction}

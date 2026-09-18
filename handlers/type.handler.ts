@@ -12,15 +12,18 @@ import { sendMessage } from "@/lib/telegram/client";
 import { categoryKeyboard } from "@/utils/keyboard";
 
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleType = async (update: TelegramUpdate, user: User) => {
+export const handleType = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
     const chatId = getChatId(update);
-    if (!chatId)
-        return;
+    if (!chatId) return;
+
+    const lang = userLanguage;
     const callbackData = getCallbackData(update);
     if (!callbackData) {
-        return sendMessage(chatId, "ဝင်ငွေ / ထွက်ငွေ ရွေးပါ။");
+        return sendMessage(chatId, getTranslation(lang, "TYPE_PROMPT"));
     }
+
     let type: TransactionType | null = null;
     switch (callbackData) {
         case "TYPE_INCOME":
@@ -30,12 +33,15 @@ export const handleType = async (update: TelegramUpdate, user: User) => {
             type = TransactionType.EXPENSE;
             break;
     }
+
     if (!type) {
-        return sendMessage(chatId, "ဝင်ငွေ / ထွက်ငွေ မမှန်ပါ။");
+        return sendMessage(chatId, getTranslation(lang, "TYPE_INVALID"));
     }
+
     await updateTempType(user.id, type);
     await updateState(user.id, SessionState.WAITING_CATEGORY);
-    return sendMessage(chatId, "📂 အမျိုးအစားခွဲ ရွေးပါ။", {
+
+    return sendMessage(chatId, getTranslation(lang, "CATEGORY_PROMPT"), {
         reply_markup: categoryKeyboard(DEFAULT_CATEGORIES[type]),
     });
 };

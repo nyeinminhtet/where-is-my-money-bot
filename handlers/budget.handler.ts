@@ -11,64 +11,72 @@ import {
   getBudgetWarningMessage,
   getBudgetWarningText,
 } from "@/lib/helpers/budget";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
 type UserWithBudget = {
   id: string;
   monthlyBudget?: number | null;
+  language?: Locale;
 };
 
-export const handleBudgetInput = async (update: TelegramUpdate, user: User) => {
+export const handleBudgetInput = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
   const chatId = getChatId(update);
   const text = getMessageText(update);
   if (!chatId || !text) return;
+
+  const lang = userLanguage;
   const budgetAmount = parseFloat(text.replace(/,/g, ""));
   if (isNaN(budgetAmount) || budgetAmount <= 0) {
     return sendMessage(
       chatId,
-      "❌ ကျေးဇူးပြု၍ မှန်ကန်သော ပမာဏကို ဂဏန်းအမှန်ဖြင့်သာ ပြန်လည်ရိုက်ထည့်ပေးပါ။",
+      getTranslation(lang, "AMOUNT_PROMPT"),
     );
   }
+
   await setBudget(user.id, budgetAmount);
   await updateState(user.id, SessionState.IDLE);
+
   return sendMessage(
     chatId,
-    `✅ ယခုလအတွက် လစဉ် အသုံးစရိတ်ကို **${formatCurrency(budgetAmount)}** အဖြစ် သတ်မှတ်ပေးလိုက်ပါပြီ။ 💪`,
+    getTranslation(lang, "BUDGET_SET", { amount: formatCurrency(budgetAmount) }),
   );
 };
 
-export const askForBudget = async (update: TelegramUpdate, userId: string) => {
+export const askForBudget = async (update: TelegramUpdate, userId: string, userLanguage: Locale) => {
   const chatId = getChatId(update);
   if (!chatId) return;
+
+  const lang = userLanguage;
   await updateBudgetSession(userId);
-  return sendMessage(
-    chatId,
-    "💰 ကျေးဇူးပြု၍ သင်သတ်မှတ်လိုသော လစဉ် Budget ပမာဏကို ဂဏန်းသီးသန့်ဖြင့် ရိုက်ထည့်ပေးပါ (ဥပမာ- 300000)။",
-  );
+  return sendMessage(chatId, getTranslation(lang, "BUDGET_ASK"));
 };
 
-export const handleCheckBudget = async (update: TelegramUpdate, user: User) => {
+export const handleCheckBudget = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
   const chatId = getChatId(update);
   if (!chatId) return;
+
+  const lang = userLanguage;
+
   if (!user.monthlyBudget) {
-    return sendMessage(
-      chatId,
-      "⚠️ လစဉ် အသုံးစရိတ် မသတ်မှတ်ရသေးပါ။\n⚙️ 'အသုံးစရိတ် သတ်မှတ်ရန်' ခလုတ်ကို နှိပ်ပြီး အရင်သတ်မှတ်ပေးပါ။",
-    );
+    return sendMessage(chatId, getTranslation(lang, "BUDGET_NOT_SET"));
   }
+
   const totalExpense = await getTotalExpenseThisMonth(user.id);
   return sendMessage(
     chatId,
-    getBudgetStatusMessage({ totalExpense, budget: user.monthlyBudget }),
+    getBudgetStatusMessage({ totalExpense, budget: user.monthlyBudget }, lang),
   );
 };
 
 export const checkAndSendBudgetWarning = async (
   user: UserWithBudget,
   chatId: number | string,
+  userLanguage?: Locale,
 ) => {
   // Skip when the user has no budget configured.
   if (!user.monthlyBudget) return;
 
+  const lang = userLanguage || "mm";
   const totalExpense = await getTotalExpenseThisMonth(user.id);
   const budget = user.monthlyBudget;
 
@@ -78,7 +86,7 @@ export const checkAndSendBudgetWarning = async (
 
   await sendMessage(
     chatId,
-    getBudgetWarningMessage({ totalExpense, budget }),
+    getBudgetWarningMessage({ totalExpense, budget }, lang),
     { parse_mode: "Markdown" },
   );
 };

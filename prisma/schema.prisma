@@ -28,6 +28,7 @@ model User {
   username     String?
   firstName    String?
   lastName     String?
+  language     String        @default("mm")
   monthlyBudget Int?
   role         Role          @default(USER)
   aiUsageCount Int           @default(0)

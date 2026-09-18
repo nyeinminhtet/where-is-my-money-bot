@@ -18,6 +18,7 @@ import {
   normalizeCategory,
 } from "@/lib/helpers/transaction-summary";
 import { checkAndSendBudgetWarning } from "@/handlers/budget.handler";
+import type { Locale } from "@/lib/i18n";
 
 interface MultimodalConfig {
   fileAccessor: (update: TelegramUpdate) => { file_id: string } | undefined;
@@ -39,6 +40,7 @@ export const processMultimodalMedia = async (
   const chatId = getChatId(update);
   if (!chatId) return;
 
+  const lang: Locale = (user.language as Locale) || "mm";
   const fileSource = config.fileAccessor(update);
   if (!fileSource) return;
 
@@ -78,10 +80,11 @@ export const processMultimodalMedia = async (
 
       const msg = buildTransactionSummaryMessage(createdTx, {
         header: config.header,
+        language: lang,
       });
 
       await sendMessage(chatId, msg, {
-        reply_markup: undoKeyboard(createdTx.id),
+        reply_markup: undoKeyboard(createdTx.id, lang),
       });
     }
 
@@ -89,6 +92,7 @@ export const processMultimodalMedia = async (
       await checkAndSendBudgetWarning(
         { id: user.id, monthlyBudget: user.monthlyBudget },
         chatId,
+        lang,
       );
     }
   } catch (error) {

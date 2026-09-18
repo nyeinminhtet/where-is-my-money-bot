@@ -14,10 +14,13 @@ import {
 } from "@/utils/date";
 import { sendReportWithChart } from "@/lib/charts/report-chart";
 import { buildCategoryBreakdownLines } from "@/lib/helpers/category-breakdown";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleMonthly = async (update: TelegramUpdate, user: User) => {
+export const handleMonthly = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
   const chatId = getChatId(update);
   if (!chatId) return;
+
+  const lang = userLanguage;
   const { start, end } = getCurrentMonthRange();
   const report = await getMonthlyReport(user.id, start, end);
   const month = getCurrentMonth();
@@ -28,14 +31,16 @@ export const handleMonthly = async (update: TelegramUpdate, user: User) => {
     income: report.income,
     expense: report.expense,
   });
+
   const message = [
-    `📅 ${year} / ${month} လစာရင်း`,
+    getTranslation(lang, "MONTHLY_HEADER", { year, month }),
     "",
-    `💰 ဝင်ငွေ: ${formatCurrency(report.income)}`,
-    `💸 ထွက်ငွေ: ${formatCurrency(report.expense)}`,
+    getTranslation(lang, "MONTHLY_INCOME", { amount: formatCurrency(report.income) }),
+    getTranslation(lang, "MONTHLY_EXPENSE", { amount: formatCurrency(report.expense) }),
     "",
-    `💵 လက်ကျန်: ${formatCurrency(report.balance)}`,
+    getTranslation(lang, "MONTHLY_BALANCE", { amount: formatCurrency(report.balance) }),
     ...breakdownLines,
   ].join("\n");
+
   return sendReportWithChart(chatId, message, report.categoryExpenses ?? []);
 };

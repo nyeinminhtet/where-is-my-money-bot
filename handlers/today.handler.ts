@@ -1,5 +1,3 @@
-// 📂 src/handlers/today.ts
-
 import type { TelegramUpdate } from "@/types/telegram";
 import type { User } from "@/generated/prisma/client";
 import { getChatId } from "@/lib/telegram/parser";
@@ -8,30 +6,38 @@ import { getMonthlyReport, getTodayReport } from "@/services/report.service";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { getTodayRange } from "@/utils/date";
 import { mainMenuKeyboard } from "@/utils/keyboard";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleToday = async (update: TelegramUpdate, user: User) => {
+export const handleToday = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
     const chatId = getChatId(update);
-    if (!chatId)
-        return;
+    if (!chatId) return;
+
+    const lang = userLanguage;
     const { start, end } = getTodayRange();
     const report = await getMonthlyReport(user.id, start, end);
     const todayTransactions = await getTodayReport(user.id, start, end);
+
     const itemLines = todayTransactions.length > 0
         ? todayTransactions.map((t) => {
             const icon = t.type === "INCOME" ? "➕" : "➖";
-            return `${icon} ${formatCurrency(t.amount)} - ${t.description || t.category || "အထွေထွေ"}`;
+            return getTranslation(lang, "TODAY_ITEM", {
+                icon,
+                amount: formatCurrency(t.amount),
+                description: t.description || t.category || "General",
+            });
         })
-        : ["❌ ယနေ့အတွင်း စာရင်းသွင်းထားခြင်း မရှိသေးပါ။"];
+        : [getTranslation(lang, "TODAY_NO_TRANSACTIONS")];
+
     const message = [
-        `📅 ဒီနေ့ စာရင်းအကျဥ်းချုပ်`,
-        "---------------------------------",
-        `💰 ဝင်ငွေစုစုပေါင်း - ${formatCurrency(report.income)}`,
-        `💸 ထွက်ငွေစုစုပေါင်း - ${formatCurrency(report.expense)}`,
+        getTranslation(lang, "TODAY_HEADER"),
+        getTranslation(lang, "TODAY_INCOME", { amount: formatCurrency(report.income) }),
+        getTranslation(lang, "TODAY_EXPENSE", { amount: formatCurrency(report.expense) }),
         "",
-        "📝 ယနေ့သုံးစွဲမှု အသေးစိတ်:",
+        getTranslation(lang, "TODAY_DETAIL_HEADER"),
         ...itemLines,
     ].join("\n");
+
     return sendMessage(chatId, message, {
-        reply_markup: mainMenuKeyboard(),
+        reply_markup: mainMenuKeyboard(lang),
     });
 };

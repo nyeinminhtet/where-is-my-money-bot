@@ -1,49 +1,62 @@
 import { formatCurrency } from "@/utils/formatCurrency";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
 interface BudgetStatusInput {
   totalExpense: number;
   budget: number;
 }
 
-const WARNING_80 =
-  "\n\n⚠️ **သတိပေးချက်:** ဒီလ Budget ရဲ့ 80% ကျော်သွားပါပြီ။ သတိထားသုံးစွဲပေးပါဦး။";
-const WARNING_100 =
-  "\n\n🚨 **သတိပေးချက်:** ဒီလအတွက် သတ်မှတ်ထားတဲ့ Budget ပြည့်/ကျော်သွားပါပြီ။ 📉";
-
 export const getBudgetWarningText = ({
   totalExpense,
   budget,
 }: BudgetStatusInput): string => {
-  if (totalExpense >= budget) return WARNING_100;
-  if (totalExpense >= budget * 0.8) return WARNING_80;
+  if (totalExpense >= budget) return "\n\nBUDGET_WARNING_100";
+  if (totalExpense >= budget * 0.8) return "\n\nBUDGET_WARNING_80";
   return "";
 };
 
 export const getBudgetStatusMessage = ({
   totalExpense,
   budget,
-}: BudgetStatusInput): string => {
+}: BudgetStatusInput, lang: Locale = "mm"): string => {
   const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
   const remainingBudget = budget - totalExpense;
+
   const budgetMessage = [
-    `📊 **သင်၏ လစဉ် အသုံးစရိတ် အခြေအနေ**`,
-    "---------------------------------",
-    `💰 သတ်မှတ်ထားသော အသုံးစရိတ်  : ${formatCurrency(budget)}`,
-    `📉 အသုံးပြုပြီးသမျှ : ${formatCurrency(totalExpense)} (${percentageUsed}%)`,
-    `💵 ကျန်ရှိငွေ        : ${formatCurrency(remainingBudget >= 0 ? remainingBudget : 0)}`,
+    getTranslation(lang, "BUDGET_STATUS_HEADER"),
+    getTranslation(lang, "BUDGET_STATUS_BUDGET", { amount: formatCurrency(budget) }),
+    getTranslation(lang, "BUDGET_STATUS_USED", { amount: formatCurrency(totalExpense), percent: percentageUsed }),
+    getTranslation(lang, "BUDGET_STATUS_REMAINING", { amount: formatCurrency(remainingBudget >= 0 ? remainingBudget : 0) }),
   ].join("\n");
-  return `${budgetMessage}${getBudgetWarningText({ totalExpense, budget })}`;
+
+  const warningText = getBudgetWarningText({ totalExpense, budget });
+  let warning = "";
+  if (warningText === "\n\nBUDGET_WARNING_100") {
+    warning = getTranslation(lang, "BUDGET_WARNING_100");
+  } else if (warningText === "\n\nBUDGET_WARNING_80") {
+    warning = getTranslation(lang, "BUDGET_WARNING_80");
+  }
+
+  return `${budgetMessage}${warning}`;
 };
 
 export const getBudgetWarningMessage = ({
   totalExpense,
   budget,
-}: BudgetStatusInput): string => {
+}: BudgetStatusInput, lang: Locale = "mm"): string => {
   const percentageUsed = ((totalExpense / budget) * 100).toFixed(1);
+
+  let warning = "";
   const warningText = getBudgetWarningText({ totalExpense, budget });
+  if (warningText === "\n\nBUDGET_WARNING_100") {
+    warning = getTranslation(lang, "BUDGET_WARNING_100");
+  } else if (warningText === "\n\nBUDGET_WARNING_80") {
+    warning = getTranslation(lang, "BUDGET_WARNING_80");
+  }
+
   return [
-    `📊 **လစဉ် Budget အခြေအနေ:**`,
-    `- သုံးပြီးသမျှ: ${formatCurrency(totalExpense)} / ${formatCurrency(budget)} (${percentageUsed}%)`,
-    warningText,
+    getTranslation(lang, "BUDGET_HEADER"),
+    getTranslation(lang, "BUDGET_USED_LINE", { amount: formatCurrency(totalExpense), budget: formatCurrency(budget), percent: percentageUsed }),
+    warning,
   ].join("\n");
 };

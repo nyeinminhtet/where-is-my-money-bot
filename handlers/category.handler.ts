@@ -9,37 +9,45 @@ import { updateTempCategory, updateState, getSession } from "@/lib/session";
 
 import { sendMessage } from "@/lib/telegram/client";
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleCategory = async (update: TelegramUpdate, user: User) => {
+export const handleCategory = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
     const chatId = getChatId(update);
-    if (!chatId)
-        return;
+    if (!chatId) return;
+
+    const lang = userLanguage;
     const callbackData = getCallbackData(update);
     if (!callbackData) {
-        return sendMessage(chatId, "အမျိုးအစား ရွေးပါ။");
+        return sendMessage(chatId, getTranslation(lang, "CATEGORY_PROMPT"));
     }
+
     if (!callbackData.startsWith("CATEGORY_")) {
-        return sendMessage(chatId, "အမျိုးအစား မမှန်ပါ။");
+        return sendMessage(chatId, getTranslation(lang, "CATEGORY_INVALID"));
     }
+
     const categoryIndex = Number(callbackData.replace("CATEGORY_", ""));
     if (Number.isNaN(categoryIndex)) {
-        return sendMessage(chatId, "အမျိုးအစား မမှန်ပါ။");
+        return sendMessage(chatId, getTranslation(lang, "CATEGORY_INVALID"));
     }
+
     const session = await getSession(user.id);
     if (!session?.tempType) {
-        return sendMessage(chatId, "ဝင်ငွေ / ထွက်ငွေ မရှိပါ။");
+        return sendMessage(chatId, getTranslation(lang, "CATEGORY_NO_TYPE"));
     }
+
     const categories = DEFAULT_CATEGORIES[session.tempType];
     const category = categories[categoryIndex];
     if (!category) {
-        return sendMessage(chatId, "အမျိုးအစား မမှန်ပါ။");
+        return sendMessage(chatId, getTranslation(lang, "CATEGORY_INVALID"));
     }
+
     await updateTempCategory(user.id, category);
     await updateState(user.id, SessionState.WAITING_DESCRIPTION);
-    return sendMessage(chatId, "📝 အသေးစိတ်ဖော်ပြချက် ထည့်ပါ (သို့မဟုတ် ကျော်ပါ)။", {
+
+    return sendMessage(chatId, getTranslation(lang, "DESCRIPTION_PROMPT"), {
         reply_markup: {
             inline_keyboard: [
-                [{ text: "⏩ ကျော်မည်", callback_data: "DESCRIPTION_SKIP" }],
+                [{ text: getTranslation(lang, "DESCRIPTION_SKIP"), callback_data: "DESCRIPTION_SKIP" }],
             ],
         },
     });

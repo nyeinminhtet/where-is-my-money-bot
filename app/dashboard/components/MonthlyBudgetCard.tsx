@@ -1,4 +1,5 @@
 import { formatCurrency } from "@/utils/formatCurrency";
+import { useI18n } from "@/lib/hooks/useI18n";
 
 interface BudgetCardProps {
   monthlyBudget: number | null;
@@ -11,7 +12,8 @@ const MonthlyBudgetCard = ({
   totalExpense,
   isLoading,
 }: BudgetCardProps) => {
-  // 1. Loading State (Skeleton UI)
+  const { t } = useI18n();
+
   if (isLoading) {
     return (
       <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-sm space-y-3 animate-pulse">
@@ -28,28 +30,24 @@ const MonthlyBudgetCard = ({
     );
   }
 
-  // 2. Empty State (No Budget Set)
   if (!monthlyBudget) {
     return (
       <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-sm flex items-center justify-between text-sm">
         <span className="font-medium text-slate-400">
-          📊 လစဉ် Budget သုံးစွဲမှု
+          📊 {t("BUDGET")}
         </span>
         <span className="text-xs text-slate-500 italic">
-          သတ်မှတ်ထားခြင်း မရှိပါ
+          {t("BUDGET_NOT_SET")}
         </span>
       </div>
     );
   }
 
-  // 3. Calculation
   const actualPercentage = Math.round((totalExpense / monthlyBudget) * 100);
   const progressPercentage = Math.min(actualPercentage, 100);
-
   const isOverBudget = totalExpense >= monthlyBudget;
   const isWarning = totalExpense >= monthlyBudget * 0.8 && !isOverBudget;
 
-  // Dynamic Color
   const getProgressColor = () => {
     if (isOverBudget) return "bg-rose-500";
     if (isWarning) return "bg-amber-500";
@@ -64,17 +62,15 @@ const MonthlyBudgetCard = ({
 
   return (
     <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-sm space-y-3">
-      {/* Header Info */}
       <div className="flex justify-between items-center text-sm">
         <span className="font-medium text-slate-300">
-          📊 လစဉ် Budget သုံးစွဲမှု
+          📊 {t("BUDGET")}
         </span>
         <span className={`font-semibold ${getTextColor()}`}>
           {actualPercentage}%
         </span>
       </div>
 
-      {/* Progress Bar Container */}
       <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
         <div
           className={`h-full transition-all duration-500 ${getProgressColor()}`}
@@ -82,21 +78,19 @@ const MonthlyBudgetCard = ({
         />
       </div>
 
-      {/* Footer Details */}
       <div className="flex justify-between items-center text-xs text-slate-400">
-        <span>သုံးပြီး: {formatCurrency(totalExpense)}</span>
-        <span>Budget: {formatCurrency(monthlyBudget)}</span>
+        <span>{t("USED")}: {formatCurrency(totalExpense)}</span>
+        <span>{t("BUDGET")}: {formatCurrency(monthlyBudget)}</span>
       </div>
 
-      {/* Warning Badges */}
       {isOverBudget && (
         <p className="text-xs text-rose-400 font-medium pt-1 flex items-center gap-1">
-          🚨 Budget ကျော်လွန်သွားပါပြီ!
+          🚨 {t("BUDGET_EXCEEDED")}
         </p>
       )}
       {isWarning && (
         <p className="text-xs text-amber-400 font-medium pt-1 flex items-center gap-1">
-          ⚠️ Budget ရဲ့ 80% ရောက်နေပါပြီ!
+          ⚠️ {t("BUDGET_WARNING_80")}
         </p>
       )}
     </div>

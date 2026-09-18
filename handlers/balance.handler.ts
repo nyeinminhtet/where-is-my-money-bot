@@ -6,37 +6,38 @@ import { sendMessage } from "@/lib/telegram/client";
 import { getBalanceDetails } from "@/services/balance.service";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { mainMenuKeyboard } from "@/utils/keyboard";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleBalance = async (update: TelegramUpdate, user: User) => {
+export const handleBalance = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
   const chatId = getChatId(update);
   if (!chatId) return;
 
   const { carriedForwardBalance, totalIncome, totalExpense, totalNetBalance } =
     await getBalanceDetails(user.id);
 
+  const lang = userLanguage;
+
   const messageLines = [
-    "📊 **လက်ရှိ ငွေစာရင်း အခြေအနေ**",
-    "",
-    `💰 **NET BALANCE:** ${formatCurrency(totalNetBalance)}`,
+    getTranslation(lang, "BALANCE_HEADER"),
+    getTranslation(lang, "BALANCE_NET", { amount: formatCurrency(totalNetBalance) }),
   ];
 
-  // Show the carried-forward indicator when a balance is carried in.
   if (carriedForwardBalance !== 0) {
     messageLines.push(
-      `*(ယခင်လများမှ ကျန်ငွေ: ${formatCurrency(carriedForwardBalance)})*`,
+      getTranslation(lang, "BALANCE_CARRIED_FORWARD", { amount: formatCurrency(carriedForwardBalance) }),
     );
   }
 
   messageLines.push(
     "",
-    `📈 **ဒီလ ဝင်ငွေ:** +${formatCurrency(totalIncome)}`,
-    `📉 **ဒီလ ထွက်ငွေ:** -${formatCurrency(totalExpense)}`,
+    getTranslation(lang, "BALANCE_INCOME", { amount: formatCurrency(totalIncome) }),
+    getTranslation(lang, "BALANCE_EXPENSE", { amount: formatCurrency(totalExpense) }),
   );
 
   const message = messageLines.join("\n");
 
   return sendMessage(chatId, message, {
     parse_mode: "Markdown",
-    reply_markup: mainMenuKeyboard(),
+    reply_markup: mainMenuKeyboard(lang),
   });
 };

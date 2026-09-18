@@ -13,10 +13,13 @@ import { undoKeyboard } from "@/utils/keyboard";
 import { getBalanceDetails } from "@/services/balance.service";
 import { buildTransactionSummaryMessage } from "@/lib/helpers/transaction-summary";
 import { checkAndSendBudgetWarning } from "./budget.handler";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleDescription = async (update: TelegramUpdate, user: User) => {
+export const handleDescription = async (update: TelegramUpdate, user: User, userLanguage: Locale) => {
   const chatId = getChatId(update);
   if (!chatId) return;
+
+  const lang = userLanguage;
   const description = getMessageText(update).trim();
 
   const session = await getSession(user.id);
@@ -28,9 +31,10 @@ export const handleDescription = async (update: TelegramUpdate, user: User) => {
   ) {
     return sendMessage(
       chatId,
-      "ငွေစာရင်းအချက်အလက် မပြည့်စုံပါ။ ထပ်မံကြိုးစားပါ။",
+      getTranslation(lang, "SESSION_INCOMPLETE"),
     );
   }
+
   const transaction = await createTransaction({
     userId: user.id,
     amount: session.tempAmount,
@@ -45,20 +49,21 @@ export const handleDescription = async (update: TelegramUpdate, user: User) => {
   );
 
   const message = buildTransactionSummaryMessage(transaction, {
-    header: "✅ **စာရင်းသွင်းပြီးပါပြီ။**",
+    header: getTranslation(lang, "TX_SAVED"),
     includeBalance: totalNetBalance,
     carriedForwardBalance,
   });
 
   await sendMessage(chatId, message, {
     parse_mode: "Markdown",
-    reply_markup: undoKeyboard(transaction.id),
+    reply_markup: undoKeyboard(transaction.id, lang),
   });
 
   if (transaction.type === "EXPENSE") {
     await checkAndSendBudgetWarning(
       { id: user.id, monthlyBudget: user.monthlyBudget },
       chatId,
+      lang,
     );
   }
 };

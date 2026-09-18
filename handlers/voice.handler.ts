@@ -1,19 +1,19 @@
 import type { User } from "@/generated/prisma/client";
 import type { TelegramUpdate } from "@/types/telegram";
 import { processMultimodalMedia } from "@/lib/helpers/multimodal";
+import { getTranslation, type Locale } from "@/lib/i18n";
 
-export const handleVoice = (update: TelegramUpdate, user: User) => {
+export const handleVoice = (update: TelegramUpdate, user: User, userLanguage: Locale) => {
+  const lang = userLanguage;
   return processMultimodalMedia(update, user, {
     fileAccessor: (u) => u.message?.voice,
     action: "record_voice",
     mimeType: "audio/ogg",
     mode: "voice",
-    header: "✅ အသံဖြင့် စာရင်းသွင်းပြီးပါပြီ။",
-    noResultsMessage:
-      "🎤 အသံထဲတွင် ငွေစာရင်း မတွေ့ပါ။ ငွေပမာဏနှင့် အကြောင်းအရာ ပါဝင်အောင် ပြောပြပေးပါဗျ။",
-    fetchErrorMessage: "⚠️ အသံဖိုင် ရယူ၍ မရပါ။ ထပ်မံကြိုးစားပါ။",
-    processErrorMessage:
-      "⚠️ အသံဖိုင် စီမံခြင်းတွင် အမှားရှိနေပါသည်။ ထပ်မံကြိုးစားပါ။",
-    defaultDescription: "အသံဖြင့်မှတ်ထားသည်",
+    header: getTranslation(lang, "VOICE_SAVED"),
+    noResultsMessage: getTranslation(lang, "VOICE_NO_RESULTS"),
+    fetchErrorMessage: getTranslation(lang, "VOICE_FETCH_ERROR"),
+    processErrorMessage: getTranslation(lang, "VOICE_PROCESS_ERROR"),
+    defaultDescription: getTranslation(lang, "VOICE_DEFAULT_DESC"),
   });
 };
