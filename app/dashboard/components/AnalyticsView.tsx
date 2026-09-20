@@ -1,6 +1,7 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import EmptyAnalytics from "./EmptyAnalytics";
 import { useI18n } from "@/lib/hooks/useI18n";
+import { getCategoryName } from "@/lib/helpers/category-translations";
 
 type CategoryBreakdown = {
   category: string;
@@ -30,7 +31,7 @@ const getCategoryColor = (categoryName: string, index: number): string => {
 };
 
 const AnalyticsView = ({ breakdown, isLoading }: AnalyticsViewProps) => {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const total = breakdown.reduce((sum, item) => sum + item.amount, 0);
 
   if (isLoading) {
@@ -58,9 +59,9 @@ const AnalyticsView = ({ breakdown, isLoading }: AnalyticsViewProps) => {
                 color: "#f8fafc",
                 fontSize: "12px",
               }}
-              formatter={(value) => [
+              formatter={(value, name) => [
                 `${Number(value ?? 0).toLocaleString()} Ks`,
-                t("AMOUNT"),
+                getCategoryName(String(name), lang, t),
               ]}
             />
             <Pie
@@ -97,7 +98,8 @@ const AnalyticsView = ({ breakdown, isLoading }: AnalyticsViewProps) => {
                     style={{ backgroundColor: color }}
                   />
                   <span className="text-slate-300 font-medium">
-                    {item.category}
+                    {/* 💡 ဒီနေရာမှာ getCategoryName သုံးပေးရပါမယ် */}
+                    {getCategoryName(item.category, lang, t)}
                   </span>
                 </div>
                 <span className="text-slate-400 font-mono">
@@ -113,9 +115,7 @@ const AnalyticsView = ({ breakdown, isLoading }: AnalyticsViewProps) => {
                   }}
                 />
               </div>
-              <p className="text-[11px] text-slate-500 pl-4">
-                {percentage}%
-              </p>
+              <p className="text-[11px] text-slate-500 pl-4">{percentage}%</p>
             </div>
           );
         })}
