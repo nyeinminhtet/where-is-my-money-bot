@@ -205,7 +205,12 @@ const TransactionEditModal = ({
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-slate-200 text-sm rounded-xl h-10 focus:ring-slate-700">
-                      <SelectValue placeholder={t("SELECT_CATEGORY")} />
+                      {/* 💡 field.value ရှိရင် getCategoryName ဖြင့် Localized English Label ကို ပြပေးမည် */}
+                      <SelectValue placeholder={t("SELECT_CATEGORY")}>
+                        {field.value
+                          ? getCategoryName(field.value, lang, t)
+                          : undefined}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-slate-800 text-slate-100 rounded-xl">
                       {categoryOptions.map((cat) => (
