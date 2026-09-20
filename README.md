@@ -24,22 +24,28 @@ A Myanmar-language expense tracker that lets you log income and expenses from Te
 
 ```
 app/
-  api/            # Serverless routes (Telegram webhook, transactions, cron)
-  dashboard/      # Web Mini App (components + page)
-components/       # Shared UI components
-constants/        # Category constants
-handlers/         # Per-command Telegram handlers
+  api/                # Serverless routes (Telegram webhook, transactions, cron, user settings)
+  dashboard/          # Web Mini App page (orchestrator only)
+features/             # Domain-specific feature modules (flat structure, kebab-case)
+  transactions/       # Transaction list, create/edit modals, hooks, schema
+  analytics/          # Analytics charts and empty states
+  budget/             # Monthly budget card
+  dashboard/          # Header, month selector, summary cards, view tabs
+components/
+  ui/                 # Shared UI primitives (shadcn)
+constants/            # Category constants, menu, commands, states
+handlers/             # Per-command Telegram handlers
 lib/
-  ai/             # Consolidated Gemini client, schemas, and parsers
-  charts/         # QuickChart + report chart generators
-  helpers/        # Shared business logic (multimodal, summary, budget, breakdown)
-  hooks/          # Client-side hooks (useExpenses, useDebounce)
-  schema/         # Zod transaction schema
-  telegram/       # Telegram API client + update parser
-  bot.ts          # Webhook dispatcher / routing
-services/         # Prisma data-access services
-types/            # Shared TypeScript types
-utils/            # Pure helpers (date, currency format, keyboard)
+  ai/                 # Consolidated Gemini client, schemas, and parsers
+  charts/             # QuickChart + report chart generators
+  helpers/            # Shared business logic (multimodal, summary, budget, breakdown)
+  hooks/              # Client-side hooks (use-i18n, use-debounce)
+  i18n/               # Internationalization dictionaries (en, mm)
+  telegram/           # Telegram API client + update parser
+  bot.ts              # Webhook dispatcher / routing
+services/             # Prisma data-access services
+types/                # Shared TypeScript types
+utils/                # Pure helpers (date, currency format, keyboard, Myanmar number)
 ```
 
 ## Getting Started

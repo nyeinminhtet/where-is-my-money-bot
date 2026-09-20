@@ -33,8 +33,8 @@ People often record money in chat apps, notes, or memory, which makes balances h
   - Financial Summary Cards (Net Balance, Total Income, Total Expense).
   - Dual View Tabs: Transaction History (📋) vs. Analytics Chart (📊).
   - Spending category breakdown using `recharts` Donut/Pie visual charts.
-  - Sub-200-line modular component structure under `app/dashboard/components/`.
-  - Helper logic separated into `lib/helpers/`.
+  - Sub-200-line modular component structure under `features/` (domain-specific feature folders).
+  - Helper logic separated into `lib/helpers/` and `utils/`.
   - Client-side data fetching with `@tanstack/react-query`.
 - Multi-user support using Telegram `chat_id` and `telegramId`.
 - Automatic Myanmar-to-English digit parsing.
@@ -54,11 +54,18 @@ People often record money in chat apps, notes, or memory, which makes balances h
 - Forecasting and budgeting automation.
 - Multi-currency support.
 
-## Code Quality & Architecture Standards
+## Code Quality and Architecture Standards
 
 - **ES6 Arrow Functions:** Mandatory usage of ES6 arrow functions for components, handlers, and helpers (`const Component = () => {}`).
 - **200-Line Limit:** Every component file strictly capped under 200 lines to ensure readability and single-responsibility.
-- **Helper Folder Structure:** All standalone business logic, date manipulation, calculations, and string transformers reside in `lib/helpers/`.
+- **Feature-Based Architecture:** Frontend code organized into domain-specific feature folders under `features/`:
+  - `features/transactions/` — Transaction list, create/edit modals, hooks, schema
+  - `features/analytics/` — Analytics charts and empty states
+  - `features/budget/` — Monthly budget card
+  - `features/dashboard/` — Header, month selector, summary cards, view tabs
+- **Flat Feature Structure:** No nested `components/` sub-folders inside features. Files sit directly in the feature folder.
+- **Kebab-Case Naming:** All files use kebab-case (e.g., `transaction-list.tsx`, `use-transactions.ts`).
+- **Helper Folder Structure:** All standalone business logic, date manipulation, calculations, and string transformers reside in `lib/helpers/` and `utils/`.
 - **Reusability:** UI components must be modular, reusable, and cleanly decoupled from direct API fetching.
 
 ## Technical Constraints
@@ -67,8 +74,9 @@ People often record money in chat apps, notes, or memory, which makes balances h
 - **Package Manager:** Bun (`bun`).
 - **Database:** Supabase PostgreSQL with Prisma ORM.
 - **State & Data Fetching:** `@tanstack/react-query`.
-- **UI & Charts:** Tailwind CSS, `recharts`, `lucide-react`.
+- **UI & Charts:** Tailwind CSS, `recharts`, `lucide-react`, Shadcn UI.
 - **AI Integration:** Google Gemini Multimodal API (text, audio, and vision inputs) with queue-backed rate limiting.
+- **Frontend Architecture:** Feature-based with `features/` directory, kebab-case naming, flat structure.
 
 ## Success Metrics
 

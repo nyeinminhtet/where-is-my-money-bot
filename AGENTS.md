@@ -18,9 +18,16 @@ AI agents working in this repository are maintaining `where-is-my-money-bot`, a 
 
 - **ES6 Functions Only:** All TypeScript/JavaScript functions (components, helpers, event handlers) MUST strictly use ES6 arrow functions (`const myFunction = () => {}`). Do not use traditional `function` declarations.
 - **Strict 200-Line File Limit:** Every single component file MUST NOT exceed **200 lines of code**. If a file grows close to 200 lines, refactor and break it down into smaller, focused sub-components.
-- **Helper & Utility Extraction:** Keep components clean and focused purely on rendering and state. All pure utility functions, date formatters, time-based greeting logic, calculation helpers, and transformation logic MUST be extracted into standalone files inside `lib/helpers/` or `lib/utils/`.
+- **Helper & Utility Extraction:** Keep components clean and focused purely on rendering and state. All pure utility functions, date formatters, time-based greeting logic, calculation helpers, and transformation logic MUST be extracted into standalone files inside `lib/helpers/` or `utils/`.
 - **Data Fetching:** Use `@tanstack/react-query` for client-side data fetching. Avoid raw `useEffect` + `fetch` data-fetching hooks inside client components.
-- **Modular Component Design:** Keep `page.tsx` files strictly as orchestrators/containers. Do not dump all JSX, state, and complex UI logic directly in `page.tsx`. Break UI elements into small, reusable components under `app/<feature>/components/` (e.g., `app/dashboard/components/Header.tsx`, `MonthSelector.tsx`, `SummaryCards.tsx`, `AnalyticsView.tsx`, `TransactionList.tsx`).
+- **Feature-Based Architecture:** Frontend code is organized into domain-specific feature folders under `features/`:
+  - `features/transactions/` — Transaction list, create/edit modals, hooks, schema
+  - `features/analytics/` — Analytics charts and empty states
+  - `features/budget/` — Monthly budget card
+  - `features/dashboard/` — Header, month selector, summary cards, view tabs
+- **Flat Feature Structure:** Keep feature files flat (no nested `components/` sub-folders inside features). Example: `features/transactions/transaction-list.tsx`.
+- **Kebab-Case Naming:** All component files, hooks, schemas, and utilities MUST use kebab-case filenames (e.g., `transaction-list.tsx`, `use-transactions.ts`, `format-currency.ts`).
+- **Page Files as Orchestrators:** Keep `page.tsx` files strictly as orchestrators/containers. Import feature components from `@/features/*`.
 - **Analytics & Visualizations:** Use `recharts` for charts and category spending breakdowns.
 - Respect the repository structure and keep App Router code in `app/`.
 
