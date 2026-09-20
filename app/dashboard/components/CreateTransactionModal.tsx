@@ -155,9 +155,7 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
           {createMutation.isError && (
             <div className="flex items-center gap-2 p-3 text-xs text-rose-400 bg-rose-950/40 border border-rose-800/60 rounded-xl animate-in fade-in slide-in-from-top-1">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
-              <span>
-                {createMutation.error?.message || t("ERROR_GENERIC")}
-              </span>
+              <span>{createMutation.error?.message || t("ERROR_GENERIC")}</span>
             </div>
           )}
 
@@ -212,14 +210,21 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11px] text-slate-400">{t("CATEGORY")}</label>
+            <label className="text-[11px] text-slate-400">
+              {t("CATEGORY")}
+            </label>
             <Controller
               name="category"
               control={control}
               render={({ field }) => (
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-slate-100 text-sm rounded-xl h-10 focus:ring-slate-700">
-                    <SelectValue placeholder={t("SELECT_CATEGORY")} />
+                    {/* 💡 field.value ရှိခဲ့ရင် getCategoryName ဖြင့် translated display နာမည်ပြမည် */}
+                    <SelectValue placeholder={t("SELECT_CATEGORY")}>
+                      {field.value
+                        ? getCategoryName(field.value, lang, t)
+                        : undefined}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-slate-900 border-slate-800 text-slate-100 rounded-xl">
                     {categoryOptions.map((cat) => (
@@ -243,7 +248,9 @@ const CreateTransactionModal = ({ userId }: CreateTransactionModalProps) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11px] text-slate-400">{t("DESCRIPTION")}</label>
+            <label className="text-[11px] text-slate-400">
+              {t("DESCRIPTION")}
+            </label>
             <Input
               type="text"
               placeholder="..."
