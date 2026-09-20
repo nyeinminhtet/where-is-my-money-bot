@@ -6,42 +6,45 @@ import {
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 
+import { useI18n } from "@/lib/hooks/useI18n";
+import type { TranslationKey } from "@/lib/i18n";
+
 type MonthSelectorProps = {
-  month: number; // 1 - 12
+  month: number;
   year: number;
   onPrev: () => void;
   onNext: () => void;
   onSelectDate: (year: number, month: number) => void;
 };
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+const SHORT_MONTH_KEYS: TranslationKey[] = [
+  "MONTH_JAN",
+  "MONTH_FEB",
+  "MONTH_MAR",
+  "MONTH_APR",
+  "MONTH_MAY",
+  "MONTH_JUN",
+  "MONTH_JUL",
+  "MONTH_AUG",
+  "MONTH_SEP",
+  "MONTH_OCT",
+  "MONTH_NOV",
+  "MONTH_DEC",
 ];
 
-const FULL_MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+const FULL_MONTH_KEYS: TranslationKey[] = [
+  "MONTH_FULL_JAN",
+  "MONTH_FULL_FEB",
+  "MONTH_FULL_MAR",
+  "MONTH_FULL_APR",
+  "MONTH_FULL_MAY",
+  "MONTH_FULL_JUN",
+  "MONTH_FULL_JUL",
+  "MONTH_FULL_AUG",
+  "MONTH_FULL_SEP",
+  "MONTH_FULL_OCT",
+  "MONTH_FULL_NOV",
+  "MONTH_FULL_DEC",
 ];
 
 const MonthSelector = ({
@@ -53,6 +56,7 @@ const MonthSelector = ({
 }: MonthSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [pickerYear, setPickerYear] = useState(year);
+  const { t, lang } = useI18n();
 
   const handleMonthClick = (selectedMonthIndex: number) => {
     onSelectDate(pickerYear, selectedMonthIndex + 1);
@@ -61,7 +65,6 @@ const MonthSelector = ({
 
   return (
     <div className="flex items-center justify-between rounded-2xl border border-slate-800/80 bg-slate-900/90 px-3 py-3 shadow-lg">
-      {/* Previous Month Button */}
       <button
         type="button"
         onClick={onPrev}
@@ -71,7 +74,6 @@ const MonthSelector = ({
         <ChevronLeft size={25} />
       </button>
 
-      {/* Shadcn-Style Popover Month Selector */}
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger asChild>
           <button
@@ -80,7 +82,7 @@ const MonthSelector = ({
           >
             <CalendarIcon size={18} />
             <p className="text-lg font-semibold text-slate-100 group-hover:text-emerald-300">
-              {FULL_MONTH_NAMES[month - 1]} {year}
+              {t(FULL_MONTH_KEYS[month - 1])} {year}
             </p>
           </button>
         </Popover.Trigger>
@@ -91,7 +93,6 @@ const MonthSelector = ({
             sideOffset={8}
             className="z-50 w-64 rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95"
           >
-            {/* Year Selector Header inside Popover */}
             <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
               <button
                 type="button"
@@ -112,13 +113,12 @@ const MonthSelector = ({
               </button>
             </div>
 
-            {/* Months Grid */}
             <div className="grid grid-cols-3 gap-2">
-              {MONTHS.map((mName, idx) => {
+              {SHORT_MONTH_KEYS.map((key, idx) => {
                 const isSelected = idx + 1 === month && pickerYear === year;
                 return (
                   <button
-                    key={mName}
+                    key={key}
                     type="button"
                     onClick={() => handleMonthClick(idx)}
                     className={`rounded-xl py-2 cursor-pointer text-xs font-medium transition ${
@@ -127,7 +127,7 @@ const MonthSelector = ({
                         : "text-slate-300 hover:bg-slate-800 hover:text-emerald-400"
                     }`}
                   >
-                    {mName}
+                    {t(key)}
                   </button>
                 );
               })}
@@ -136,7 +136,6 @@ const MonthSelector = ({
         </Popover.Portal>
       </Popover.Root>
 
-      {/* Next Month Button */}
       <button
         type="button"
         onClick={onNext}

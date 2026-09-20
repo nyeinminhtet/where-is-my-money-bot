@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { en } from "@/lib/i18n/locales/en";
 import { mm } from "@/lib/i18n/locales/mm";
+import { getTelegramUserLanguage } from "@/lib/telegram-webapp";
 
 type Locale = "en" | "mm";
 
@@ -10,15 +11,53 @@ type TranslationKey = keyof typeof en;
 
 const locales = { en, mm } as const;
 
-const getBrowserLanguage = (): Locale => {
+const getInitialLanguage = (): Locale => {
   if (typeof window === "undefined") return "mm";
+
   const stored = localStorage.getItem("userLanguage") as Locale | null;
   if (stored && (stored === "en" || stored === "mm")) return stored;
+
+  const telegramLang = getTelegramUserLanguage();
+  if (telegramLang) {
+    const normalized = telegramLang.toLowerCase().startsWith("en") ? "en" : "mm";
+    localStorage.setItem("userLanguage", normalized);
+    return normalized;
+  }
+
   return "mm";
 };
 
 export const useI18n = () => {
-  const lang = useMemo(() => getBrowserLanguage(), []);
+  const [lang, setLang] = useState<Locale>(getInitialLanguage);
+
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      try {
+        const initData = window.Telegram?.WebApp?.initData;
+        if (!initData) return;
+
+        const res = await fetch("/api/user/settings", {
+          headers: {
+            Authorization: "Bearer " + initData,
+          },
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const serverLang = data.language as Locale;
+
+        if (serverLang && (serverLang === "en" || serverLang === "mm")) {
+          localStorage.setItem("userLanguage", serverLang);
+          setLang(serverLang);
+        }
+      } catch {
+        // Silently fall back to localStorage value
+      }
+    };
+
+    fetchLanguage();
+  }, []);
 
   const t = useCallback(
     (key: TranslationKey, params?: Record<string, string | number>): string => {

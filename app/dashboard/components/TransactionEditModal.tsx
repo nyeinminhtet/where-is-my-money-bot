@@ -40,6 +40,7 @@ import {
   transactionSchema,
 } from "@/lib/schema/transaction.schema";
 import { useI18n } from "@/lib/hooks/useI18n";
+import { getCategoryName } from "@/lib/helpers/category-translations";
 
 interface TransactionEditModalProps {
   transaction: {
@@ -59,7 +60,7 @@ const TransactionEditModal = ({
   onClose,
 }: TransactionEditModalProps) => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
 
   const { mutate: updateTx, isPending: isUpdating } = useUpdateTransaction();
   const { mutate: deleteTx, isPending: isDeleting } = useDeleteTransaction();
@@ -204,7 +205,7 @@ const TransactionEditModal = ({
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger className="w-full bg-slate-900 border-slate-800 text-slate-200 text-sm rounded-xl h-10 focus:ring-slate-700">
-                      <SelectValue placeholder={t("CATEGORY_PROMPT")} />
+                      <SelectValue placeholder={t("SELECT_CATEGORY")} />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-slate-800 text-slate-100 rounded-xl">
                       {categoryOptions.map((cat) => (
@@ -213,7 +214,7 @@ const TransactionEditModal = ({
                           value={cat}
                           className="text-xs text-slate-200 cursor-pointer rounded-lg hover:bg-slate-800 focus:bg-slate-800 focus:text-slate-100 data-[highlighted]:bg-slate-800 data-[highlighted]:text-slate-100"
                         >
-                          {cat}
+                          {getCategoryName(cat, lang, t)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -275,10 +276,10 @@ const TransactionEditModal = ({
         <AlertDialogContent className="bg-slate-950 border-slate-800 text-slate-100 max-w-[90vw] sm:max-w-sm rounded-2xl p-5 overflow-hidden">
           <AlertDialogHeader className="space-y-1 text-left">
             <AlertDialogTitle className="text-base font-semibold text-slate-100">
-              {t("DELETE")}?
+              {t("DELETE_CONFIRM_TITLE")}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-slate-400 leading-relaxed">
-              {t("UNDO_NOT_FOUND")}
+              {t("DELETE_CONFIRM_MESSAGE")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 

@@ -7,6 +7,7 @@ import TransactionEditModal from "./TransactionEditModal";
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/hooks/useI18n";
+import { getCategoryName } from "@/lib/helpers/category-translations";
 
 type TransactionItem = {
   id: string;
@@ -41,7 +42,7 @@ const TransactionList = ({
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [selectedTransaction, setSelectedTransaction] =
     useState<TransactionItem | null>(null);
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter((tx) => {
@@ -54,30 +55,32 @@ const TransactionList = ({
     });
   }, [transactions, searchTerm, selectedCategory]);
 
-  const groupedTransactions = filteredTransactions.reduce<
-    Record<string, TransactionItem[]>
-  >((groups, tx) => {
-    const date = new Date(tx.createdAt);
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
+  const groupedTransactions = useMemo(() => {
+    return filteredTransactions.reduce<Record<string, TransactionItem[]>>(
+      (groups, tx) => {
+        const date = new Date(tx.createdAt);
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
 
-    let dateKey = date.toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+        let dateKey = date.toLocaleDateString(
+          lang === "en" ? "en-US" : "my-MM",
+          { day: "numeric", month: "short", year: "numeric" },
+        );
 
-    if (date.toDateString() === today.toDateString()) {
-      dateKey = t("HISTORY");
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      dateKey = "Yesterday";
-    }
+        if (date.toDateString() === today.toDateString()) {
+          dateKey = t("HISTORY");
+        } else if (date.toDateString() === yesterday.toDateString()) {
+          dateKey = t("YESTERDAY");
+        }
 
-    if (!groups[dateKey]) groups[dateKey] = [];
-    groups[dateKey].push(tx);
-    return groups;
-  }, {});
+        if (!groups[dateKey]) groups[dateKey] = [];
+        groups[dateKey].push(tx);
+        return groups;
+      },
+      {},
+    );
+  }, [filteredTransactions, lang, t]);
 
   if (isLoading) {
     return (
@@ -110,7 +113,7 @@ const TransactionList = ({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={`${t("TRANSACTIONS")}...`}
+              placeholder={t("SEARCH_PLACEHOLDER")}
               className="w-full bg-slate-900/60 text-slate-200 text-xs rounded-xl pl-9 pr-8 py-2.5 h-auto border-slate-800/60 focus-visible:ring-1 focus-visible:ring-slate-600 focus-visible:ring-offset-0 placeholder:text-slate-500 transition"
             />
             {searchTerm && (
@@ -138,7 +141,7 @@ const TransactionList = ({
                       : "bg-slate-900/60 text-slate-400 border-slate-800/60 hover:text-slate-200 hover:border-slate-700"
                   }`}
                 >
-                  {cat === "ALL" ? "ALL" : cat}
+                  {cat === "ALL" ? t("ALL") : getCategoryName(cat, lang, t)}
                 </button>
               );
             })}
@@ -148,9 +151,7 @@ const TransactionList = ({
 
       {filteredTransactions.length === 0 ? (
         <div className="text-center py-10 text-slate-500 text-xs">
-          {searchTerm || selectedCategory !== "ALL"
-            ? t("NO_TRANSACTIONS")
-            : t("NO_TRANSACTIONS")}
+          {t("NO_TRANSACTIONS")}
         </div>
       ) : (
         Object.entries(groupedTransactions).map(([dateGroup, items]) => (
@@ -158,7 +159,7 @@ const TransactionList = ({
             <div className="sticky top-[95px] z-10 bg-slate-950/90 backdrop-blur-sm py-1 flex justify-between items-center text-xs font-mono text-slate-400 border-b border-slate-800/40">
               <span>{dateGroup}</span>
               <span className="text-[10px] text-slate-500">
-                {items.length} items
+                {t("ITEMS_COUNT", { count: items.length })}
               </span>
             </div>
 
@@ -191,7 +192,7 @@ const TransactionList = ({
                           {tx.title}
                         </p>
                         <p className="text-[11px] text-slate-500 truncate">
-                          {txTime} • {tx.category}
+                          {txTime} • {getCategoryName(tx.category, lang, t)}
                         </p>
                       </div>
                     </div>
@@ -203,7 +204,7 @@ const TransactionList = ({
                         }`}
                       >
                         {isIncome ? "+" : "-"}
-                        {tx.amount.toLocaleString()} Ks
+                        {tx.amount.toLocaleString()} {t("CURRENCY")}
                       </span>
                       <ChevronRight className="w-4 h-4 text-slate-400/80 group-hover:text-slate-200 group-hover:translate-x-0.5 transition-all shrink-0" />
                     </div>
