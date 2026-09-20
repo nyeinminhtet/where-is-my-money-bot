@@ -3,10 +3,10 @@
 import { useState, useMemo } from "react";
 import { ChevronRight, Search, X } from "lucide-react";
 
-import TransactionEditModal from "./TransactionEditModal";
+import TransactionEditModal from "./transaction-edit-modal";
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
 import { Input } from "@/components/ui/input";
-import { useI18n } from "@/lib/hooks/useI18n";
+import { useI18n } from "@/lib/hooks/use-i18n";
 import { getCategoryName } from "@/lib/helpers/category-translations";
 
 type TransactionItem = {

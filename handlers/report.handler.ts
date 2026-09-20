@@ -7,7 +7,7 @@ import { sendMessage } from "@/lib/telegram/client";
 
 import { getSummary } from "@/services/report.service";
 
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 
 export const handleReport = async (update: TelegramUpdate, user: User) => {
     const chatId = getChatId(update);

@@ -7,7 +7,7 @@ import { sendMessage, sendPhoto } from "@/lib/telegram/client";
 
 import { getYearlyReport } from "@/services/report.service";
 
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 
 import { getCurrentYear, getCurrentYearRange } from "@/utils/date";
 import { generateYearlyBarChartUrl } from "@/lib/charts/quickchart";

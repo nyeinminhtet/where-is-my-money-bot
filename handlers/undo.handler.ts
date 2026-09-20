@@ -4,7 +4,7 @@ import type { User } from "@/generated/prisma/client";
 import { getChatId } from "@/lib/telegram/parser";
 import { deleteMessage, answerCallbackQuery } from "@/lib/telegram/client";
 import { deleteTransaction } from "@/services/transaction.service";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 import { getTypeText } from "@/lib/helpers/transaction-summary";
 import { getTranslation, type Locale } from "@/lib/i18n";
 

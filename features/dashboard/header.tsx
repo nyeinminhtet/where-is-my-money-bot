@@ -1,4 +1,4 @@
-import { useI18n } from "@/lib/hooks/useI18n";
+import { useI18n } from "@/lib/hooks/use-i18n";
 
 type HeaderProps = {
   name: string;

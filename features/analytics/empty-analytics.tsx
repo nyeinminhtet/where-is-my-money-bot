@@ -1,5 +1,5 @@
 import { BarChart3 } from "lucide-react";
-import { useI18n } from "@/lib/hooks/useI18n";
+import { useI18n } from "@/lib/hooks/use-i18n";
 
 const EmptyAnalytics = () => {
   const { t } = useI18n();

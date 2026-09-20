@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import AnalyticsView from "./components/AnalyticsView";
-import Header from "./components/Header";
-import MonthlyBudgetCard from "./components/MonthlyBudgetCard";
-import MonthSelector from "./components/MonthSelector";
-import SummaryCards from "./components/SummaryCards";
-import TransactionList from "./components/TransactionList";
-import ViewTabs from "./components/ViewTabs";
-import { useExpenses } from "@/lib/hooks/useExpenses";
-import CreateTransactionModal from "./components/CreateTransactionModal";
+import AnalyticsView from "@/features/analytics/analytics-view";
+import Header from "@/features/dashboard/header";
+import MonthlyBudgetCard from "@/features/budget/monthly-budget-card";
+import MonthSelector from "@/features/dashboard/month-selector";
+import SummaryCards from "@/features/dashboard/summary-cards";
+import TransactionList from "@/features/transactions/transaction-list";
+import ViewTabs from "@/features/dashboard/view-tabs";
+import { useExpenses } from "@/features/transactions/use-transactions";
+import CreateTransactionModal from "@/features/transactions/create-transaction-modal";
 
 const DashboardPage = () => {
   const [user] = useState(() => {

@@ -17,7 +17,7 @@ import { DEFAULT_CATEGORIES } from "@/constants/categories";
 import {
   useUpdateTransaction,
   useDeleteTransaction,
-} from "@/lib/hooks/useExpenses";
+} from "@/features/transactions/use-transactions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,8 +38,8 @@ import {
 import {
   TransactionFormValues,
   transactionSchema,
-} from "@/lib/schema/transaction.schema";
-import { useI18n } from "@/lib/hooks/useI18n";
+} from "@/features/transactions/transaction.schema";
+import { useI18n } from "@/lib/hooks/use-i18n";
 import { getCategoryName } from "@/lib/helpers/category-translations";
 
 interface TransactionEditModalProps {

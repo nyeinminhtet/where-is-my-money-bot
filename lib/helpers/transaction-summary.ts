@@ -1,5 +1,5 @@
 import type { Transaction } from "@/generated/prisma/client";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 import { DEFAULT_CATEGORY } from "@/constants/categories";
 import { getTranslation, type Locale } from "@/lib/i18n";
 

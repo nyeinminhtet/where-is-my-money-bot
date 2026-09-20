@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 
-import { useI18n } from "@/lib/hooks/useI18n";
+import { useI18n } from "@/lib/hooks/use-i18n";
 import type { TranslationKey } from "@/lib/i18n";
 
 type MonthSelectorProps = {

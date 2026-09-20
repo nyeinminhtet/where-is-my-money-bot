@@ -1,5 +1,5 @@
-import { formatAmount } from "@/utils/formatCurrency";
-import { useI18n } from "@/lib/hooks/useI18n";
+import { formatAmount } from "@/utils/format-currency";
+import { useI18n } from "@/lib/hooks/use-i18n";
 
 type SummaryCardsProps = {
   totalNetBalance: number;

@@ -4,7 +4,7 @@ import type { TelegramUpdate } from "@/types/telegram";
 import { getChatId } from "@/lib/telegram/parser";
 import { sendMessage } from "@/lib/telegram/client";
 import { getBalanceDetails } from "@/services/balance.service";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 import { mainMenuKeyboard } from "@/utils/keyboard";
 import { getTranslation, type Locale } from "@/lib/i18n";
 

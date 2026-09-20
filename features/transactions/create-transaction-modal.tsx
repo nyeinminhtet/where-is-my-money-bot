@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import {
   TransactionFormValues,
   transactionSchema,
-} from "@/lib/schema/transaction.schema";
+} from "@/features/transactions/transaction.schema";
 import { DEFAULT_CATEGORIES } from "@/constants/categories";
 import { getTelegramInitData } from "@/lib/telegram-webapp";
 import {
@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useI18n } from "@/lib/hooks/useI18n";
+import { useI18n } from "@/lib/hooks/use-i18n";
 import { getCategoryName } from "@/lib/helpers/category-translations";
 
 interface CreateTransactionModalProps {

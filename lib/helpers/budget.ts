@@ -1,4 +1,4 @@
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 import { getTranslation, type Locale } from "@/lib/i18n";
 
 interface BudgetStatusInput {

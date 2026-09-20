@@ -5,7 +5,7 @@ import { getChatId } from "@/lib/telegram/parser";
 
 import { getMonthlyReport } from "@/services/report.service";
 
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 
 import {
   getCurrentMonthRange,

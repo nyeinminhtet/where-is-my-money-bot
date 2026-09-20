@@ -8,7 +8,7 @@ import { updateTempAmount, updateState } from "@/lib/session";
 
 import { sendMessage } from "@/lib/telegram/client";
 
-import { parseMyanmarNumber } from "@/utils/myanmarNumber";
+import { parseMyanmarNumber } from "@/utils/myanmar-number";
 import { typeKeyboard } from "@/utils/keyboard";
 import { getTranslation, type Locale } from "@/lib/i18n";
 

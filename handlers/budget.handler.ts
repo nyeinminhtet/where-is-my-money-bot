@@ -2,7 +2,7 @@ import type { TelegramUpdate } from "@/types/telegram";
 import { SessionState, type User } from "@/generated/prisma/client";
 import { getChatId, getMessageText } from "@/lib/telegram/parser";
 import { sendMessage } from "@/lib/telegram/client";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 import { updateBudgetSession, setBudget } from "@/services/budget.service";
 import { updateState } from "@/lib/session";
 import { getTotalExpenseThisMonth } from "@/services/transaction.service";

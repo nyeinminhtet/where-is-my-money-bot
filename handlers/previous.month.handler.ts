@@ -2,7 +2,7 @@ import type { TelegramUpdate } from "@/types/telegram";
 import type { User } from "@/generated/prisma/client";
 import { getChatId } from "@/lib/telegram/parser";
 import { getMonthlyReport } from "@/services/report.service";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 import { getPreviousMonthRange } from "@/utils/date";
 import { sendReportWithChart } from "@/lib/charts/report-chart";
 import { buildCategoryBreakdownLines } from "@/lib/helpers/category-breakdown";

@@ -1,5 +1,5 @@
-import { formatCurrency } from "@/utils/formatCurrency";
-import { useI18n } from "@/lib/hooks/useI18n";
+import { formatCurrency } from "@/utils/format-currency";
+import { useI18n } from "@/lib/hooks/use-i18n";
 
 interface BudgetCardProps {
   monthlyBudget: number | null;

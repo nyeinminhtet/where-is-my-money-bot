@@ -3,7 +3,7 @@ import type { User } from "@/generated/prisma/client";
 import { getChatId } from "@/lib/telegram/parser";
 import { sendMessage } from "@/lib/telegram/client";
 import { getMonthlyReport, getTodayReport } from "@/services/report.service";
-import { formatCurrency } from "@/utils/formatCurrency";
+import { formatCurrency } from "@/utils/format-currency";
 import { getTodayRange } from "@/utils/date";
 import { mainMenuKeyboard } from "@/utils/keyboard";
 import { getTranslation, type Locale } from "@/lib/i18n";

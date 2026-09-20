@@ -1,6 +1,6 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import EmptyAnalytics from "./EmptyAnalytics";
-import { useI18n } from "@/lib/hooks/useI18n";
+import EmptyAnalytics from "./empty-analytics";
+import { useI18n } from "@/lib/hooks/use-i18n";
 import { getCategoryName } from "@/lib/helpers/category-translations";
 
 type CategoryBreakdown = {
