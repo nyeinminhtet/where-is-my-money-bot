@@ -10,6 +10,7 @@ import CategoryCard from "@/features/landing/category-card";
 import SectionHeader from "@/features/landing/section-header";
 import HeroSection from "@/features/landing/hero-section";
 import CtaBanner from "@/features/landing/cta-banner";
+import SiteFooter from "@/features/landing/site-footer";
 import { BOT_URL, STEPS } from "@/features/landing/constants";
 import { fadeUp, staggerContainer } from "@/features/landing/animations";
 
@@ -80,7 +81,10 @@ const LandingPageClient = () => {
         </div>
 
         {/* BENTO FEATURES */}
-        <section id="features" className="relative flex flex-col gap-8">
+        <section
+          id="features"
+          className="relative flex scroll-mt-20 flex-col gap-8 sm:scroll-mt-24"
+        >
           <SectionHeader
             label="Features"
             title="Control Your"
@@ -121,7 +125,10 @@ const LandingPageClient = () => {
         </section>
 
         {/* HOW IT WORKS */}
-        <section className="relative flex flex-col gap-10">
+        <section
+          id="how-it-works"
+          className="relative flex scroll-mt-20 flex-col gap-10 sm:scroll-mt-24"
+        >
           <SectionHeader
             label="How It Works"
             title="Three Steps."
@@ -163,6 +170,9 @@ const LandingPageClient = () => {
 
         <CtaBanner />
       </div>
+
+      {/* Full-width footer outside the content container */}
+      <SiteFooter />
     </main>
   );
 };

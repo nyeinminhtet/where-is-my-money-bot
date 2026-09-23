@@ -65,7 +65,11 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("font-sans", nunitoSans.variable, notoSansHeading.variable)}
+      className={cn(
+        "scroll-smooth font-sans",
+        nunitoSans.variable,
+        notoSansHeading.variable,
+      )}
     >
       <head>
         <Script
