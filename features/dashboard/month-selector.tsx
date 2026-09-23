@@ -56,7 +56,7 @@ const MonthSelector = ({
 }: MonthSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [pickerYear, setPickerYear] = useState(year);
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
 
   const handleMonthClick = (selectedMonthIndex: number) => {
     onSelectDate(pickerYear, selectedMonthIndex + 1);

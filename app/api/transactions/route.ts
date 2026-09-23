@@ -290,7 +290,7 @@ export const PUT = async (request: Request) => {
     });
 
     return NextResponse.json({ success: true, data: updatedTransaction });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, error: "Failed to update transaction" },
       { status: 500 },
@@ -350,7 +350,7 @@ export const DELETE = async (request: Request) => {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, error: "Failed to delete transaction" },
       { status: 500 },

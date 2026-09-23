@@ -36,8 +36,8 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
 };
 
@@ -64,6 +64,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn("font-sans", nunitoSans.variable, notoSansHeading.variable)}
     >
       <head>
