@@ -19,18 +19,23 @@ export const GET = async (request: Request) => {
         });
 
         let sentCount = 0;
+        let skippedCount = 0;
         for (const user of users) {
             if (user.telegramId) {
                 const lang: Locale = (user.language as Locale) || "mm";
                 const reminderMessage = getTranslation(lang, "CRON_REMINDER");
-                await sendMessage(user.telegramId.toString(), reminderMessage);
-                sentCount++;
+                try {
+                    await sendMessage(user.telegramId.toString(), reminderMessage);
+                    sentCount++;
+                } catch {
+                    skippedCount++;
+                }
             }
         }
 
         return NextResponse.json({
             success: true,
-            message: `Successfully sent reminders to ${sentCount} users.`,
+            message: `Sent to ${sentCount} users, skipped ${skippedCount} (blocked/deactivated).`,
         });
     }
     catch (error) {
