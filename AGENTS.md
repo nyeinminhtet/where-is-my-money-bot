@@ -33,6 +33,7 @@ AI agents working in this repository are maintaining `where-is-my-money-bot`, a 
 
 ## Behavioral Rules
 
+- **Git & Change Permission (MANDATORY):** ALWAYS ask the user for explicit permission before running ANY git command (`git commit`, `git push`, `git pull`, `git merge`, `git rebase`, `git reset`, `git revert`, `git checkout`, `git branch`, `git stash`, etc.) or making any major/architectural change (new feature, dependency install, schema migration, large refactor, file/directory restructuring). Present what you plan to do and wait for the user's approval. Never commit or push without being told to.
 - Do not invent placeholder code, fake data, or temporary TODO stubs in committed files.
 - Do not hardcode production-only URLs unless the task explicitly asks for a concrete deployed value already known to be correct.
 - Prefer small, reviewable, clean, and highly reusable changes that match the project architecture.
