@@ -75,8 +75,25 @@ export const useI18n = () => {
     [lang],
   );
 
-  const setLanguage = useCallback((newLang: Locale) => {
+  const setLanguage = useCallback(async (newLang: Locale) => {
     localStorage.setItem("userLanguage", newLang);
+
+    try {
+      const initData = window.Telegram?.WebApp?.initData;
+      if (initData) {
+        await fetch("/api/user/settings", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + initData,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ language: newLang }),
+        });
+      }
+    } catch {
+      // Persist locally even if server call fails
+    }
+
     window.location.reload();
   }, []);
 

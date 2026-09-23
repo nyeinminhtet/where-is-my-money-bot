@@ -54,3 +54,45 @@ export const GET = async (request: Request) => {
     );
   }
 };
+
+export const POST = async (request: Request) => {
+  try {
+    const authData = extractAndValidateAuth(request);
+    if (!authData) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const rateLimitOk = checkRateLimit(`user:${authData.user.id}`, 30);
+    if (!rateLimitOk) {
+      return NextResponse.json({ error: "Rate limited" }, { status: 429 });
+    }
+
+    const body = await request.json().catch(() => null);
+    const language = body?.language;
+    if (language !== "en" && language !== "mm") {
+      return NextResponse.json(
+        { error: "Invalid language. Must be 'en' or 'mm'." },
+        { status: 400 },
+      );
+    }
+
+    const user = await prisma.user.upsert({
+      where: { telegramId: String(authData.user.id) },
+      update: { language },
+      create: {
+        telegramId: String(authData.user.id),
+        firstName: authData.user.first_name,
+        username: authData.user.username,
+        language,
+      },
+      select: { language: true },
+    });
+
+    return NextResponse.json({ language: user.language });
+  } catch {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
+};
