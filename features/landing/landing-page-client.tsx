@@ -48,33 +48,33 @@ const LandingPageClient = () => {
 
         {/* NAVBAR */}
         <motion.nav
-          className="sticky top-4 z-30 flex items-center justify-between rounded-2xl border border-white/10 bg-[#101827]/75 px-3 py-2.5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:px-4"
+          aria-label="Main navigation"
+          className="sticky top-3 z-30 flex items-center justify-between rounded-full border border-white/10 bg-[#101827]/90 px-2 py-2 shadow-2xl shadow-black/30 backdrop-blur-xl sm:px-3"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center gap-3">
+          <a href="#top" className="flex min-w-0 items-center gap-2.5 rounded-full px-1.5 py-1" aria-label="Where Is My Money home">
             <Image
               src="/assets/logos/logo.jpeg"
-              alt="Where Is My Money"
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-xl object-cover shadow-lg shadow-emerald-950/40"
+              alt=""
+              width={36}
+              height={36}
+              className="size-9 rounded-full object-cover shadow-lg shadow-emerald-950/40"
             />
-            <span className="text-sm font-bold tracking-tight text-white">
+            <span className="truncate text-xs font-bold tracking-tight text-white sm:text-sm">
               Where Is My Money
             </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="hidden items-center gap-2 text-[11px] text-slate-500 sm:flex"><span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" /> Telegram Mini App live</span>
-            <a href="#demo" className="hidden text-xs font-semibold text-slate-400 transition hover:text-white sm:inline">View demo</a>
+          </a>
+          <div className="flex shrink-0 items-center gap-2">
+            <a href="#features" className="hidden rounded-full px-2 py-2 text-xs font-semibold text-slate-400 transition hover:text-white sm:inline-flex">Explore</a>
             <a
               href={BOT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-xs font-bold text-[#06130f] shadow-lg shadow-emerald-950/40 transition-all duration-300 hover:bg-emerald-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-95"
+              className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-3.5 py-2.5 text-[11px] font-black text-[#06130f] shadow-lg shadow-emerald-950/40 transition-all duration-300 hover:bg-emerald-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-95 sm:px-4 sm:text-xs"
             >
-              Open Bot <span className="ml-1">→</span>
+              Try Telegram <span className="ml-1" aria-hidden="true">↗</span>
             </a>
           </div>
         </motion.nav>
