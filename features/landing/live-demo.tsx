@@ -57,4 +57,3 @@ const LiveDemo = () => {
 };
 
 export default LiveDemo;
-4chars】【：】【“】【identity`,`component`,`language`.
