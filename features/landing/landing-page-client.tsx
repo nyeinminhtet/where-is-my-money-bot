@@ -11,6 +11,7 @@ import SectionHeader from "@/features/landing/section-header";
 import HeroSection from "@/features/landing/hero-section";
 import CtaBanner from "@/features/landing/cta-banner";
 import SiteFooter from "@/features/landing/site-footer";
+import LiveDemo from "@/features/landing/live-demo";
 import { BOT_URL, STEPS } from "@/features/landing/constants";
 import { fadeUp, staggerContainer } from "@/features/landing/animations";
 
@@ -19,7 +20,7 @@ const GLASS =
 
 const LandingPageClient = () => {
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-[#0F172A] text-slate-100 selection:bg-emerald-500 selection:text-white">
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#090D16] text-slate-100 selection:bg-emerald-500 selection:text-white">
       {/* Dot grid texture */}
       <div
         className="pointer-events-none fixed inset-0 opacity-[0.03]"
@@ -47,7 +48,7 @@ const LandingPageClient = () => {
 
         {/* NAVBAR */}
         <motion.nav
-          className="relative flex items-center justify-between"
+          className="sticky top-4 z-30 flex items-center justify-between rounded-2xl border border-white/10 bg-[#101827]/75 px-3 py-2.5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:px-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -64,14 +65,18 @@ const LandingPageClient = () => {
               Where Is My Money
             </span>
           </div>
-          <a
-            href={BOT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-emerald-950/40 transition-all duration-300 hover:bg-emerald-500 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-95"
-          >
-            Open Bot
-          </a>
+          <div className="flex items-center gap-3">
+            <span className="hidden items-center gap-2 text-[11px] text-slate-500 sm:flex"><span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" /> Telegram Mini App live</span>
+            <a href="#demo" className="hidden text-xs font-semibold text-slate-400 transition hover:text-white sm:inline">View demo</a>
+            <a
+              href={BOT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2.5 text-xs font-bold text-[#06130f] shadow-lg shadow-emerald-950/40 transition-all duration-300 hover:bg-emerald-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-95"
+            >
+              Open Bot <span className="ml-1">→</span>
+            </a>
+          </div>
         </motion.nav>
 
         {/* HERO */}
@@ -123,6 +128,8 @@ const LandingPageClient = () => {
             </motion.div>
           </motion.div>
         </section>
+
+        <LiveDemo />
 
         {/* HOW IT WORKS */}
         <section
