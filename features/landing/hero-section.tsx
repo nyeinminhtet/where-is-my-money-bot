@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { BOT_URL } from "./constants";
 import { fadeUp, staggerContainer } from "./animations";
 import { CTA_BTN } from "./cta-button";
+import { MoveRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const HeroSection = () => {
   return (
@@ -37,7 +39,9 @@ const HeroSection = () => {
           custom={2}
           className="max-w-md text-base leading-relaxed text-slate-400 sm:text-lg"
         >
-          Voice note, receipt photo, or Myanmar text—AI parses & tracks automatically. Keep the context of every kyat without slowing down your day.
+          Voice note, receipt photo, or Myanmar text—AI parses & tracks
+          automatically. Keep the context of every kyat without slowing down
+          your day.
         </motion.p>
 
         <motion.div variants={fadeUp} custom={3}>
@@ -45,9 +49,12 @@ const HeroSection = () => {
             href={BOT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className={CTA_BTN}
+            className={cn(CTA_BTN, "group")}
           >
-            Open in Telegram →
+            Open in Telegram
+            <span className="ml-2" aria-hidden="true">
+              <MoveRight className="size-4 ease-in-out duration-300 group-hover:translate-x-1" />
+            </span>
           </a>
         </motion.div>
       </motion.div>

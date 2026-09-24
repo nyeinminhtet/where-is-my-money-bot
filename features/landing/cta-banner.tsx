@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { BOT_URL } from "./constants";
 import { fadeUp } from "./animations";
 import { CTA_BTN } from "./cta-button";
+import { MoveRight } from "lucide-react";
 
 const CtaBanner = () => {
   return (
@@ -33,9 +34,12 @@ const CtaBanner = () => {
           href={BOT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${CTA_BTN} mt-2 px-10 py-4`}
+          className={`${CTA_BTN} mt-2 group px-10 py-4`}
         >
-          Open in Telegram →
+          Open in Telegram
+          <span className="ml-2" aria-hidden="true">
+            <MoveRight className="size-4 ease-in-out duration-300 group-hover:translate-x-1" />
+          </span>
         </a>
         <p className="text-xs text-slate-500">
           🌐 Available in မြန်မာ and English

@@ -32,23 +32,32 @@ const SiteFooter = () => {
                 className="size-10 rounded-full object-cover shadow-lg shadow-emerald-950/40"
               />
               <div>
-                <p className="text-sm font-black tracking-tight text-white">Where Is My Money</p>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-400">Telegram finance companion</p>
+                <p className="text-sm font-black tracking-tight text-white">
+                  Where Is My Money
+                </p>
               </div>
             </div>
             <p className="text-sm leading-relaxed text-slate-400">
-              Track spending naturally with voice, photos, or text — in မြန်မာ and English.
+              Track spending naturally with voice, photos, or text — in မြန်မာ
+              and English.
             </p>
           </div>
 
-          <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
+          <nav
+            aria-label="Footer navigation"
+            className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs"
+          >
             {NAV_LINKS.map((link, index) => (
               <div key={link.href} className="flex items-center gap-3">
-                {index > 0 && <span className="text-slate-700" aria-hidden="true">·</span>}
+                {index > 0 && (
+                  <span className="text-slate-700" aria-hidden="true">
+                    ·
+                  </span>
+                )}
                 <a
                   href={link.href}
-                  target={link.external ? "_blank" : undefined}
-                  rel={link.external ? "noopener noreferrer" : undefined}
+                  target={"external" in link ? "_blank" : undefined}
+                  rel={"external" in link ? "noopener noreferrer" : undefined}
                   className="font-semibold text-slate-400 transition-colors hover:text-emerald-400"
                 >
                   {link.label}
@@ -58,7 +67,7 @@ const SiteFooter = () => {
           </nav>
         </div>
 
-        <div className="px-1 text-[11px] text-slate-600">
+        <div className=" mx-auto text-[11px] text-slate-600">
           <p>© 2026 Where Is My Money. Built for Telegram.</p>
         </div>
       </div>
