@@ -49,7 +49,7 @@ const LandingPageClient = () => {
         {/* NAVBAR */}
         <motion.nav
           aria-label="Main navigation"
-          className="sticky top-3 z-30 flex items-center justify-between rounded-full border border-white/10 bg-[#101827]/90 px-2 py-2 shadow-2xl shadow-black/30 backdrop-blur-xl sm:px-3"
+          className="sticky top-0 z-50 -mx-4 flex w-[calc(100%+2rem)] items-center justify-between border-0 bg-[#090D16]/80 px-4 py-4 backdrop-blur-md sm:top-3 sm:mx-0 sm:w-auto sm:rounded-full sm:border sm:border-white/10 sm:bg-[#101827]/90 sm:px-3 sm:py-2 sm:shadow-2xl sm:shadow-black/30 sm:backdrop-blur-xl"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -80,7 +80,7 @@ const LandingPageClient = () => {
         </motion.nav>
 
         {/* HERO */}
-        <div className="relative flex flex-col items-center gap-12 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative flex flex-col items-center gap-12 pt-6 sm:pt-12 lg:flex-row lg:items-center lg:justify-between">
           <HeroSection />
           <TelegramGlassCard />
         </div>

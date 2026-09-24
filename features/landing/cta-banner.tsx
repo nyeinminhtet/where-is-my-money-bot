@@ -8,7 +8,7 @@ import { CTA_BTN } from "./cta-button";
 const CtaBanner = () => {
   return (
     <motion.section
-      className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-slate-900 via-slate-900/80 to-emerald-950/30 px-6 py-10 text-center sm:px-16 sm:py-16"
+      className="relative -mx-4 overflow-hidden border-y border-emerald-500/20 bg-gradient-to-br from-slate-900 via-slate-900/80 to-emerald-950/30 px-6 py-10 text-center sm:mx-0 sm:rounded-3xl sm:border sm:px-16 sm:py-16"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
