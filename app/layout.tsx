@@ -5,11 +5,11 @@ import "./globals.css";
 import { Nunito_Sans, Noto_Sans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Metadata, Viewport } from "next";
-import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    env.appUrl || "https://where-is-my-money-bot.vercel.app/",
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      "https://where-is-my-money-bot.vercel.app/",
   ),
   title: "Where Is My Money - Personal Finance Manager",
   description: "Track your expenses and budget easily in Telegram Mini App.",

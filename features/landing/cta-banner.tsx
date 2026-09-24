@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 import { BOT_URL } from "./constants";
 import { fadeUp } from "./animations";
 import { CTA_BTN } from "./cta-button";
+import { MoveRight } from "lucide-react";
 
 const CtaBanner = () => {
   return (
     <motion.section
-      className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-slate-900 via-slate-900/80 to-emerald-950/30 px-6 py-10 text-center sm:px-16 sm:py-16"
+      className="relative -mx-4 overflow-hidden border-y border-emerald-500/20 bg-gradient-to-br from-slate-900 via-slate-900/80 to-emerald-950/30 px-6 py-10 text-center sm:mx-0 sm:rounded-3xl sm:border sm:px-16 sm:py-16"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -33,9 +34,12 @@ const CtaBanner = () => {
           href={BOT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${CTA_BTN} mt-2 px-10 py-4`}
+          className={`${CTA_BTN} mt-2 group px-10 py-4`}
         >
-          Open in Telegram →
+          Open in Telegram
+          <span className="ml-2" aria-hidden="true">
+            <MoveRight className="size-4 ease-in-out duration-300 group-hover:translate-x-1" />
+          </span>
         </a>
         <p className="text-xs text-slate-500">
           🌐 Available in မြန်မာ and English
